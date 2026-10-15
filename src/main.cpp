@@ -265,12 +265,12 @@ int main()
 
 	//skybox: las 6 caras van en este orden: rt, lf, dn, up, bk, ft
 	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/prueba_rt.png");
-	skyboxFaces.push_back("Textures/Skybox/prueba_lf.png");
-	skyboxFaces.push_back("Textures/Skybox/prueba_dn.png");
-	skyboxFaces.push_back("Textures/Skybox/prueba_up.png");
-	skyboxFaces.push_back("Textures/Skybox/prueba_bk.png");
-	skyboxFaces.push_back("Textures/Skybox/prueba_ft.png");
+	skyboxFaces.push_back("Textures/Skybox/sBRight.png");// +X (Derecha)
+	skyboxFaces.push_back("Textures/Skybox/Left.png");// -X (Izquierda)
+	skyboxFaces.push_back("Textures/Skybox/DownF.png");// -Y (Abajo)
+	skyboxFaces.push_back("Textures/Skybox/Top.png");// +Y (Arriba)
+	skyboxFaces.push_back("Textures/Skybox/FrontF.png");// +Z (Atrás)
+	skyboxFaces.push_back("Textures/Skybox/BackF.png");// -Z (Enfrente)
 
 	skybox = Skybox(skyboxFaces);
 
@@ -345,7 +345,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//el skybox va primero, antes que todo lo demas
-		skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
+		// Reemplaza la línea 185 en mainProyecto_3.cpp:
+		skybox.DrawSkybox(camera.calculateViewMatrix(), projection, deltaTime);
 
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();

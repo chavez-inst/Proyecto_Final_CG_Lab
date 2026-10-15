@@ -81,12 +81,26 @@ Skybox::Skybox(std::vector<std::string> faceLocations)
 }
 
 //se dibuja antes que el resto de la escena
-void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
+void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime)
 {
-	//se le quita la traslacion a la vista para que el skybox siempre rodee a la camara
+	// 1. Eliminar la traslación de la cámara (mantiene solo orientación)
 	viewMatrix = glm::mat4(glm::mat3(viewMatrix));
 
-	//sin escribir profundidad, asi todo lo demas se dibuja encima
+	// 2. Acumuladores de ángulo continuos (velocidades ajustables)
+	static float angleY = 0.0f; // Rotación principal (horizontal)
+	static float angleX = 0.0f; // Inclinación axial
+	static float angleZ = 0.0f; // Bamboleo sutil
+
+	// Ajusta los multiplicadores para cambiar la velocidad de giro:
+	angleY += 0.035f * deltaTime;  // Giro constante sobre el eje Y
+	angleX += 0.025f * deltaTime;  // Giro lento sobre el eje X
+	angleZ += 0.01f * deltaTime;  // Giro muy lento sobre el eje Z
+
+	// 3. Aplicar las rotaciones a la matriz de vista del skybox
+	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleX), glm::vec3(1.0f, 0.0f, 0.0f));
+	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleZ), glm::vec3(0.0f, 0.0f, 1.0f));
+
 	glDepthMask(false);
 	skyShader->UseShader();
 	glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
