@@ -53,6 +53,7 @@ Texture vegetacionTexture;
 
 //modelos (los archivos van en Models y sus texturas en Textures)
 Model Prueba_M;
+Model Carnivora_M;
 
 Skybox skybox;
 
@@ -262,6 +263,9 @@ int main()
 	//modelos
 	Prueba_M = Model();
 	Prueba_M.LoadModel("Models/prueba.obj");
+	
+	Carnivora_M = Model();
+	Carnivora_M.LoadModel("Models/Carnivora/carnivora_base.obj");
 
 	//skybox: las 6 caras van en este orden: rt, lf, dn, up, bk, ft
 	std::vector<std::string> skyboxFaces;
