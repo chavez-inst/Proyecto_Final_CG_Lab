@@ -53,6 +53,8 @@ Texture vegetacionTexture;
 
 //modelos (los archivos van en Models y sus texturas en Textures)
 Model Prueba_M;
+
+//modelo de avatar de carnivora
 Model Carnivora_M;
 
 Skybox skybox;
