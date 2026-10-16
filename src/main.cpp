@@ -54,8 +54,96 @@ Texture vegetacionTexture;
 //modelos (los archivos van en Models y sus texturas en Textures)
 Model Prueba_M;
 
-//modelo de avatar de carnivora
-Model Carnivora_M;
+//MODELOS CARRERA
+Model pistaM;
+Model sateliteRace;
+Model nave1Race;
+Model capitanFalcon;
+
+//modelos con jerarquia: cada uno esta separado en piezas (.obj) que comparten el mismo origen,
+//todas con Y arriba, los pies en y = 0 y mirando hacia +Z. "der" e "izq" son la derecha e izquierda
+//del personaje (la derecha queda en X negativa)
+//por cada pieza hay: nombre del archivo, padre (indice de la pieza de la que cuelga, -1 = raiz),
+//pivote (punto de la articulacion donde gira) y rotacion en grados (x, y, z) que se puede cambiar en el while
+//el padre siempre va antes que sus hijos en los arreglos
+
+//planta carnivora: mide ~1.4 de alto
+const int NUM_PIEZAS_CARNIVORA = 15;
+Model Carnivora_M[NUM_PIEZAS_CARNIVORA];
+const char* piezasCarnivora[NUM_PIEZAS_CARNIVORA] = {
+	"base", "tallo1", "tallo2", "tallo3", "cabeza", "mandibula", "lengua",
+	"hoja_del_der", "hoja_del_izq", "hoja_tras_der", "hoja_tras_izq",
+	"liana_atras", "liana_der", "liana_frente", "liana_izq" };
+int padresCarnivora[NUM_PIEZAS_CARNIVORA] = {
+	-1, 0, 1, 2, 3, 4, 5,
+	0, 0, 0, 0,
+	0, 0, 0, 0 };
+glm::vec3 pivotesCarnivora[NUM_PIEZAS_CARNIVORA] = {
+	glm::vec3(0.0f, 0.0f, 0.0f),            //base
+	glm::vec3(0.0113f, 0.2274f, 0.0774f),   //tallo1
+	glm::vec3(0.0197f, 0.4567f, -0.1489f),  //tallo2
+	glm::vec3(0.0265f, 0.6000f, -0.3316f),  //tallo3
+	glm::vec3(0.0137f, 0.7786f, -0.2390f),  //cabeza
+	glm::vec3(0.0f, 0.8332f, 0.0054f),      //mandibula
+	glm::vec3(0.0125f, 0.7558f, -0.1502f),  //lengua
+	glm::vec3(-0.0691f, 0.1764f, 0.1596f),  //hoja_del_der
+	glm::vec3(0.0921f, 0.1770f, 0.1610f),   //hoja_del_izq
+	glm::vec3(-0.0642f, 0.1621f, -0.0007f), //hoja_tras_der
+	glm::vec3(0.0865f, 0.1632f, -0.0009f),  //hoja_tras_izq
+	glm::vec3(0.0110f, 0.1359f, -0.0315f),  //liana_atras
+	glm::vec3(-0.0573f, 0.2234f, 0.0081f),  //liana_der
+	glm::vec3(0.0437f, 0.2970f, 0.1427f),   //liana_frente
+	glm::vec3(0.0550f, 0.2254f, -0.0065f)   //liana_izq
+};
+glm::vec3 rotCarnivora[NUM_PIEZAS_CARNIVORA]; //las globales empiezan en 0
+
+//Gordon: mide ~1.4 de alto
+const int NUM_PIEZAS_GORDON = 14;
+Model Gordon_M[NUM_PIEZAS_GORDON];
+const char* piezasGordon[NUM_PIEZAS_GORDON] = {
+	"torso", "cabeza",
+	"brazo_der", "antebrazo_der", "mano_der",
+	"brazo_izq", "antebrazo_izq", "mano_izq",
+	"muslo_der", "pantorrilla_der", "pie_der",
+	"muslo_izq", "pantorrilla_izq", "pie_izq" };
+int padresGordon[NUM_PIEZAS_GORDON] = {
+	-1, 0,
+	0, 2, 3,
+	0, 5, 6,
+	0, 8, 9,
+	0, 11, 12 };
+glm::vec3 pivotesGordon[NUM_PIEZAS_GORDON] = {
+	glm::vec3(0.0f, 0.73277f, 0.01014f),       //torso (cadera)
+	glm::vec3(0.0f, 1.22766f, -0.01482f),      //cabeza (cuello)
+	glm::vec3(-0.14675f, 1.11121f, -0.03717f), //brazo_der (hombro)
+	glm::vec3(-0.29002f, 0.94174f, -0.04760f), //antebrazo_der (codo)
+	glm::vec3(-0.43085f, 0.77516f, -0.04468f), //mano_der (muneca)
+	glm::vec3(0.14675f, 1.11121f, -0.03717f),  //brazo_izq
+	glm::vec3(0.29002f, 0.94174f, -0.04760f),  //antebrazo_izq
+	glm::vec3(0.43085f, 0.77516f, -0.04469f),  //mano_izq
+	glm::vec3(-0.07392f, 0.73277f, 0.01014f),  //muslo_der (cadera)
+	glm::vec3(-0.07569f, 0.39412f, -0.00743f), //pantorrilla_der (rodilla)
+	glm::vec3(-0.07732f, 0.08130f, -0.03441f), //pie_der (tobillo)
+	glm::vec3(0.07392f, 0.73277f, 0.01014f),   //muslo_izq
+	glm::vec3(0.07569f, 0.39412f, -0.00743f),  //pantorrilla_izq
+	glm::vec3(0.07732f, 0.08130f, -0.03441f)   //pie_izq
+};
+glm::vec3 rotGordon[NUM_PIEZAS_GORDON];
+
+//Kirby: mide ~0.73 de alto
+const int NUM_PIEZAS_KIRBY = 5;
+Model Kirby_M[NUM_PIEZAS_KIRBY];
+const char* piezasKirby[NUM_PIEZAS_KIRBY] = {
+	"cuerpo", "mano_der", "mano_izq", "pie_der", "pie_izq" };
+int padresKirby[NUM_PIEZAS_KIRBY] = { -1, 0, 0, 0, 0 };
+glm::vec3 pivotesKirby[NUM_PIEZAS_KIRBY] = {
+	glm::vec3(0.0f, 0.4158f, 0.0f),         //cuerpo (centro)
+	glm::vec3(-0.2024f, 0.3899f, 0.0164f),  //mano_der
+	glm::vec3(0.2014f, 0.3897f, 0.0170f),   //mano_izq
+	glm::vec3(-0.1323f, 0.1498f, -0.0135f), //pie_der
+	glm::vec3(0.1317f, 0.1505f, -0.0139f)   //pie_izq
+};
+glm::vec3 rotKirby[NUM_PIEZAS_KIRBY];
 
 Skybox skybox;
 
@@ -211,34 +299,62 @@ void CrearCubo()
 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
 		 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
 
-		// back (la S va al reves para que la imagen no salga en espejo)
-		-0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+		 // back (la S va al reves para que la imagen no salga en espejo)
+		 -0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+		  0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+		  0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+		 -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
 
-		// left
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+		 // left
+		 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+		 -0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+		 -0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+		 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
 
-		// bottom
-		-0.5f, -0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+		 // bottom
+		 -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		  0.5f, -0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		  0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+		 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
 
-		// top
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+		 // top
+		 -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+		  0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+		  0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+		 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
 	};
 
 	MeshModel* cubo = new MeshModel();
 	cubo->CreateMeshModel(cubo_vertices, cubo_indices, 192, 36);
 	meshListModel.push_back(cubo); //meshListModel[2]
+}
+
+
+//dibuja un modelo con jerarquia: la matriz de cada pieza es la de su padre mas su propia rotacion
+//para girar en la articulacion se lleva el pivote al origen, se rota y se regresa
+//raiz es la matriz que coloca todo el modelo en la escena
+void DibujaJerarquia(Model piezas[], int padres[], glm::vec3 pivotes[], glm::vec3 rotaciones[], int numPiezas,
+	glm::mat4 raiz, GLuint uniformModel)
+{
+	glm::mat4 matrices[20]; //una por pieza, para que los hijos usen la de su padre
+	for (int i = 0; i < numPiezas; i++)
+	{
+		glm::mat4 model;
+		if (padres[i] == -1)
+			model = raiz;
+		else
+			model = matrices[padres[i]];
+
+		model = glm::translate(model, pivotes[i]);
+		model = glm::rotate(model, rotaciones[i].x * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, rotaciones[i].y * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, rotaciones[i].z * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::translate(model, -pivotes[i]);
+		matrices[i] = model;
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		piezas[i].RenderModel();
+	}
 }
 
 
@@ -265,9 +381,38 @@ int main()
 	//modelos
 	Prueba_M = Model();
 	Prueba_M.LoadModel("Models/prueba.obj");
-	
-	Carnivora_M = Model();
-	Carnivora_M.LoadModel("Models/Carnivora/carnivora_base.obj");
+
+	//MODELOS CARRERA
+	pistaM = Model();
+	pistaM.LoadModel("Models/pista/pista.obj");
+	sateliteRace = Model();
+	sateliteRace.LoadModel("Models/sateliteRace/sateliteRace.obj");
+	nave1Race = Model();
+	nave1Race.LoadModel("Models/nave1Race/nave1Race.obj");
+	capitanFalcon = Model();
+	capitanFalcon.LoadModel("Models/capitanFalcon/capitanFalcon.obj");
+
+	//las rutas se arman con el nombre de cada pieza
+	for (int i = 0; i < NUM_PIEZAS_CARNIVORA; i++)
+	{
+		std::string ruta = std::string("Models/Carnivora/carnivora_") + piezasCarnivora[i] + ".obj";
+		Carnivora_M[i] = Model();
+		Carnivora_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_GORDON; i++)
+	{
+		std::string ruta = std::string("Models/GordonParts/gordon_") + piezasGordon[i] + ".obj";
+		Gordon_M[i] = Model();
+		Gordon_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_KIRBY; i++)
+	{
+		std::string ruta = std::string("Models/Kirby/kirby_") + piezasKirby[i] + ".obj";
+		Kirby_M[i] = Model();
+		Kirby_M[i].LoadModel(ruta);
+	}
 
 	//skybox: las 6 caras van en este orden: rt, lf, dn, up, bk, ft
 	std::vector<std::string> skyboxFaces;
@@ -413,6 +558,64 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Prueba_M.RenderModel();
+
+		//****************MODELOS OPACOS PARA CARRERA***********//////////////
+		// 
+		//PISTA RACE
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		pistaM.RenderModel();
+
+		//SATELITE RACE
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(340.0f, 50.0f, -530.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		sateliteRace.RenderModel();
+
+		//NAVE1 RACE
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(270.0f, 40.0f, -130.0f));
+		model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		nave1Race.RenderModel();
+
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(240.0f, 15.0f, -130.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		capitanFalcon.RenderModel();
+
+		//modelos con jerarquia: los pies estan en y = 0, por eso se bajan a -1 (altura del piso)
+		//para articular se cambian las rotaciones, ej. rotGordon[2].x = -30.0f; mueve el brazo derecho en el hombro
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		//planta carnivora
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-4.0f, -1.0f, -3.0f));
+		DibujaJerarquia(Carnivora_M, padresCarnivora, pivotesCarnivora, rotCarnivora, NUM_PIEZAS_CARNIVORA, model, uniformModel);
+
+		//Gordon
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-2.0f, -1.0f, -3.0f));
+		DibujaJerarquia(Gordon_M, padresGordon, pivotesGordon, rotGordon, NUM_PIEZAS_GORDON, model, uniformModel);
+
+		//Kirby
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.5f, -1.0f, -3.0f));
+		DibujaJerarquia(Kirby_M, padresKirby, pivotesKirby, rotKirby, NUM_PIEZAS_KIRBY, model, uniformModel);
 
 		// ---------- objetos con transparencia ----------
 		//van al final, despues de todos los opacos, si no se ven mal
