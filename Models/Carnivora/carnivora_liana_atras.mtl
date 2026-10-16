@@ -1,0 +1,4 @@
+newmtl chomper_body_d
+Kd 1 1 1
+map_Kd chomper_body_d_diffuse.png
+

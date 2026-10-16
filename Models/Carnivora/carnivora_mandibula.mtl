@@ -1,0 +1,12 @@
+newmtl chomper_mouth_d
+Kd 1 1 1
+map_Kd chomper_mouth_d_diffuse.png
+
+newmtl chomper_head_d
+Kd 1 1 1
+map_Kd chomper_head_d_diffuse.png
+
+newmtl chomper_drool
+Kd 1 1 1
+map_Kd chomper_drool_diffuse.png
+
