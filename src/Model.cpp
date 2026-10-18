@@ -1,6 +1,6 @@
 #include "Model.h"
 #include <unordered_map>
-
+#include <fstream>
 
 Model::Model()
 {
@@ -18,6 +18,8 @@ void Model::LoadModel(const std::string & fileName)
 		printf("Fallo al cargar el modelo: %s (%s)\n", fileName.c_str(), importer.GetErrorString());
 		return;
 	}
+	//se guarda la carpeta del modelo (todo hasta el ultimo / o \, igual que en LoadMaterials)
+	carpeta = fileName.substr(0, fileName.find_last_of("\\/") + 1);
 	LoadNode(scene->mRootNode, scene);
 	LoadMaterials(scene);
 }
@@ -143,7 +145,13 @@ void Model::LoadMaterials(const aiScene * scene)
 				std::size_t idx = fullPath.find_last_of("\\/");
 				std::string filename = fullPath.substr(idx + 1);
 
-				std::string texPath = std::string("Textures/") + filename;
+				//primero se busca en la carpeta Textures del propio modelo (ej. Models/Carnivora/Textures/)
+				//si ahi no esta, se busca en Textures/ como antes
+				std::string texPath = carpeta + "Textures/" + filename;
+				if (!std::ifstream(texPath).good())
+				{
+					texPath = std::string("Textures/") + filename;
+				}
 				//si ya se cargo esta textura antes, se reutiliza
 				auto it = loadedTextures.find(texPath);
 				if (it != loadedTextures.end())

@@ -28,4 +28,5 @@ private:
 	std::vector<MeshModel*>MeshList;
 	std::vector<Texture*>TextureList;
 	std::vector<unsigned int>meshTotex; //que material (textura) usa cada malla
+	std::string carpeta; //carpeta del modelo (ej. "Models/Carnivora/"), ahi se buscan primero sus texturas
 };
