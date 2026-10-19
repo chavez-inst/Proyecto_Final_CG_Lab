@@ -246,7 +246,26 @@ Agregar > Elemento existente. Si se usa "Agregar > Clase", cambiar la ubicacion 
 
 ## Trabajo en equipo con Git
 
-- **Antes de empezar a trabajar: Pull.** Al terminar: commit y push. Asi evitamos conflictos.
+Se pide **una rama por alumno** y que las ramas se queden en el repo hasta el final
+(sirven para ver rapido que hizo cada quien). Por eso:
+
+- Cada quien trabaja **solo en su rama** (`nombre-tema`, por ejemplo `alejandro-planetas`).
+  Nadie hace commit ni push directo a `main`.
+- **Nunca borrar ramas**, ni la propia ni las de otros (tampoco con el boton "Delete branch" de
+  GitHub despues de un Pull Request).
+- **Antes de empezar a trabajar:** cambiarse a su rama y hacer Pull. Al terminar: commit y push
+  a su rama.
+- **Cuando algo ya esta listo** (compila y funciona), avisar en el grupo (o abrir un
+  Pull Request de su rama hacia `main`). Se revisan los cambios y se ajustan si hace falta y los integra a `main`.
+- **Despues de cada integracion**, cada quien trae `main` a su rama antes de seguir, para trabajar
+  sobre la version que ya tiene lo de todos y no regresar cambios que ya se ajustaron:
+  ```
+  git checkout mi-rama
+  git pull
+  git merge origin/main
+  git push
+  ```
+  En GitHub Desktop: Fetch origin, luego Branch > Update from main, y Push.
 - Commits chicos y con mensaje claro (`agrega modelo de la casa`, `arregla luz de la lampara`).
 - `main.cpp` lo tocamos todos: cada quien agrega sus cosas en su propio bloque con un comentario
   (`//--- objetos de Fulano ---`) y no reacomodar ni re-formatear codigo de otros.
