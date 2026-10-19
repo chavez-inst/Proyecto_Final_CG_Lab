@@ -76,3 +76,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 |---|---|---|
 | `main` | todos | version que compila y junta lo de todos |
 | `alejandro-planetas` | Alejandro | planetas (Xen y el segundo) |
+
+- Cada quien crea su rama y la agrega a esta tabla. Las ramas no se borran (el profesor las revisa).
+- Nadie sube directo a `main`: Se revisan e integra los avances de cada rama.
+- Despues de cada integracion, cada quien trae `main` a su rama (ver `README.md`, Trabajo en equipo con Git).
