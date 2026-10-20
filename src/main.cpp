@@ -8,6 +8,8 @@ Como esta acomodado este archivo (busquen los bloques ===):
  2. geometria hecha a mano (piso, plano de vegetacion, cubo)
  3. main: carga de texturas, modelos, skybox, materiales y luces
  4. while: aqui se dibuja todo cada frame
+Dentro de cada bloque hay una seccion //--- ... --- por actividad (personajes, planetas, pista, etc.)
+y cada quien escribe solo en las de su actividad. La lista de teclas por actividad esta en README.md
 */
 
 //esto solo va aqui, en ningun otro archivo (si no da error de simbolos repetidos)
@@ -54,10 +56,30 @@ Texture vegetacionTexture;
 //modelos (los archivos van en Models y sus texturas en Textures)
 Model Prueba_M;
 
-//MODELOS CARRERA
-Model pistaM;
-Model sateliteRace;
-Model nave1Race;
+Skybox skybox;
+
+//materiales
+Material Material_brillante;
+Material Material_opaco;
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastTime = 0.0f;
+static double limitFPS = 1.0 / 60.0;
+
+//luz direccional (el "sol", solo hay una)
+DirectionalLight mainLight;
+//arreglos de luces, el maximo de cada una esta en CommonValues.h
+PointLight pointLights[MAX_POINT_LIGHTS];
+SpotLight spotLights[MAX_SPOT_LIGHTS];
+
+//shaders que usan todos los objetos (los del skybox los carga Skybox.cpp)
+static const char* vShader = "shaders/shader_light.vert";
+static const char* fShader = "shaders/shader_light.frag";
+
+//cada actividad escribe solo en su seccion //--- ... ---, en los 4 bloques de este archivo y en Window.h/.cpp
+//asi cada quien cambia lineas distintas y al juntar las ramas casi no hay conflictos
+
+//--- personajes ---
 Model capitanFalcon;
 
 //modelos con jerarquia: cada uno esta separado en piezas (.obj) que comparten el mismo origen,
@@ -145,25 +167,24 @@ glm::vec3 pivotesKirby[NUM_PIEZAS_KIRBY] = {
 };
 glm::vec3 rotKirby[NUM_PIEZAS_KIRBY];
 
-Skybox skybox;
+//--- planetas: Xen y planeta 2 ---
 
-//materiales
-Material Material_brillante;
-Material Material_opaco;
+//--- pista de carreras y naves ---
+Model pistaM;
+Model nave1Race;
 
-GLfloat deltaTime = 0.0f;
-GLfloat lastTime = 0.0f;
-static double limitFPS = 1.0 / 60.0;
+//--- satelites y cuerpos espaciales ---
+Model sateliteRace;
 
-//luz direccional (el "sol", solo hay una)
-DirectionalLight mainLight;
-//arreglos de luces, el maximo de cada una esta en CommonValues.h
-PointLight pointLights[MAX_POINT_LIGHTS];
-SpotLight spotLights[MAX_SPOT_LIGHTS];
+//--- plataforma de lanzamiento y cohete ---
 
-//shaders que usan todos los objetos (los del skybox los carga Skybox.cpp)
-static const char* vShader = "shaders/shader_light.vert";
-static const char* fShader = "shaders/shader_light.frag";
+//--- estacion espacial y naves ---
+
+//--- avatar ---
+
+//--- camaras y recorridos ---
+
+//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
 
 // ================== 2. GEOMETRIA HECHA A MANO ==================
@@ -358,6 +379,29 @@ void DibujaJerarquia(Model piezas[], int padres[], glm::vec3 pivotes[], glm::vec
 }
 
 
+//funciones con geometria de cada actividad; se llaman en la carga de recursos, dentro de su seccion
+//el indice en meshListModel depende del orden en que se agregan, por eso cada quien lo guarda en una
+//variable global antes del push_back (ej. idxCohete = meshListModel.size();) y dibuja con meshListModel[idxCohete]
+
+//--- personajes ---
+
+//--- planetas: Xen y planeta 2 ---
+
+//--- pista de carreras y naves ---
+
+//--- satelites y cuerpos espaciales ---
+
+//--- plataforma de lanzamiento y cohete ---
+
+//--- estacion espacial y naves ---
+
+//--- avatar ---
+
+//--- camaras y recorridos ---
+
+//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
+
 int main()
 {
 	mainWindow = Window(1366, 768); //tambien jala con 1280x1024 o 1024x768
@@ -382,13 +426,22 @@ int main()
 	Prueba_M = Model();
 	Prueba_M.LoadModel("Models/prueba.obj");
 
-	//MODELOS CARRERA
-	pistaM = Model();
-	pistaM.LoadModel("Models/pista/pista.obj");
-	sateliteRace = Model();
-	sateliteRace.LoadModel("Models/sateliteRace/sateliteRace.obj");
-	nave1Race = Model();
-	nave1Race.LoadModel("Models/nave1Race/nave1Race.obj");
+	//skybox: las 6 caras van en este orden: rt, lf, dn, up, bk, ft
+	std::vector<std::string> skyboxFaces;
+	skyboxFaces.push_back("Textures/Skybox/sBRight.png");// +X (Derecha)
+	skyboxFaces.push_back("Textures/Skybox/Left.png");// -X (Izquierda)
+	skyboxFaces.push_back("Textures/Skybox/DownF.png");// -Y (Abajo)
+	skyboxFaces.push_back("Textures/Skybox/Top.png");// +Y (Arriba)
+	skyboxFaces.push_back("Textures/Skybox/FrontF.png");// +Z (Atras)
+	skyboxFaces.push_back("Textures/Skybox/BackF.png");// -Z (Enfrente)
+
+	skybox = Skybox(skyboxFaces);
+
+	//materiales: Material(intensidad especular, shininess)
+	Material_brillante = Material(4.0f, 256);
+	Material_opaco = Material(0.3f, 4);
+
+	//--- personajes ---
 	capitanFalcon = Model();
 	capitanFalcon.LoadModel("Models/capitanFalcon/capitanFalcon.obj");
 
@@ -414,20 +467,25 @@ int main()
 		Kirby_M[i].LoadModel(ruta);
 	}
 
-	//skybox: las 6 caras van en este orden: rt, lf, dn, up, bk, ft
-	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/sBRight.png");// +X (Derecha)
-	skyboxFaces.push_back("Textures/Skybox/Left.png");// -X (Izquierda)
-	skyboxFaces.push_back("Textures/Skybox/DownF.png");// -Y (Abajo)
-	skyboxFaces.push_back("Textures/Skybox/Top.png");// +Y (Arriba)
-	skyboxFaces.push_back("Textures/Skybox/FrontF.png");// +Z (Atrás)
-	skyboxFaces.push_back("Textures/Skybox/BackF.png");// -Z (Enfrente)
+	//--- planetas: Xen y planeta 2 ---
 
-	skybox = Skybox(skyboxFaces);
+	//--- pista de carreras y naves ---
+	pistaM = Model();
+	pistaM.LoadModel("Models/pista/pista.obj");
+	nave1Race = Model();
+	nave1Race.LoadModel("Models/nave1Race/nave1Race.obj");
 
-	//materiales: Material(intensidad especular, shininess)
-	Material_brillante = Material(4.0f, 256);
-	Material_opaco = Material(0.3f, 4);
+	//--- satelites y cuerpos espaciales ---
+	sateliteRace = Model();
+	sateliteRace.LoadModel("Models/sateliteRace/sateliteRace.obj");
+
+	//--- plataforma de lanzamiento y cohete ---
+
+	//--- estacion espacial y naves ---
+
+	//--- avatar ---
+
+	//--- camaras y recorridos ---
 
 
 	// ---- luces ----
@@ -471,6 +529,9 @@ int main()
 	spotLightCount++;
 	//para agregar otra luz: se pone en el siguiente lugar libre del arreglo y se suma 1 al contador
 
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	//las luces de la escena van aqui; si otra actividad necesita una luz, se pide a quien lleva esta seccion
+
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	GLuint uniformColor = 0;
@@ -491,13 +552,17 @@ int main()
 		camera.keyControl(mainWindow.getsKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
+		//matriz de vista de la camara libre; con otras camaras se cambia en su seccion
+		glm::mat4 view = camera.calculateViewMatrix();
+
+		//--- camaras y recorridos ---
+
 		//limpiar la pantalla
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//el skybox va primero, antes que todo lo demas
-		// Reemplaza la línea 185 en mainProyecto_3.cpp:
-		skybox.DrawSkybox(camera.calculateViewMatrix(), projection, deltaTime);
+		skybox.DrawSkybox(view, projection, deltaTime);
 
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
@@ -511,7 +576,7 @@ int main()
 		uniformShininess = shaderList[0].GetShininessLocation();
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
 		//linterna pegada a la camara, un poco abajo de los ojos
@@ -519,6 +584,9 @@ int main()
 		glm::vec3 lowerLight = camera.getCameraPosition();
 		lowerLight.y -= 0.3f;
 		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+
+		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+		//aqui se cambian las luces cada frame, antes de mandarlas al shader
 
 		//mandar todas las luces al shader
 		shaderList[0].SetDirectionalLight(&mainLight);
@@ -559,37 +627,7 @@ int main()
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Prueba_M.RenderModel();
 
-		//****************MODELOS OPACOS PARA CARRERA***********//////////////
-		// 
-		//PISTA RACE
-		model = glm::mat4(1.0f);
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		pistaM.RenderModel();
-
-		//SATELITE RACE
-		model = glm::mat4(1.0f);
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(340.0f, 50.0f, -530.0f));
-		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		sateliteRace.RenderModel();
-
-		//NAVE1 RACE
-		model = glm::mat4(1.0f);
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(270.0f, 40.0f, -130.0f));
-		model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		nave1Race.RenderModel();
-
+		//--- personajes ---
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -617,8 +655,51 @@ int main()
 		model = glm::translate(model, glm::vec3(0.5f, -1.0f, -3.0f));
 		DibujaJerarquia(Kirby_M, padresKirby, pivotesKirby, rotKirby, NUM_PIEZAS_KIRBY, model, uniformModel);
 
+		//--- planetas: Xen y planeta 2 ---
+
+		//--- pista de carreras y naves ---
+		//PISTA RACE
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		pistaM.RenderModel();
+
+		//NAVE1 RACE
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(270.0f, 40.0f, -130.0f));
+		model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		nave1Race.RenderModel();
+
+		//--- satelites y cuerpos espaciales ---
+		//SATELITE RACE
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(340.0f, 50.0f, -530.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		sateliteRace.RenderModel();
+
+		//--- plataforma de lanzamiento y cohete ---
+
+		//--- estacion espacial y naves ---
+
+		//--- avatar ---
+
+		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+		//postes o lamparas de las luminarias
+
 		// ---------- objetos con transparencia ----------
 		//van al final, despues de todos los opacos, si no se ven mal
+		//cada actividad dibuja aqui sus transparentes, entre glEnable(GL_BLEND) y glDisable(GL_BLEND)
 
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.5f, 0.0f, -6.5f));
@@ -633,6 +714,22 @@ int main()
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshListModel[1]->RenderMeshModel();
 		glDisable(GL_BLEND);
+
+		//--- personajes ---
+
+		//--- planetas: Xen y planeta 2 ---
+
+		//--- pista de carreras y naves ---
+
+		//--- satelites y cuerpos espaciales ---
+
+		//--- plataforma de lanzamiento y cohete ---
+
+		//--- estacion espacial y naves ---
+
+		//--- avatar ---
+
+		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
 		glUseProgram(0);
 

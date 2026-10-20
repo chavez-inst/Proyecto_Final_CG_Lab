@@ -30,7 +30,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Satelites y cuerpos espaciales | 10 | Dylan | en proceso | lunas, asteroides, satelites |
 | Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | planeta 1: Xen (Half-Life); planeta 2 por definir |
 | Texturizado de todo | 20 | todos | en proceso | |
-| Avatar jerarquico **no humanoide** | 10 | por definir | por definir | propuesta: Kirby (Gordon y Falcon son humanos, no cumplen) |
+| Avatar jerarquico **no humanoide** | 10 | por definir | por definir | propuesta: Kirby (Gordon y Falcon son humanos, tal vez revisar) |
 | Avatar con textura y material | 10 | por definir | pendiente | |
 | Avatar con caminata animada | 10 | por definir | pendiente | |
 | Recorrido 1: 3a persona en cada planeta (plano XZ) | 10 | por definir | pendiente | |
@@ -52,7 +52,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 
 | Entregable | Pts | Responsable | Estado | Notas |
 |---|---|---|---|---|
-| Repo con **una rama por alumno** | 10 | todos | pendiente | hoy solo existe `main` |
+| Repo con **una rama por alumno** | 10 | todos | en proceso | ya esta `alejandro-planetas`; faltan las de Dylan, Abraham y Andrea |
 | Documento del manejo del repo y trabajo colaborativo (capturas) | 10 | por definir | pendiente | |
 | Documento de propuesta corregido | 10 | Alejandro (borrador) | en proceso | todos complementan su parte |
 | Plano/mapa final corregido | 10 | por definir | pendiente | base: plano de Dylan |
@@ -78,5 +78,5 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | `alejandro-planetas` | Alejandro | planetas (Xen y el segundo) |
 
 - Cada quien crea su rama y la agrega a esta tabla. Las ramas no se borran (el profesor las revisa).
-- Nadie sube directo a `main`: Se revisan e integra los avances de cada rama.
+- Nadie sube directo a `main`: se revisan e integran los avances de cada rama.
 - Despues de cada integracion, cada quien trae `main` a su rama (ver `README.md`, Trabajo en equipo con Git).
