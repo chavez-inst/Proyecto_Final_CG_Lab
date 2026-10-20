@@ -12,6 +12,26 @@ Window::Window()
 	xChange = 0.0f;
 	yChange = 0.0f;
 	muevex = 2.0f;
+
+	//valor inicial de las variables de cada actividad (va en los dos constructores)
+	//--- personajes ---
+
+	//--- planetas: Xen y planeta 2 ---
+
+	//--- pista de carreras y naves ---
+
+	//--- satelites y cuerpos espaciales ---
+
+	//--- plataforma de lanzamiento y cohete ---
+
+	//--- estacion espacial y naves ---
+
+	//--- avatar ---
+
+	//--- camaras y recorridos ---
+
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -30,6 +50,26 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	xChange = 0.0f;
 	yChange = 0.0f;
 	muevex = 2.0f;
+
+	//valor inicial de las variables de cada actividad (va en los dos constructores)
+	//--- personajes ---
+
+	//--- planetas: Xen y planeta 2 ---
+
+	//--- pista de carreras y naves ---
+
+	//--- satelites y cuerpos espaciales ---
+
+	//--- plataforma de lanzamiento y cohete ---
+
+	//--- estacion espacial y naves ---
+
+	//--- avatar ---
+
+	//--- camaras y recorridos ---
+
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -130,6 +170,26 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		theWindow->muevex -= 1.0;
 	}
+
+	//teclas de cada actividad (la tabla de que tecla es de quien esta en README.md)
+	//--- personajes ---
+
+	//--- planetas: Xen y planeta 2 ---
+
+	//--- pista de carreras y naves ---
+
+	//--- satelites y cuerpos espaciales ---
+
+	//--- plataforma de lanzamiento y cohete ---
+
+	//--- estacion espacial y naves ---
+
+	//--- avatar ---
+
+	//--- camaras y recorridos ---
+
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
 
 	//guarda que teclas estan presionadas, la camara lo lee con getsKeys()
 	//ojo: WASD ya los usa la camara

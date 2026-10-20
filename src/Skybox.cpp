@@ -83,12 +83,12 @@ Skybox::Skybox(std::vector<std::string> faceLocations)
 //se dibuja antes que el resto de la escena
 void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime)
 {
-	// 1. Eliminar la traslación de la cámara (mantiene solo orientación)
+	// 1. Eliminar la traslacion de la camara (mantiene solo orientacion)
 	viewMatrix = glm::mat4(glm::mat3(viewMatrix));
 
-	// 2. Acumuladores de ángulo continuos (velocidades ajustables)
-	static float angleY = 0.0f; // Rotación principal (horizontal)
-	static float angleX = 0.0f; // Inclinación axial
+	// 2. Acumuladores de angulo continuos (velocidades ajustables)
+	static float angleY = 0.0f; // Rotacion principal (horizontal)
+	static float angleX = 0.0f; // Inclinacion axial
 	static float angleZ = 0.0f; // Bamboleo sutil
 
 	// Ajusta los multiplicadores para cambiar la velocidad de giro:

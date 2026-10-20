@@ -93,12 +93,67 @@ Esta dividido en 4 bloques marcados con `// ==================`:
 3. **Carga de recursos** (dentro de `main`): se cargan texturas, modelos, skybox, materiales y luces.
 4. **Ciclo principal** (el `while`): se dibuja todo cada frame. Primero los objetos opacos y al final los transparentes.
 
+Al principio de cada bloque esta lo de la base del lab (piso, cubo, materiales, luces de prueba).
+Despues viene una seccion por actividad, siempre en el mismo orden:
+
+```
+//--- personajes ---
+//--- planetas: Xen y planeta 2 ---
+//--- pista de carreras y naves ---
+//--- satelites y cuerpos espaciales ---
+//--- plataforma de lanzamiento y cohete ---
+//--- estacion espacial y naves ---
+//--- avatar ---
+//--- camaras y recorridos ---
+//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+```
+
+Las mismas secciones estan en `Window.h` (getters y variables) y en `Window.cpp` (valores iniciales en
+los dos constructores y teclas en `ManejaTeclado`). **Cada quien escribe solo dentro de las secciones de
+su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y Git no marca conflictos.
+
+- En el `while`, la seccion de camaras va antes de dibujar: ahi se puede cambiar la matriz `view`
+  (con la camara libre es la de `Camera`).
+- La seccion de iluminacion del `while` va antes de mandar las luces al shader: ahi se cambian
+  cada frame (ciclo dia/noche, prender/apagar).
+- Las luces se crean solo en la seccion de iluminacion. Si otra actividad necesita una, se le pide
+  a quien lleva esa seccion (los arreglos son de maximo 3 puntuales y 4 spotlights).
+- Si una actividad agrega geometria hecha a mano, su funcion va en el bloque 2 (en su seccion) y se
+  llama en la carga de recursos (en su seccion). Como el indice en `meshListModel` depende del
+  orden, se guarda en una variable global antes del `push_back`:
+  ```cpp
+  int idxCohete;                          //variables globales, en su seccion
+  idxCohete = meshListModel.size();       //en la funcion, justo antes de meshListModel.push_back(cohete);
+  meshListModel[idxCohete]->RenderMeshModel();  //en el while
+  ```
+
+### Teclas por actividad
+
+Para que dos personas no usen la misma tecla. Si alguien necesita otra, la pide en el grupo y se
+agrega a esta tabla.
+
+| Teclas | Actividad | Uso propuesto |
+|---|---|---|
+| W A S D, mouse | base (camara libre) | moverse y voltear |
+| ESC | base | cerrar |
+| Y / U | base | mover el cubo de prueba |
+| 1 2 3 4 5 | camaras y recorridos | 1 libre, 2 avatar en el planeta, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento/estacion |
+| flechas | avatar | caminar en 3a persona |
+| Z X C | planetas | ir a Xen, ir al planeta 2, regresar al espacio |
+| P | pista de carreras | iniciar/pausar la carrera |
+| R T | plataforma de lanzamiento | lanzar el cohete, reiniciar |
+| E Q | estacion espacial | abrir/cerrar compuerta, otra animacion |
+| L K J | iluminacion | prender/apagar spotlights |
+| G F V B H | personajes | animacion basica de cada personaje (Gordon, Falcon, carnivora, Kirby, headcrab) |
+| I O M N | libres | se piden en el grupo |
+
 ### Reglas importantes
 
 - El programa corre desde la carpeta del proyecto, asi que las rutas son relativas a ella:
   `"Textures/algo.png"`, `"Models/algo.obj"`. Usar `/` en las rutas.
-- Las texturas de los modelos **siempre** se buscan en `Textures/`, aunque el .mtl diga otra ruta
-  (solo se toma el nombre del archivo).
+- Las texturas de los modelos se buscan primero en la carpeta `Textures/` del propio modelo
+  (ej. `Models/GordonParts/Textures/`) y si no estan ahi, en `Textures/`. Aunque el .mtl diga otra
+  ruta, solo se toma el nombre del archivo.
 - En este proyecto las normales apuntan **hacia adentro** del objeto (asi lo manejamos en el lab
   por como el shader calcula la luz). Si una cara se ve oscura cuando deberia estar iluminada,
   probablemente su normal esta al reves.
@@ -223,7 +278,7 @@ Se hace igual que la variable `muevex` (teclas Y/U):
    (`action == GLFW_PRESS` = una vez por pulsacion, `action != GLFW_RELEASE` = mientras se mantenga)
 4. En `main.cpp` usarla: `mainWindow.getrotaPuerta()`.
 
-No usar W, A, S, D (son de la camara) ni ESC.
+Usar solo las teclas de su actividad (ver "Teclas por actividad"). W, A, S, D son de la camara y ESC cierra.
 
 ### Cambiar el skybox
 
@@ -267,8 +322,9 @@ Se pide **una rama por alumno** y que las ramas se queden en el repo hasta el fi
   ```
   En GitHub Desktop: Fetch origin, luego Branch > Update from main, y Push.
 - Commits chicos y con mensaje claro (`agrega modelo de la casa`, `arregla luz de la lampara`).
-- `main.cpp` lo tocamos todos: cada quien agrega sus cosas en su propio bloque con un comentario
-  (`//--- objetos de Fulano ---`) y no reacomodar ni re-formatear codigo de otros.
+- `main.cpp` y `Window.h/.cpp` los tocamos todos: cada quien escribe solo en las secciones
+  `//--- ... ---` de su actividad (ver "Como esta acomodado main.cpp") y no reacomoda ni re-formatea
+  codigo de otros.
 - No subir nada de `Librerias/` ni `build/` (ya esta en el `.gitignore`).
 - GitHub no acepta archivos de mas de 100 MB. Mantener modelos y texturas ligeros
   (texturas de 1024 o 2048 px estan bien).
