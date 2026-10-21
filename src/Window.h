@@ -18,8 +18,10 @@ public:
 
 	//getters de cada actividad (misma division que main.cpp)
 	//--- personajes ---
+	bool getcaminaHeadcrab() { return caminaHeadcrab; }
 
 	//--- planetas: Xen y planeta 2 ---
+	int getzonaPlaneta() { return zonaPlaneta; }
 
 	//--- pista de carreras y naves ---
 
@@ -57,8 +59,10 @@ private:
 
 	//variables de cada actividad
 	//--- personajes ---
+	bool caminaHeadcrab; //H prende o apaga la caminata del headcrab
 
 	//--- planetas: Xen y planeta 2 ---
+	int zonaPlaneta; //zona donde esta el usuario, vale 0 en el espacio y 1 en Xen, y la cambian las teclas Z y C
 
 	//--- pista de carreras y naves ---
 
