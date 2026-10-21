@@ -253,6 +253,8 @@ float altoTallo = 1.62f; //altura de la punta del tallo, ahi va el foco
 //--- pista de carreras y naves ---
 Model pistaM;
 Model nave1Race;
+Model meta;
+Model cubiertaMeta;
 
 //--- satelites y cuerpos espaciales ---
 Model sateliteRace;
@@ -491,6 +493,11 @@ int main()
 	CrearCubo();
 	CreateShaders();
 
+	//VARIABLES DE APOYO
+
+	glm::mat4 modelaux(1.0);
+	glm::mat4 modelaux2(1.0);
+
 	//Camera(posicion inicial, vector up, yaw, pitch, velocidad de movimiento, velocidad de giro)
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
 
@@ -594,6 +601,10 @@ int main()
 	pistaM.LoadModel("Models/pista/pista.obj");
 	nave1Race = Model();
 	nave1Race.LoadModel("Models/nave1Race/nave1Race.obj");
+	meta = Model();
+	meta.LoadModel("Models/meta/meta.obj");
+	cubiertaMeta = Model();
+	cubiertaMeta.LoadModel("Models/cubiertaMeta/cubiertaMeta.obj");
 
 	//--- satelites y cuerpos espaciales ---
 	sateliteRace = Model();
@@ -940,12 +951,38 @@ int main()
 		//--- pista de carreras y naves ---
 		//pista de carreras
 		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
+		modelaux = model;
+		modelaux2 = model;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
+
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		pistaM.RenderModel();
+
+		//meta
+
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 0.05f, 0.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		meta.RenderModel();
+
+		//meta
+
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		//model = glm::translate(model, glm::vec3(0.0f, 0.00f, 0.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		cubiertaMeta.RenderModel();
+
 
 		//nave 1 de la pista
 		model = glm::mat4(1.0f);
