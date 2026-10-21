@@ -15,8 +15,10 @@ Window::Window()
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
 	//--- personajes ---
+	caminaHeadcrab = false;
 
 	//--- planetas: Xen y planeta 2 ---
+	zonaPlaneta = 0;
 
 	//--- pista de carreras y naves ---
 
@@ -53,8 +55,10 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
 	//--- personajes ---
+	caminaHeadcrab = false;
 
 	//--- planetas: Xen y planeta 2 ---
+	zonaPlaneta = 0;
 
 	//--- pista de carreras y naves ---
 
@@ -173,8 +177,21 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 
 	//teclas de cada actividad (la tabla de que tecla es de quien esta en README.md)
 	//--- personajes ---
+	if (key == GLFW_KEY_H && action == GLFW_PRESS)
+	{
+		theWindow->caminaHeadcrab = !theWindow->caminaHeadcrab;
+	}
 
 	//--- planetas: Xen y planeta 2 ---
+	//Z lleva a la superficie de Xen y C regresa al espacio, la X se queda libre para el planeta 2
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 1;
+	}
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 0;
+	}
 
 	//--- pista de carreras y naves ---
 

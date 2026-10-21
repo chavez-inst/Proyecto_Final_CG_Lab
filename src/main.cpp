@@ -167,7 +167,88 @@ glm::vec3 pivotesKirby[NUM_PIEZAS_KIRBY] = {
 };
 glm::vec3 rotKirby[NUM_PIEZAS_KIRBY];
 
+//el headcrab mide como 0.3 de alto y 0.6 de largo contando las patas, y se hizo con Blender/headcrab.py
+const int NUM_PIEZAS_HEADCRAB = 10;
+Model Headcrab_M[NUM_PIEZAS_HEADCRAB];
+const char* piezasHeadcrab[NUM_PIEZAS_HEADCRAB] = {
+	"cuerpo", "boca",
+	"muslo_del_der", "garra_del_der", "muslo_del_izq", "garra_del_izq",
+	"muslo_tras_der", "garra_tras_der", "muslo_tras_izq", "garra_tras_izq" };
+int padresHeadcrab[NUM_PIEZAS_HEADCRAB] = {
+	-1, 0,
+	0, 2, 0, 4,
+	0, 6, 0, 8 };
+glm::vec3 pivotesHeadcrab[NUM_PIEZAS_HEADCRAB] = {
+	glm::vec3(0.0f, 0.15f, 0.0f),         //cuerpo, gira en su centro
+	glm::vec3(0.0f, 0.10f, 0.10f),        //boca, se abre desde la bisagra de abajo
+	glm::vec3(-0.095f, 0.135f, 0.085f),   //muslo_del_der, gira en la cadera
+	glm::vec3(-0.175f, 0.205f, 0.205f),   //garra_del_der, gira en la rodilla
+	glm::vec3(0.095f, 0.135f, 0.085f),    //muslo_del_izq
+	glm::vec3(0.175f, 0.205f, 0.205f),    //garra_del_izq
+	glm::vec3(-0.10f, 0.12f, -0.06f),     //muslo_tras_der
+	glm::vec3(-0.20f, 0.165f, -0.12f),    //garra_tras_der
+	glm::vec3(0.10f, 0.12f, -0.06f),      //muslo_tras_izq
+	glm::vec3(0.20f, 0.165f, -0.12f)      //garra_tras_izq
+};
+glm::vec3 rotHeadcrab[NUM_PIEZAS_HEADCRAB];
+
+//variables de la caminata del headcrab, que da vueltas en circulo en la superficie de Xen y empieza o se detiene con H
+glm::vec3 centroHeadcrab = glm::vec3(0.0f, 0.0f, 2.0f); //el centro del circulo se mide desde posXen
+float radioHeadcrab = 2.5f;
+float anguloHeadcrab = 0.0f;
+float anguloHeadcrabOffset = 0.4f;
+//las patas van y vienen entre -limitePaso y limitePaso, como los paneles del satelite de la practica 9
+float pasoHeadcrab = 0.0f;
+float pasoHeadcrabOffset = 2.5f;
+float limitePaso = 20.0f;
+bool pasoAdelante = true;
+
 //--- planetas: Xen y planeta 2 ---
+//la superficie de cada planeta es un piso aparte y muy lejos del espacio, como el plano lejano
+//de la perspectiva esta en 1000 nunca se ven juntos
+glm::vec3 posXen = glm::vec3(3000.0f, 0.0f, 0.0f);
+//zona donde esta el usuario, 0 en el espacio y 1 en Xen; se compara con la de Window para saber cuando cambio
+int zonaActual = 0;
+Skybox skyboxXen;
+Texture xenSueloTexture;
+
+//el planeta Xen que se ve desde el espacio es una esfera que gira sobre su eje
+Model XenPlaneta_M;
+glm::vec3 posPlanetaXen = glm::vec3(-300.0f, 80.0f, -500.0f);
+float giroPlanetaXen = 0.0f;
+float giroPlanetaXenOffset = 0.05f;
+
+//objetos de la superficie de Xen, hechos con Blender/xen_objetos.py
+Model XenCristal_M;
+Model XenIsla_M;
+Model XenTallo_M;
+Model XenFoco_M;
+
+//criaturas de Xen acomodadas de la mas simple a la mas evolucionada; son descargadas y los creditos
+//estan en el LICENCIA.txt de cada una
+Model Houndeye_M;
+Model Bullsquid_M;
+Model Vortigaunt_M;
+Model AlienGrunt_M;
+
+//las islas flotantes suben y bajan con el seno de un angulo que avanza cada frame
+glm::vec3 posIslas[3] = {
+	glm::vec3(-20.0f, 12.0f, -30.0f),
+	glm::vec3(25.0f, 18.0f, -20.0f),
+	glm::vec3(5.0f, 25.0f, -45.0f) };
+float escalaIslas[3] = { 3.0f, 4.0f, 6.0f };
+float anguloIslas = 0.0f;
+float anguloIslasOffset = 0.6f;
+
+//las plantas de luz se esconden en el piso si la camara se acerca, como en Half-Life
+//alturaPlantas escala el tallo en Y, vale 1 cuando la planta esta parada y 0.1 cuando esta escondida
+const int NUM_PLANTAS = 3;
+glm::vec3 posPlantas[NUM_PLANTAS] = {
+	glm::vec3(-7.0f, 0.0f, 2.0f),
+	glm::vec3(8.5f, 0.0f, 0.0f),
+	glm::vec3(2.0f, 0.0f, -15.0f) };
+float alturaPlantas[NUM_PLANTAS] = { 1.0f, 1.0f, 1.0f };
+float altoTallo = 1.62f; //altura de la punta del tallo, ahi va el foco
 
 //--- pista de carreras y naves ---
 Model pistaM;
@@ -467,7 +548,46 @@ int main()
 		Kirby_M[i].LoadModel(ruta);
 	}
 
+	for (int i = 0; i < NUM_PIEZAS_HEADCRAB; i++)
+	{
+		std::string ruta = std::string("Models/Headcrab/headcrab_") + piezasHeadcrab[i] + ".obj";
+		Headcrab_M[i] = Model();
+		Headcrab_M[i].LoadModel(ruta);
+	}
+
 	//--- planetas: Xen y planeta 2 ---
+	//skybox de Xen, hecho con Blender/xen.py; las caras van en el mismo orden que en el otro skybox: rt, lf, dn, up, bk, ft
+	std::vector<std::string> skyboxXenFaces;
+	skyboxXenFaces.push_back("Textures/Skybox/xen_rt.png");
+	skyboxXenFaces.push_back("Textures/Skybox/xen_lf.png");
+	skyboxXenFaces.push_back("Textures/Skybox/xen_dn.png");
+	skyboxXenFaces.push_back("Textures/Skybox/xen_up.png");
+	skyboxXenFaces.push_back("Textures/Skybox/xen_bk.png");
+	skyboxXenFaces.push_back("Textures/Skybox/xen_ft.png");
+	skyboxXen = Skybox(skyboxXenFaces);
+
+	xenSueloTexture = Texture("Textures/xen_suelo.png");
+	xenSueloTexture.LoadTextureA();
+
+	XenPlaneta_M = Model();
+	XenPlaneta_M.LoadModel("Models/Xen/xen_planeta.obj");
+	XenCristal_M = Model();
+	XenCristal_M.LoadModel("Models/Xen/xen_cristal.obj");
+	XenIsla_M = Model();
+	XenIsla_M.LoadModel("Models/Xen/xen_isla.obj");
+	XenTallo_M = Model();
+	XenTallo_M.LoadModel("Models/Xen/xen_planta_tallo.obj");
+	XenFoco_M = Model();
+	XenFoco_M.LoadModel("Models/Xen/xen_planta_foco.obj");
+
+	Houndeye_M = Model();
+	Houndeye_M.LoadModel("Models/Houndeye/houndeye.obj");
+	Bullsquid_M = Model();
+	Bullsquid_M.LoadModel("Models/Bullsquid/bullsquid.obj");
+	Vortigaunt_M = Model();
+	Vortigaunt_M.LoadModel("Models/Vortigaunt/vortigaunt.obj");
+	AlienGrunt_M = Model();
+	AlienGrunt_M.LoadModel("Models/AlienGrunt/aliengrunt.obj");
 
 	//--- pista de carreras y naves ---
 	pistaM = Model();
@@ -561,8 +681,11 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//el skybox va primero, antes que todo lo demas
-		skybox.DrawSkybox(view, projection, deltaTime);
+		//el skybox va primero, antes que todo lo demas, y cada planeta tiene el suyo segun zonaActual, que cambia con Z y C
+		if (zonaActual == 1)
+			skyboxXen.DrawSkybox(view, projection, deltaTime);
+		else
+			skybox.DrawSkybox(view, projection, deltaTime);
 
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
@@ -655,7 +778,164 @@ int main()
 		model = glm::translate(model, glm::vec3(0.5f, -1.0f, -3.0f));
 		DibujaJerarquia(Kirby_M, padresKirby, pivotesKirby, rotKirby, NUM_PIEZAS_KIRBY, model, uniformModel);
 
+		//el headcrab camina en circulo en la superficie de Xen mientras su caminata este prendida con la tecla H
+		if (mainWindow.getcaminaHeadcrab())
+		{
+			anguloHeadcrab += anguloHeadcrabOffset * deltaTime;
+			if (anguloHeadcrab > 360.0f)
+				anguloHeadcrab -= 360.0f;
+			if (pasoAdelante)
+			{
+				pasoHeadcrab += pasoHeadcrabOffset * deltaTime;
+				if (pasoHeadcrab > limitePaso)
+					pasoAdelante = false;
+			}
+			else
+			{
+				pasoHeadcrab -= pasoHeadcrabOffset * deltaTime;
+				if (pasoHeadcrab < -limitePaso)
+					pasoAdelante = true;
+			}
+		}
+		//las patas se mueven en diagonal, la delantera derecha junto con la trasera izquierda y al reves,
+		//y giran en Y sobre la cadera para ir hacia adelante y hacia atras
+		rotHeadcrab[2].y = pasoHeadcrab;
+		rotHeadcrab[8].y = pasoHeadcrab;
+		rotHeadcrab[4].y = -pasoHeadcrab;
+		rotHeadcrab[6].y = -pasoHeadcrab;
+		//la garra se levanta un poco mientras su pata va hacia adelante
+		rotHeadcrab[3].x = -pasoHeadcrab * 0.5f;
+		rotHeadcrab[9].x = -pasoHeadcrab * 0.5f;
+		rotHeadcrab[5].x = pasoHeadcrab * 0.5f;
+		rotHeadcrab[7].x = pasoHeadcrab * 0.5f;
+		//la posicion en el circulo sale del seno y el coseno, y se gira 90 grados mas para que mire hacia donde avanza
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + centroHeadcrab +
+			glm::vec3(radioHeadcrab * sin(anguloHeadcrab * toRadians), 0.0f, radioHeadcrab * cos(anguloHeadcrab * toRadians)));
+		model = glm::rotate(model, (anguloHeadcrab + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(Headcrab_M, padresHeadcrab, pivotesHeadcrab, rotHeadcrab, NUM_PIEZAS_HEADCRAB, model, uniformModel);
+
 		//--- planetas: Xen y planeta 2 ---
+		//cuando una tecla cambia zonaPlaneta en Window, la camara se vuelve a crear en la otra zona
+		if (mainWindow.getzonaPlaneta() != zonaActual)
+		{
+			zonaActual = mainWindow.getzonaPlaneta();
+			if (zonaActual == 1)
+				camera = Camera(posXen + glm::vec3(0.0f, 1.5f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.3f, 0.5f);
+			else
+				camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
+		}
+
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		//el planeta Xen en el espacio tiene radio 60 y gira despacio sobre Y
+		giroPlanetaXen += giroPlanetaXenOffset * deltaTime;
+		if (giroPlanetaXen > 360.0f)
+			giroPlanetaXen -= 360.0f;
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlanetaXen);
+		model = glm::rotate(model, giroPlanetaXen * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(60.0f, 60.0f, 60.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		XenPlaneta_M.RenderModel();
+
+		//el piso base mide 20 por 20 y su textura se repite 10 veces, asi que con escala 10 el piso de Xen queda de 200 por 200
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen);
+		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		xenSueloTexture.UseTexture();
+		meshListModel[0]->RenderMeshModel();
+
+		//criaturas de la mas simple a la mas evolucionada, viendo hacia donde llega la camara
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(-5.0f, 0.0f, -3.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Houndeye_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(-1.5f, 0.0f, -4.5f));
+		model = glm::rotate(model, 20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Bullsquid_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(2.5f, 0.0f, -4.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Vortigaunt_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(6.0f, 0.0f, -3.5f));
+		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		AlienGrunt_M.RenderModel();
+
+		//cristales
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(-10.0f, 0.0f, -3.0f));
+		model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		XenCristal_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(11.0f, 0.0f, 3.0f));
+		model = glm::rotate(model, 70.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		XenCristal_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(-4.0f, 0.0f, 6.0f));
+		model = glm::rotate(model, 150.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		XenCristal_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + glm::vec3(12.0f, 0.0f, -12.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		XenCristal_M.RenderModel();
+
+		//en las plantas de luz el foco cuelga del tallo, por eso modelaux guarda la matriz antes de escalar el tallo
+		for (int i = 0; i < NUM_PLANTAS; i++)
+		{
+			glm::vec3 pos = posXen + posPlantas[i];
+			if (glm::distance(camera.getCameraPosition(), pos) < 4.0f)
+			{
+				if (alturaPlantas[i] > 0.1f)
+					alturaPlantas[i] -= 0.05f * deltaTime;
+			}
+			else if (alturaPlantas[i] < 1.0f)
+			{
+				alturaPlantas[i] += 0.01f * deltaTime;
+			}
+			model = glm::mat4(1.0);
+			model = glm::translate(model, pos);
+			glm::mat4 modelaux = model;
+			model = glm::scale(model, glm::vec3(1.0f, alturaPlantas[i], 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			XenTallo_M.RenderModel();
+			//el foco baja lo mismo que la punta del tallo
+			model = modelaux;
+			model = glm::translate(model, glm::vec3(0.0f, altoTallo * (alturaPlantas[i] - 1.0f), 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			XenFoco_M.RenderModel();
+		}
+
+		//cada isla flotante sube y baja desfasada 120 grados de la anterior
+		anguloIslas += anguloIslasOffset * deltaTime;
+		if (anguloIslas > 360.0f)
+			anguloIslas -= 360.0f;
+		for (int i = 0; i < 3; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posXen + posIslas[i] +
+				glm::vec3(0.0f, 0.8f * sin((anguloIslas + i * 120.0f) * toRadians), 0.0f));
+			model = glm::rotate(model, i * 50.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaIslas[i], escalaIslas[i], escalaIslas[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			XenIsla_M.RenderModel();
+		}
 
 		//--- pista de carreras y naves ---
 		//PISTA RACE

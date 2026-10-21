@@ -1,0 +1,11 @@
+Model Information:
+* title:	Half-Life Vortigaunt
+* source:	https://sketchfab.com/3d-models/half-life-vortigaunt-d0f78902506142a2984d99ce04dcd24e
+* author:	H.E.C.U Models (https://sketchfab.com/H.E.C.U)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Half-Life Vortigaunt" (https://sketchfab.com/3d-models/half-life-vortigaunt-d0f78902506142a2984d99ce04dcd24e) by H.E.C.U Models (https://sketchfab.com/H.E.C.U) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
