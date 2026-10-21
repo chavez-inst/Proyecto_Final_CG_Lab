@@ -1,18 +1,17 @@
 /*
 Proyecto Final - Computacion Grafica
-Base del lab: ventana, camara, iluminacion, texturas, modelos (Assimp) y skybox
-Controles: WASD y mouse mueven la camara, Y/U mueven el cubo, ESC cierra
+En este archivo se arma toda la escena. Sale de la base del lab, que ya traia la ventana, la camara,
+la iluminacion, las texturas, los modelos con Assimp y el skybox. La camara se mueve con WASD y el
+mouse, el cubo de prueba con Y y U, y el programa se cierra con ESC.
 
-Como esta acomodado este archivo (busquen los bloques ===):
- 1. variables globales (texturas, modelos, materiales, luces)
- 2. geometria hecha a mano (piso, plano de vegetacion, cubo)
- 3. main: carga de texturas, modelos, skybox, materiales y luces
- 4. while: aqui se dibuja todo cada frame
-Dentro de cada bloque hay una seccion //--- ... --- por actividad (personajes, planetas, pista, etc.)
-y cada quien escribe solo en las de su actividad. La lista de teclas por actividad esta en README.md
+El archivo esta partido en 4 bloques y cada uno empieza con una linea de ===. Primero van las
+variables globales, luego la geometria que se hace a mano, como el piso y el cubo, despues el main,
+donde se cargan las texturas, los modelos y las luces, y al final el while, que dibuja todo cada frame.
+Dentro de cada bloque hay una seccion //--- ... --- para cada actividad, y cada quien escribe solo en
+las suyas para que casi no haya conflictos al juntar las ramas. Las teclas de cada actividad estan en README.md
 */
 
-//esto solo va aqui, en ningun otro archivo (si no da error de simbolos repetidos)
+//esto solo va aqui y en ningun otro archivo, porque si no da error de simbolos repetidos
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <vector>
@@ -44,16 +43,16 @@ const float toRadians = 3.14159265f / 180.0f;
 // ================== 1. VARIABLES GLOBALES ==================
 
 Window mainWindow;
-std::vector<MeshModel*> meshListModel; //mallas hechas a mano, cada vertice es x y z, u v, nx ny nz
+std::vector<MeshModel*> meshListModel; //mallas hechas a mano, cada vertice lleva x y z de la posicion, u v de la textura y nx ny nz de la normal
 std::vector<Shader> shaderList;
 
 Camera camera;
 
-//texturas (los archivos van en la carpeta Textures)
+//texturas, sus archivos van en la carpeta Textures
 Texture pruebaTexture;
 Texture vegetacionTexture;
 
-//modelos (los archivos van en Models y sus texturas en Textures)
+//modelos, sus archivos van en Models y sus texturas en Textures
 Model Prueba_M;
 
 Skybox skybox;
@@ -66,13 +65,13 @@ GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
 static double limitFPS = 1.0 / 60.0;
 
-//luz direccional (el "sol", solo hay una)
+//luz direccional, es como el sol y solo hay una
 DirectionalLight mainLight;
 //arreglos de luces, el maximo de cada una esta en CommonValues.h
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
-//shaders que usan todos los objetos (los del skybox los carga Skybox.cpp)
+//shaders que usan todos los objetos; los del skybox los carga Skybox.cpp
 static const char* vShader = "shaders/shader_light.vert";
 static const char* fShader = "shaders/shader_light.frag";
 
@@ -82,14 +81,15 @@ static const char* fShader = "shaders/shader_light.frag";
 //--- personajes ---
 Model capitanFalcon;
 
-//modelos con jerarquia: cada uno esta separado en piezas (.obj) que comparten el mismo origen,
-//todas con Y arriba, los pies en y = 0 y mirando hacia +Z. "der" e "izq" son la derecha e izquierda
-//del personaje (la derecha queda en X negativa)
-//por cada pieza hay: nombre del archivo, padre (indice de la pieza de la que cuelga, -1 = raiz),
-//pivote (punto de la articulacion donde gira) y rotacion en grados (x, y, z) que se puede cambiar en el while
+//los modelos con jerarquia estan separados en piezas .obj que comparten el mismo origen, todas con
+//Y hacia arriba, los pies en y = 0 y mirando hacia Z positivo. "der" e "izq" son la derecha y la
+//izquierda del personaje, y su derecha queda hacia X negativo
+//por cada pieza se guarda el nombre del archivo, el padre, que es el indice de la pieza de la que cuelga
+//y vale -1 si es la raiz, el pivote, que es el punto de la articulacion donde gira, y la rotacion en grados
+//en x, y, z, que se puede cambiar en el while
 //el padre siempre va antes que sus hijos en los arreglos
 
-//planta carnivora: mide ~1.4 de alto
+//la planta carnivora mide como 1.4 de alto
 const int NUM_PIEZAS_CARNIVORA = 15;
 Model Carnivora_M[NUM_PIEZAS_CARNIVORA];
 const char* piezasCarnivora[NUM_PIEZAS_CARNIVORA] = {
@@ -119,7 +119,7 @@ glm::vec3 pivotesCarnivora[NUM_PIEZAS_CARNIVORA] = {
 };
 glm::vec3 rotCarnivora[NUM_PIEZAS_CARNIVORA]; //las globales empiezan en 0
 
-//Gordon: mide ~1.4 de alto
+//Gordon mide como 1.4 de alto
 const int NUM_PIEZAS_GORDON = 14;
 Model Gordon_M[NUM_PIEZAS_GORDON];
 const char* piezasGordon[NUM_PIEZAS_GORDON] = {
@@ -135,31 +135,31 @@ int padresGordon[NUM_PIEZAS_GORDON] = {
 	0, 8, 9,
 	0, 11, 12 };
 glm::vec3 pivotesGordon[NUM_PIEZAS_GORDON] = {
-	glm::vec3(0.0f, 0.73277f, 0.01014f),       //torso (cadera)
-	glm::vec3(0.0f, 1.22766f, -0.01482f),      //cabeza (cuello)
-	glm::vec3(-0.14675f, 1.11121f, -0.03717f), //brazo_der (hombro)
-	glm::vec3(-0.29002f, 0.94174f, -0.04760f), //antebrazo_der (codo)
-	glm::vec3(-0.43085f, 0.77516f, -0.04468f), //mano_der (muneca)
+	glm::vec3(0.0f, 0.73277f, 0.01014f),       //torso, gira en la cadera
+	glm::vec3(0.0f, 1.22766f, -0.01482f),      //cabeza, gira en el cuello
+	glm::vec3(-0.14675f, 1.11121f, -0.03717f), //brazo_der, gira en el hombro
+	glm::vec3(-0.29002f, 0.94174f, -0.04760f), //antebrazo_der, gira en el codo
+	glm::vec3(-0.43085f, 0.77516f, -0.04468f), //mano_der, gira en la muneca
 	glm::vec3(0.14675f, 1.11121f, -0.03717f),  //brazo_izq
 	glm::vec3(0.29002f, 0.94174f, -0.04760f),  //antebrazo_izq
 	glm::vec3(0.43085f, 0.77516f, -0.04469f),  //mano_izq
-	glm::vec3(-0.07392f, 0.73277f, 0.01014f),  //muslo_der (cadera)
-	glm::vec3(-0.07569f, 0.39412f, -0.00743f), //pantorrilla_der (rodilla)
-	glm::vec3(-0.07732f, 0.08130f, -0.03441f), //pie_der (tobillo)
+	glm::vec3(-0.07392f, 0.73277f, 0.01014f),  //muslo_der, gira en la cadera
+	glm::vec3(-0.07569f, 0.39412f, -0.00743f), //pantorrilla_der, gira en la rodilla
+	glm::vec3(-0.07732f, 0.08130f, -0.03441f), //pie_der, gira en el tobillo
 	glm::vec3(0.07392f, 0.73277f, 0.01014f),   //muslo_izq
 	glm::vec3(0.07569f, 0.39412f, -0.00743f),  //pantorrilla_izq
 	glm::vec3(0.07732f, 0.08130f, -0.03441f)   //pie_izq
 };
 glm::vec3 rotGordon[NUM_PIEZAS_GORDON];
 
-//Kirby: mide ~0.73 de alto
+//Kirby mide como 0.73 de alto
 const int NUM_PIEZAS_KIRBY = 5;
 Model Kirby_M[NUM_PIEZAS_KIRBY];
 const char* piezasKirby[NUM_PIEZAS_KIRBY] = {
 	"cuerpo", "mano_der", "mano_izq", "pie_der", "pie_izq" };
 int padresKirby[NUM_PIEZAS_KIRBY] = { -1, 0, 0, 0, 0 };
 glm::vec3 pivotesKirby[NUM_PIEZAS_KIRBY] = {
-	glm::vec3(0.0f, 0.4158f, 0.0f),         //cuerpo (centro)
+	glm::vec3(0.0f, 0.4158f, 0.0f),         //cuerpo, gira en su centro
 	glm::vec3(-0.2024f, 0.3899f, 0.0164f),  //mano_der
 	glm::vec3(0.2014f, 0.3897f, 0.0170f),   //mano_izq
 	glm::vec3(-0.1323f, 0.1498f, -0.0135f), //pie_der
@@ -272,7 +272,7 @@ Model sateliteRace;
 
 //calcula las normales promediando las de los triangulos que comparten cada vertice
 //se llama antes de CreateMeshModel porque ahi es donde se copian los vertices a la GPU
-//ojo: en este proyecto las normales apuntan hacia ADENTRO del objeto, asi que los triangulos
+//en este proyecto las normales apuntan hacia adentro del objeto, asi que los triangulos
 //tienen que ir en sentido horario vistos desde afuera
 void calcAverageNormals(unsigned int* indices, unsigned int indiceCount, GLfloat* vertices, unsigned int verticeCount,
 	unsigned int vLength, unsigned int normalOffset)
@@ -311,7 +311,7 @@ void CreateObjects()
 		1, 2, 3
 	};
 
-	//normales hacia abajo (hacia adentro del piso) por como el shader calcula la luz
+	//las normales van hacia abajo, o sea hacia adentro del piso, por como el shader calcula la luz
 	//las UV llegan a 10 para que la textura se repita 10 veces
 	GLfloat floorVertices[] = {
 		//	x      y      z			u	  v			nx	  ny    nz
@@ -361,11 +361,11 @@ void CreateShaders()
 }
 
 
-//cubo de 1x1x1 centrado en el origen, con la imagen completa en cada cara
+//cubo de lado 1 centrado en el origen, con la imagen completa en cada cara
 void CrearCubo()
 {
-	//cada normal apunta hacia ADENTRO del cubo (al reves de su cara): el shader calcula la luz con
-	//(FragPos - posicion de la luz), entonces si apuntaran hacia afuera esa cara se veria oscura
+	//cada normal apunta hacia adentro del cubo, al reves de su cara, porque el shader calcula la luz con
+	//FragPos menos la posicion de la luz, y si apuntaran hacia afuera esa cara se veria oscura
 	unsigned int cubo_indices[] = {
 		// front
 		0, 1, 2,
@@ -401,7 +401,7 @@ void CrearCubo()
 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
 		 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
 
-		 // back (la S va al reves para que la imagen no salga en espejo)
+		 // back, la S va al reves para que la imagen no salga en espejo
 		 -0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
 		  0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
 		  0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
@@ -432,7 +432,7 @@ void CrearCubo()
 }
 
 
-//dibuja un modelo con jerarquia: la matriz de cada pieza es la de su padre mas su propia rotacion
+//dibuja un modelo con jerarquia, donde la matriz de cada pieza es la de su padre mas su propia rotacion
 //para girar en la articulacion se lleva el pivote al origen, se rota y se regresa
 //raiz es la matriz que coloca todo el modelo en la escena
 void DibujaJerarquia(Model piezas[], int padres[], glm::vec3 pivotes[], glm::vec3 rotaciones[], int numPiezas,
@@ -462,7 +462,7 @@ void DibujaJerarquia(Model piezas[], int padres[], glm::vec3 pivotes[], glm::vec
 
 //funciones con geometria de cada actividad; se llaman en la carga de recursos, dentro de su seccion
 //el indice en meshListModel depende del orden en que se agregan, por eso cada quien lo guarda en una
-//variable global antes del push_back (ej. idxCohete = meshListModel.size();) y dibuja con meshListModel[idxCohete]
+//variable global antes del push_back, por ejemplo idxCohete = meshListModel.size();, y dibuja con meshListModel[idxCohete]
 
 //--- personajes ---
 
@@ -496,8 +496,8 @@ int main()
 
 	// ================== 3. CARGA DE RECURSOS ==================
 
-	//texturas: primero se asigna la ruta y luego se carga
-	//LoadTextureA para imagenes con canal alfa (png, tga) y LoadTexture para las que no tienen (jpg)
+	//en las texturas primero se asigna la ruta y luego se carga
+	//LoadTextureA es para imagenes con canal alfa, como png o tga, y LoadTexture para las que no tienen, como jpg
 	pruebaTexture = Texture("Textures/prueba.png");
 	pruebaTexture.LoadTextureA();
 	vegetacionTexture = Texture("Textures/prueba_alpha.png");
@@ -507,18 +507,18 @@ int main()
 	Prueba_M = Model();
 	Prueba_M.LoadModel("Models/prueba.obj");
 
-	//skybox: las 6 caras van en este orden: rt, lf, dn, up, bk, ft
+	//las 6 caras del skybox van en este orden: rt, lf, dn, up, bk, ft
 	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/sBRight.png");// +X (Derecha)
-	skyboxFaces.push_back("Textures/Skybox/Left.png");// -X (Izquierda)
-	skyboxFaces.push_back("Textures/Skybox/DownF.png");// -Y (Abajo)
-	skyboxFaces.push_back("Textures/Skybox/Top.png");// +Y (Arriba)
-	skyboxFaces.push_back("Textures/Skybox/FrontF.png");// +Z (Atras)
-	skyboxFaces.push_back("Textures/Skybox/BackF.png");// -Z (Enfrente)
+	skyboxFaces.push_back("Textures/Skybox/sBRight.png");//derecha, hacia X positivo
+	skyboxFaces.push_back("Textures/Skybox/Left.png");//izquierda, hacia X negativo
+	skyboxFaces.push_back("Textures/Skybox/DownF.png");//abajo, hacia Y negativo
+	skyboxFaces.push_back("Textures/Skybox/Top.png");//arriba, hacia Y positivo
+	skyboxFaces.push_back("Textures/Skybox/FrontF.png");//atras, hacia Z positivo
+	skyboxFaces.push_back("Textures/Skybox/BackF.png");//enfrente, hacia Z negativo
 
 	skybox = Skybox(skyboxFaces);
 
-	//materiales: Material(intensidad especular, shininess)
+	//los materiales se crean con Material(intensidad especular, shininess)
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
 
@@ -608,18 +608,18 @@ int main()
 	//--- camaras y recorridos ---
 
 
-	// ---- luces ----
+	// ---------- luces ----------
 	//los parametros van en este orden:
 	//DirectionalLight(r, g, b, intensidad ambiental, intensidad difusa, direccion x, y, z)
 	//PointLight(r, g, b, ambiental, difusa, posicion x, y, z, constante, lineal, exponente)
 	//SpotLight(r, g, b, ambiental, difusa, posicion x, y, z, direccion x, y, z, constante, lineal, exponente, angulo del cono)
 
-	//luz direccional: solo hay 1 y siempre tiene que existir
+	//solo hay una luz direccional y siempre tiene que existir
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
 		0.2f, 0.4f,
 		0.0f, -1.0f, -1.0f);
 
-	//contador de luces puntuales (no puede pasar de MAX_POINT_LIGHTS)
+	//contador de luces puntuales, no puede pasar de MAX_POINT_LIGHTS
 	unsigned int pointLightCount = 0;
 	//luz puntual blanca
 	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,
@@ -628,9 +628,9 @@ int main()
 		1.0f, 0.05f, 0.005f);
 	pointLightCount++;
 
-	//contador de spotlights (no puede pasar de MAX_SPOT_LIGHTS)
+	//contador de spotlights, no puede pasar de MAX_SPOT_LIGHTS
 	unsigned int spotLightCount = 0;
-	//linterna: su posicion y direccion se actualizan en el while con la camara
+	//la posicion y la direccion de la linterna se actualizan en el while con la camara
 	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f,
 		0.0f, 0.0f, 0.0f,
@@ -647,7 +647,7 @@ int main()
 		1.0f, 0.05f, 0.005f,
 		20.0f);
 	spotLightCount++;
-	//para agregar otra luz: se pone en el siguiente lugar libre del arreglo y se suma 1 al contador
+	//para agregar otra luz se pone en el siguiente lugar libre del arreglo y se le suma 1 al contador
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 	//las luces de la escena van aqui; si otra actividad necesita una luz, se pide a quien lleva esta seccion
@@ -655,7 +655,7 @@ int main()
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	GLuint uniformColor = 0;
-	//ojo: glm::perspective usa radianes, asi que el 45.0f no son 45 grados, pero asi venia del lab y se ve bien
+	//glm::perspective usa radianes, asi que el 45.0f no son 45 grados, pero asi venia del lab y se ve bien
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
 
 	// ================== 4. CICLO PRINCIPAL ==================
@@ -716,9 +716,9 @@ int main()
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
-		//para dibujar cada objeto siempre es lo mismo: matriz model, color, textura, material y render
+		//para dibujar cada objeto siempre se hace lo mismo, se pone la matriz model, el color, la textura y el material, y luego se hace el render
 		glm::mat4 model(1.0);
-		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); //blanco = la textura se ve con sus colores normales
+		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); //con blanco la textura se ve con sus colores normales
 
 		// ---------- objetos opacos ----------
 
@@ -732,7 +732,7 @@ int main()
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshListModel[0]->RenderMeshModel();
 
-		//cubo: se mueve en X con las teclas Y/U (ver Window.cpp)
+		//el cubo se mueve en X con las teclas Y y U, que estan en Window.cpp
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(mainWindow.getmuevex(), -0.5f, -4.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -741,7 +741,7 @@ int main()
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshListModel[2]->RenderMeshModel();
 
-		//modelo cargado de archivo: trae sus propias texturas, por eso aqui no va UseTexture
+		//el modelo cargado de archivo trae sus propias texturas, por eso aqui no va UseTexture
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(4.0f, -1.0f, -3.0f));
 		model = glm::rotate(model, 45 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -758,8 +758,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		capitanFalcon.RenderModel();
 
-		//modelos con jerarquia: los pies estan en y = 0, por eso se bajan a -1 (altura del piso)
-		//para articular se cambian las rotaciones, ej. rotGordon[2].x = -30.0f; mueve el brazo derecho en el hombro
+		//los pies de los modelos con jerarquia estan en y = 0, por eso se bajan a -1, que es la altura del piso
+		//para articularlos se cambian las rotaciones; por ejemplo, rotGordon[2].x = -30.0f; mueve el brazo derecho en el hombro
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
@@ -938,7 +938,7 @@ int main()
 		}
 
 		//--- pista de carreras y naves ---
-		//PISTA RACE
+		//pista de carreras
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -947,7 +947,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		pistaM.RenderModel();
 
-		//NAVE1 RACE
+		//nave 1 de la pista
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -958,7 +958,7 @@ int main()
 		nave1Race.RenderModel();
 
 		//--- satelites y cuerpos espaciales ---
-		//SATELITE RACE
+		//satelite
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -987,7 +987,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 
-		//blending: para transparencia o traslucidez
+		//el blending sirve para la transparencia o la traslucidez
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		vegetacionTexture.UseTexture();

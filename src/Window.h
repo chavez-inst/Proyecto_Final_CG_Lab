@@ -53,8 +53,8 @@ private:
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
-	//valor que cambia con Y/U
-	//para agregar otro: la variable aqui, su getter arriba, darle valor en los constructores y la tecla en ManejaTeclado
+	//valor que cambia con Y y U
+	//para agregar otro valor se pone la variable aqui, su getter arriba, su valor inicial en los constructores y la tecla en ManejaTeclado
 	GLfloat muevex;
 
 	//variables de cada actividad

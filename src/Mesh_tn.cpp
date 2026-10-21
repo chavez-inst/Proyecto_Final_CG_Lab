@@ -8,7 +8,7 @@ MeshModel::MeshModel()
 	indexCount = 0;
 }
 
-//ojo: numOfVertices es cuantos floats tiene el arreglo (vertices x 8), no cuantos vertices son
+//numOfVertices es cuantos floats tiene el arreglo, o sea 8 por cada vertice, y no cuantos vertices son
 void MeshModel::CreateMeshModel(GLfloat* vertices, unsigned int* indices, unsigned int numOfVertices, unsigned int numOfIndices)
 {
 	indexCount = numOfIndices;
@@ -27,13 +27,13 @@ void MeshModel::CreateMeshModel(GLfloat* vertices, unsigned int* indices, unsign
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * numOfVertices, vertices, GL_STATIC_DRAW);
 
 	//cada glVertexAttribPointer le dice al shader donde esta cada dato dentro de los 8 valores
-	//location 0: posicion (3 valores, empieza en 0)
+	//en el location 0 va la posicion, que son 3 valores desde el 0
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, 0);
 	glEnableVertexAttribArray(0);
-	//location 1: coordenadas de textura S T (2 valores, empieza en 3)
+	//en el location 1 van las coordenadas de textura S y T, que son 2 valores desde el 3
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0]) * 3));
 	glEnableVertexAttribArray(1);
-	//location 2: normales (3 valores, empieza en 5)
+	//en el location 2 van las normales, que son 3 valores desde el 5
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0]) * 5));
 	glEnableVertexAttribArray(2);
 

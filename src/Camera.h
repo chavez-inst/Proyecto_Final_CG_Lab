@@ -7,7 +7,7 @@
 
 #include <glfw3.h>
 
-//camara en primera persona: WASD para moverse y el mouse para voltear
+//camara en primera persona, se mueve con WASD y voltea con el mouse
 class Camera
 {
 public:
@@ -30,8 +30,8 @@ private:
 	glm::vec3 right;
 	glm::vec3 worldUp;
 
-	GLfloat yaw;	//giro a los lados (en grados)
-	GLfloat pitch;	//giro arriba/abajo (en grados)
+	GLfloat yaw;	//giro hacia los lados, en grados
+	GLfloat pitch;	//giro hacia arriba y hacia abajo, en grados
 
 	GLfloat moveSpeed;
 	GLfloat turnSpeed;

@@ -10,7 +10,7 @@
 #include "Shader_light.h"
 
 //cubo que rodea a la camara con 6 imagenes (cubemap)
-//usa sus propios shaders: shaders/skybox.vert y shaders/skybox.frag
+//usa sus propios shaders, que son shaders/skybox.vert y shaders/skybox.frag
 class Skybox
 {
 public:

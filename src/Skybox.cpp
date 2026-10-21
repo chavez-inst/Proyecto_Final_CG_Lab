@@ -9,7 +9,7 @@ Skybox::Skybox()
 	uniformView = 0;
 }
 
-//faceLocations: las 6 imagenes en el orden rt, lf, dn, up, bk, ft
+//faceLocations trae las 6 imagenes en el orden rt, lf, dn, up, bk, ft
 Skybox::Skybox(std::vector<std::string> faceLocations)
 {
 	skyShader = new Shader();
@@ -17,7 +17,7 @@ Skybox::Skybox(std::vector<std::string> faceLocations)
 	uniformProjection = skyShader->GetProjectionLocation();
 	uniformView = skyShader->GetViewLocation();
 
-	//malla del skybox: un cubo de 2x2x2
+	//la malla del skybox es un cubo de lado 2
 	unsigned int skyboxIndices[] = {
 		// front
 		0, 1, 2,
@@ -83,20 +83,20 @@ Skybox::Skybox(std::vector<std::string> faceLocations)
 //se dibuja antes que el resto de la escena
 void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime)
 {
-	// 1. Eliminar la traslacion de la camara (mantiene solo orientacion)
+	//se le quita la traslacion a la vista para que el skybox gire con la camara pero no se mueva con ella
 	viewMatrix = glm::mat4(glm::mat3(viewMatrix));
 
-	// 2. Acumuladores de angulo continuos (velocidades ajustables)
-	static float angleY = 0.0f; // Rotacion principal (horizontal)
-	static float angleX = 0.0f; // Inclinacion axial
-	static float angleZ = 0.0f; // Bamboleo sutil
+	//angulos que crecen cada frame para que el skybox gire solo
+	static float angleY = 0.0f; //giro principal, hacia los lados
+	static float angleX = 0.0f; //inclinacion
+	static float angleZ = 0.0f; //bamboleo leve
 
-	// Ajusta los multiplicadores para cambiar la velocidad de giro:
-	angleY += 0.035f * deltaTime;  // Giro constante sobre el eje Y
-	angleX += 0.025f * deltaTime;  // Giro lento sobre el eje X
-	angleZ += 0.01f * deltaTime;  // Giro muy lento sobre el eje Z
+	//los multiplicadores son la velocidad de giro de cada eje
+	angleY += 0.035f * deltaTime;  //giro constante sobre el eje Y
+	angleX += 0.025f * deltaTime;  //giro lento sobre el eje X
+	angleZ += 0.01f * deltaTime;  //giro muy lento sobre el eje Z
 
-	// 3. Aplicar las rotaciones a la matriz de vista del skybox
+	//se aplican las rotaciones a la matriz de vista del skybox
 	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));
 	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleX), glm::vec3(1.0f, 0.0f, 0.0f));
 	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleZ), glm::vec3(0.0f, 0.0f, 1.0f));

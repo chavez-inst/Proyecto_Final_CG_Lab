@@ -58,11 +58,11 @@ uniform Material material;
 
 uniform vec3 eyePosition;
 
-//modelo de Phong: ambiental + difusa + especular
+//modelo de Phong, que suma la luz ambiental, la difusa y la especular
 vec4 CalcLightByDirection(Light light, vec3 direction)
 {
 	vec4 ambientcolor = vec4(light.color, 1.0f) * light.ambientIntensity;
-	//producto punto entre normal y direccion de la luz = coseno del angulo (por eso se normalizan los dos)
+	//el producto punto entre la normal y la direccion de la luz da el coseno del angulo, por eso se normalizan los dos
 	float diffuseFactor = max(dot(normalize(Normal), normalize(direction)), 0.0f);
 	vec4 diffusecolor = vec4(light.color * light.diffuseIntensity * diffuseFactor, 1.0f);
 
@@ -97,7 +97,7 @@ vec4 CalcPointLight(PointLight pLight)
 	direction = normalize(direction);
 
 	vec4 color = CalcLightByDirection(pLight.base, direction);
-	//atenuacion: entre mas lejos, mas se divide la luz
+	//atenuacion, entre mas lejos esta la luz mas se divide
 	float attenuation = pLight.exponent * distance * distance +
 						pLight.linear * distance +
 						pLight.constant;
@@ -150,6 +150,6 @@ void main()
 	vec4 finalcolor = CalcDirectionalLight();
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
-	//color final = textura * color del objeto (uniform color) * toda la luz que le llega
+	//el color final es la textura por el color del objeto, que es el uniform color, por toda la luz que le llega
 	color = texture(theTexture, TexCoord)*vColor*finalcolor;
 }
