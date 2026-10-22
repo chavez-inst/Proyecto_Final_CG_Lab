@@ -207,9 +207,12 @@ bool pasoAdelante = true;
 //la superficie de cada planeta es un piso aparte y muy lejos del espacio, como el plano lejano
 //de la perspectiva esta en 1000 nunca se ven juntos
 glm::vec3 posXen = glm::vec3(3000.0f, 0.0f, 0.0f);
-//zona donde esta el usuario, 0 en el espacio y 1 en Xen; se compara con la de Window para saber cuando cambio
+glm::vec3 posPlaneta2 = glm::vec3(-3000.0f, 0.0f, 0.0f);
+//zona donde esta el usuario, 0 en el espacio, 1 en Xen y 2 en el planeta 2; se compara con la de Window para saber cuando cambio
 int zonaActual = 0;
 Skybox skyboxXen;
+Skybox skyboxPlaneta2;
+Texture planeta2SueloTexture;
 Texture xenSueloTexture;
 
 //el planeta Xen que se ve desde el espacio es una esfera que gira sobre su eje
@@ -217,6 +220,57 @@ Model XenPlaneta_M;
 glm::vec3 posPlanetaXen = glm::vec3(-300.0f, 80.0f, -500.0f);
 float giroPlanetaXen = 0.0f;
 float giroPlanetaXenOffset = 0.05f;
+
+//el planeta 2 es Pop Star, el planeta de Kirby, que tiene forma de estrella; se ve de frente y gira como rehilete
+Model Planeta2Espacio_M;
+glm::vec3 posPlaneta2Espacio = glm::vec3(-500.0f, 120.0f, -100.0f);
+float giroPlaneta2 = 0.0f;
+float giroPlaneta2Offset = 0.04f;
+
+//objetos de la superficie del planeta 2, hechos con Blender/planeta2_objetos.py
+Model Planeta2Arbol_M;
+Model Planeta2Nube1_M;
+Model Planeta2Nube2_M;
+Model WarpStar_M;
+Model Planeta2Colina_M;
+
+//las colinas van en las orillas del mapa como paisaje, porque la camara no choca con nada y las atravesaria
+//el modelo mide 1 de radio y 0.4 de alto, y se baja para que la orilla, donde la textura se estira, quede enterrada
+const int NUM_COLINAS = 5;
+glm::vec3 posColinas[NUM_COLINAS] = {
+	glm::vec3(-35.0f, -1.0f, -72.0f),
+	glm::vec3(30.0f, -1.0f, -68.0f),
+	glm::vec3(-72.0f, -1.0f, 0.0f),
+	glm::vec3(70.0f, -1.0f, 15.0f),
+	glm::vec3(10.0f, -1.0f, 68.0f) };
+float giroColinas[NUM_COLINAS] = { 0.0f, 70.0f, 140.0f, 210.0f, 290.0f };
+float escalaColinas[NUM_COLINAS] = { 24.0f, 30.0f, 26.0f, 28.0f, 30.0f };
+
+//el mismo arbol se repite con distinto giro y tamano para que no se vean todos iguales
+const int NUM_ARBOLES = 6;
+glm::vec3 posArboles[NUM_ARBOLES] = {
+	glm::vec3(-15.0f, 0.0f, -20.0f),
+	glm::vec3(18.0f, 0.0f, -25.0f),
+	glm::vec3(-30.0f, 0.0f, 5.0f),
+	glm::vec3(28.0f, 0.0f, 10.0f),
+	glm::vec3(-8.0f, 0.0f, -40.0f),
+	glm::vec3(40.0f, 0.0f, -35.0f) };
+float giroArboles[NUM_ARBOLES] = { 0.0f, 60.0f, 130.0f, 200.0f, 250.0f, 310.0f };
+float escalaArboles[NUM_ARBOLES] = { 1.2f, 1.4f, 1.1f, 1.3f, 1.5f, 1.2f };
+
+//hay dos modelos de nube; tipoNubes dice cual se dibuja en cada lugar
+const int NUM_NUBES = 5;
+glm::vec3 posNubes[NUM_NUBES] = {
+	glm::vec3(-20.0f, 28.0f, -50.0f),
+	glm::vec3(25.0f, 32.0f, -60.0f),
+	glm::vec3(0.0f, 40.0f, -90.0f),
+	glm::vec3(-45.0f, 30.0f, -20.0f),
+	glm::vec3(50.0f, 26.0f, -10.0f) };
+int tipoNubes[NUM_NUBES] = { 2, 1, 2, 1, 1 };
+float escalaNubes[NUM_NUBES] = { 3.0f, 3.0f, 4.0f, 3.0f, 2.5f };
+
+//la warp star flota un poco arriba del piso, enfrente de donde llega la camara
+glm::vec3 posWarpStar = glm::vec3(4.0f, 0.8f, -4.0f);
 
 //objetos de la superficie de Xen, hechos con Blender/xen_objetos.py
 Model XenCristal_M;
@@ -589,6 +643,32 @@ int main()
 	AlienGrunt_M = Model();
 	AlienGrunt_M.LoadModel("Models/AlienGrunt/aliengrunt.obj");
 
+	//skybox, piso y estrella del planeta 2, hechos con Blender/planeta2.py y Blender/planeta2_suelo.py
+	std::vector<std::string> skyboxPlaneta2Faces;
+	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_rt.png");
+	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_lf.png");
+	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_dn.png");
+	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_up.png");
+	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_bk.png");
+	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_ft.png");
+	skyboxPlaneta2 = Skybox(skyboxPlaneta2Faces);
+
+	planeta2SueloTexture = Texture("Textures/planeta2_suelo.png");
+	planeta2SueloTexture.LoadTextureA();
+
+	Planeta2Espacio_M = Model();
+	Planeta2Espacio_M.LoadModel("Models/Planeta2/planeta2_planeta.obj");
+	Planeta2Arbol_M = Model();
+	Planeta2Arbol_M.LoadModel("Models/Planeta2/planeta2_arbol.obj");
+	Planeta2Nube1_M = Model();
+	Planeta2Nube1_M.LoadModel("Models/Planeta2/planeta2_nube1.obj");
+	Planeta2Nube2_M = Model();
+	Planeta2Nube2_M.LoadModel("Models/Planeta2/planeta2_nube2.obj");
+	WarpStar_M = Model();
+	WarpStar_M.LoadModel("Models/Planeta2/planeta2_warpstar.obj");
+	Planeta2Colina_M = Model();
+	Planeta2Colina_M.LoadModel("Models/Planeta2/planeta2_colina.obj");
+
 	//--- pista de carreras y naves ---
 	pistaM = Model();
 	pistaM.LoadModel("Models/pista/pista.obj");
@@ -681,9 +761,11 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//el skybox va primero, antes que todo lo demas, y cada planeta tiene el suyo segun zonaActual, que cambia con Z y C
+		//el skybox va primero, antes que todo lo demas, y cada planeta tiene el suyo segun zonaActual, que cambia con Z, X y C
 		if (zonaActual == 1)
 			skyboxXen.DrawSkybox(view, projection, deltaTime);
+		else if (zonaActual == 2)
+			skyboxPlaneta2.DrawSkybox(view, projection, deltaTime);
 		else
 			skybox.DrawSkybox(view, projection, deltaTime);
 
@@ -822,6 +904,8 @@ int main()
 			zonaActual = mainWindow.getzonaPlaneta();
 			if (zonaActual == 1)
 				camera = Camera(posXen + glm::vec3(0.0f, 1.5f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.3f, 0.5f);
+			else if (zonaActual == 2)
+				camera = Camera(posPlaneta2 + glm::vec3(0.0f, 1.5f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.3f, 0.5f);
 			else
 				camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
 		}
@@ -936,6 +1020,65 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			XenIsla_M.RenderModel();
 		}
+
+		//Pop Star mide como 1.8 de la punta al centro, asi que con escala 40 cada punta sale unas 70 unidades
+		//gira sobre Z porque la estrella esta parada viendo hacia Z positivo
+		giroPlaneta2 += giroPlaneta2Offset * deltaTime;
+		if (giroPlaneta2 > 360.0f)
+			giroPlaneta2 -= 360.0f;
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2Espacio);
+		model = glm::rotate(model, giroPlaneta2 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(40.0f, 40.0f, 40.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Planeta2Espacio_M.RenderModel();
+
+		//el piso del planeta 2 mide lo mismo que el de Xen
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2);
+		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		planeta2SueloTexture.UseTexture();
+		meshListModel[0]->RenderMeshModel();
+
+		for (int i = 0; i < NUM_COLINAS; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posPlaneta2 + posColinas[i]);
+			model = glm::rotate(model, giroColinas[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaColinas[i], escalaColinas[i], escalaColinas[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Planeta2Colina_M.RenderModel();
+		}
+
+		for (int i = 0; i < NUM_ARBOLES; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posPlaneta2 + posArboles[i]);
+			model = glm::rotate(model, giroArboles[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaArboles[i], escalaArboles[i], escalaArboles[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Planeta2Arbol_M.RenderModel();
+		}
+
+		for (int i = 0; i < NUM_NUBES; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posPlaneta2 + posNubes[i]);
+			model = glm::scale(model, glm::vec3(escalaNubes[i], escalaNubes[i], escalaNubes[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			if (tipoNubes[i] == 1)
+				Planeta2Nube1_M.RenderModel();
+			else
+				Planeta2Nube2_M.RenderModel();
+		}
+
+		//la punta de la warp star ve hacia Z positivo, se gira un poco para que se vean los propulsores
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2 + posWarpStar);
+		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		WarpStar_M.RenderModel();
 
 		//--- pista de carreras y naves ---
 		//pista de carreras

@@ -62,7 +62,7 @@ private:
 	bool caminaHeadcrab; //H prende o apaga la caminata del headcrab
 
 	//--- planetas: Xen y planeta 2 ---
-	int zonaPlaneta; //zona donde esta el usuario, vale 0 en el espacio y 1 en Xen, y la cambian las teclas Z y C
+	int zonaPlaneta; //zona donde esta el usuario, vale 0 en el espacio, 1 en Xen y 2 en el planeta 2, y la cambian las teclas Z, X y C
 
 	//--- pista de carreras y naves ---
 
