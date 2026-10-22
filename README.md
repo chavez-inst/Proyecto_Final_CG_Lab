@@ -35,7 +35,7 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 | W A S D     | Mover la camara              |
 | Mouse       | Voltear la camara            |
 | Y / U       | Mover el cubo en X           |
-| Z / C       | Ir a la superficie de Xen / regresar al espacio |
+| Z / X / C   | Ir a la superficie de Xen / ir a la del planeta 2 / regresar al espacio |
 | H           | Prender o apagar la caminata del headcrab (en Xen) |
 | ESC         | Cerrar                       |
 

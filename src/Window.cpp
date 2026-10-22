@@ -183,10 +183,14 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 
 	//--- planetas: Xen y planeta 2 ---
-	//Z lleva a la superficie de Xen y C regresa al espacio, la X se queda libre para el planeta 2
+	//Z lleva a la superficie de Xen, X a la del planeta 2 y C regresa al espacio
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
 		theWindow->zonaPlaneta = 1;
+	}
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 2;
 	}
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
