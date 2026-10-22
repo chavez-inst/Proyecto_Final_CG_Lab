@@ -303,15 +303,26 @@ Agregar > Elemento existente. Si se usa "Agregar > Clase", cambiar la ubicacion 
 
 ## Trabajo en equipo con Git
 
-Se pide **una rama por alumno** y que las ramas se queden en el repo hasta el final
-(sirven para ver rapido que hizo cada quien). Por eso:
+Se piden **varias ramas por alumno**, una por cada avance, y que todas se queden en el repo hasta
+el final (sirven para ver como fue avanzando cada quien). Por eso:
 
-- Cada quien trabaja **solo en su rama** (`nombre-tema`, por ejemplo `alejandro-planetas`).
-  Nadie hace commit ni push directo a `main`.
+- Cada quien trabaja **solo en sus ramas** (`nombre-tema`, por ejemplo `alejandro-planetas` o
+  `alejandro-avatar-camara`). Nadie hace commit ni push directo a `main`.
+- **Cada avance nuevo va en una rama nueva**, que sale de `main` ya actualizado. La rama anterior
+  se deja como quedo, ya no se sigue usando:
+  ```
+  git checkout main
+  git pull
+  git checkout -b nombre-tema
+  git push -u origin nombre-tema
+  ```
+  En GitHub Desktop: cambiarse a `main`, Fetch origin y Pull, luego Branch > New branch, escribir el
+  nombre y Publish branch.
+  Al crearla, agregarla a la tabla de ramas de `AVANCES.md`.
 - **Nunca borrar ramas**, ni la propia ni las de otros (tampoco con el boton "Delete branch" de
   GitHub despues de un Pull Request).
-- **Antes de empezar a trabajar:** cambiarse a su rama y hacer Pull. Al terminar: commit y push
-  a su rama.
+- **Antes de empezar a trabajar:** cambiarse a la rama del avance en el que se esta trabajando y
+  hacer Pull. Al terminar: commit y push a esa rama.
 - **Cuando algo ya esta listo** (compila y funciona), avisar en el grupo (o abrir un
   Pull Request de su rama hacia `main`). Se revisan los cambios y se ajustan si hace falta y los integra a `main`.
 - **Despues de cada integracion**, cada quien trae `main` a su rama antes de seguir, para trabajar

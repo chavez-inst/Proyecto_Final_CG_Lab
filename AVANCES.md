@@ -28,7 +28,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Plataforma de lanzamiento con cohete | 20 | por definir | pendiente | |
 | Estacion espacial (entran y salen naves) | 20 | por definir | pendiente | |
 | Satelites y cuerpos espaciales | 10 | Dylan | en proceso | lunas, asteroides, satelites |
-| Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | planeta 1: Xen (Half-Life); planeta 2 por definir |
+| Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | planeta 1: Xen (Half-Life); planeta 2: Dream Land (Kirby). Falta su cadena de evolucion |
 | Texturizado de todo | 20 | todos | en proceso | |
 | Avatar jerarquico **no humanoide** | 10 | por definir | por definir | propuesta: Kirby (Gordon y Falcon son humanos, tal vez revisar) |
 | Avatar con textura y material | 10 | por definir | pendiente | |
@@ -40,7 +40,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Cambio correcto de camaras | 10 | por definir | pendiente | |
 | Luz direccional con ciclo dia/noche | 10 | por definir | pendiente | |
 | Luces puntuales que se prenden/apagan con el ciclo (max 2 min) | 10 | por definir | pendiente | |
-| Skybox espacial que cambia segun el planeta | 10 | por definir | en proceso | hay un skybox; falta uno por planeta |
+| Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio, uno para Xen y uno para Dream Land (cambian con Z, X y C) |
 | Spotlights que se prenden/apagan con teclado | 10 | por definir | pendiente | ya hay 2 spotlights, falta la tecla |
 | 3 animaciones basicas (se inician con teclado) | 30 | por definir | pendiente | ej. cohete, compuerta, criatura |
 | 3 animaciones complejas (ciclo continuo con funciones) | 30 | por definir | pendiente | ej. naves en la pista, lunas en orbita, naves de la estacion |
@@ -52,7 +52,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 
 | Entregable | Pts | Responsable | Estado | Notas |
 |---|---|---|---|---|
-| Repo con **una rama por alumno** | 10 | todos | en proceso | ya esta `alejandro-planetas`; faltan las de Dylan, Abraham y Andrea |
+| Repo con **varias ramas por alumno** (una por avance) | 10 | todos | en proceso | ver la tabla de ramas abajo; falta la de Andrea |
 | Documento del manejo del repo y trabajo colaborativo (capturas) | 10 | por definir | pendiente | |
 | Documento de propuesta corregido | 10 | Alejandro (borrador) | en proceso | todos complementan su parte |
 | Plano/mapa final corregido | 10 | por definir | pendiente | base: plano de Dylan |
@@ -75,8 +75,12 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Rama | De quien | Para que |
 |---|---|---|
 | `main` | todos | version que compila y junta lo de todos |
-| `alejandro-planetas` | Alejandro | planetas (Xen y el segundo) |
+| `alejandro-planetas` | Alejandro | planetas: Xen y Dream Land (terminada e integrada) |
+| `alejandro-avatar-camara` | Alejandro | avatar y camara en 3a persona en los planetas |
+| `abraham-npcs` | Abraham | NPCs |
+| `dylan-pista-y-cuerpos-espaciales` | Dylan | pista de carreras y cuerpos espaciales |
 
-- Cada quien crea su rama y la agrega a esta tabla. Las ramas no se borran (el profesor las revisa).
+- Cada avance va en una rama nueva que sale de `main` (ver `README.md`, Trabajo en equipo con Git) y se
+  agrega a esta tabla. Las ramas no se borran (el profesor las revisa).
 - Nadie sube directo a `main`: se revisan e integran los avances de cada rama.
 - Despues de cada integracion, cada quien trae `main` a su rama (ver `README.md`, Trabajo en equipo con Git).
