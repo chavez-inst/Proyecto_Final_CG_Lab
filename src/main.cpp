@@ -167,7 +167,7 @@ glm::vec3 pivotesKirby[NUM_PIEZAS_KIRBY] = {
 };
 glm::vec3 rotKirby[NUM_PIEZAS_KIRBY];
 
-//el headcrab mide como 0.3 de alto y 0.6 de largo contando las patas, y se hizo con Blender/headcrab.py
+//el headcrab mide como 0.3 de alto y 0.6 de largo contando las patas, y se hizo en Blender
 const int NUM_PIEZAS_HEADCRAB = 10;
 Model Headcrab_M[NUM_PIEZAS_HEADCRAB];
 const char* piezasHeadcrab[NUM_PIEZAS_HEADCRAB] = {
@@ -227,7 +227,7 @@ glm::vec3 posPlaneta2Espacio = glm::vec3(-500.0f, 120.0f, -100.0f);
 float giroPlaneta2 = 0.0f;
 float giroPlaneta2Offset = 0.04f;
 
-//objetos de la superficie del planeta 2, hechos con Blender/planeta2_objetos.py
+//objetos de la superficie del planeta 2, hechos en Blender
 Model Planeta2Arbol_M;
 Model Planeta2Nube1_M;
 Model Planeta2Nube2_M;
@@ -272,7 +272,7 @@ float escalaNubes[NUM_NUBES] = { 3.0f, 3.0f, 4.0f, 3.0f, 2.5f };
 //la warp star flota un poco arriba del piso, enfrente de donde llega la camara
 glm::vec3 posWarpStar = glm::vec3(4.0f, 0.8f, -4.0f);
 
-//objetos de la superficie de Xen, hechos con Blender/xen_objetos.py
+//objetos de la superficie de Xen, hechos en Blender
 Model XenCristal_M;
 Model XenIsla_M;
 Model XenTallo_M;
@@ -610,7 +610,7 @@ int main()
 	}
 
 	//--- planetas: Xen y planeta 2 ---
-	//skybox de Xen, hecho con Blender/xen.py; las caras van en el mismo orden que en el otro skybox: rt, lf, dn, up, bk, ft
+	//skybox de Xen, hecho en Blender; las caras van en el mismo orden que en el otro skybox: rt, lf, dn, up, bk, ft
 	std::vector<std::string> skyboxXenFaces;
 	skyboxXenFaces.push_back("Textures/Skybox/xen_rt.png");
 	skyboxXenFaces.push_back("Textures/Skybox/xen_lf.png");
@@ -643,7 +643,7 @@ int main()
 	AlienGrunt_M = Model();
 	AlienGrunt_M.LoadModel("Models/AlienGrunt/aliengrunt.obj");
 
-	//skybox, piso y estrella del planeta 2, hechos con Blender/planeta2.py y Blender/planeta2_suelo.py
+	//skybox, piso y estrella del planeta 2, hechos en Blender
 	std::vector<std::string> skyboxPlaneta2Faces;
 	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_rt.png");
 	skyboxPlaneta2Faces.push_back("Textures/Skybox/planeta2_lf.png");
