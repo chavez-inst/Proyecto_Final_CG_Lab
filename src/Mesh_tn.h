@@ -1,7 +1,8 @@
 #pragma once
 #include <glew.h>
 
-//malla con textura y normales: cada vertice lleva 8 valores (x y z, s t, nx ny nz)
+//malla con textura y normales; cada vertice lleva 8 valores, primero x y z de la posicion,
+//luego s t de la textura y al final nx ny nz de la normal
 //la usan las figuras hechas a mano en main.cpp, los modelos cargados y el skybox
 class MeshModel
 {

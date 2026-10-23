@@ -2,7 +2,7 @@
 #include "Light.h"
 
 //luz que sale de un punto hacia todos lados y se va apagando con la distancia (como un foco)
-//la luz se divide entre: exp*distancia^2 + lin*distancia + con
+//la luz se divide entre exp*distancia^2 + lin*distancia + con
 //con 1, 0, 0 no se atenua nada; entre mas grandes lin y exp, menos alcance tiene
 class PointLight :
 	public Light

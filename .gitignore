@@ -67,6 +67,7 @@ incrementalSave/
 *.max
 *.ma
 *.mb
+Blender/
 
 
 # ---------- archivos temps ----------

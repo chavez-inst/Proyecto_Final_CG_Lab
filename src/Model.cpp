@@ -1,6 +1,6 @@
 #include "Model.h"
 #include <unordered_map>
-
+#include <fstream>
 
 Model::Model()
 {
@@ -9,15 +9,17 @@ Model::Model()
 void Model::LoadModel(const std::string & fileName)
 {
 	Assimp::Importer importer;
-	//Triangulate: pasa poligonos y quads a triangulos
-	//GenSmoothNormals: genera normales si el modelo no trae
-	//JoinIdenticalVertices: junta los vertices repetidos en uno solo
+	//Triangulate pasa los poligonos y quads a triangulos
+	//GenSmoothNormals genera normales si el modelo no las trae
+	//JoinIdenticalVertices junta los vertices repetidos en uno solo
 	const aiScene *scene = importer.ReadFile(fileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 	if (!scene)
 	{
 		printf("Fallo al cargar el modelo: %s (%s)\n", fileName.c_str(), importer.GetErrorString());
 		return;
 	}
+	//se guarda la carpeta del modelo, que es todo lo que va hasta el ultimo / o \, igual que en LoadMaterials
+	carpeta = fileName.substr(0, fileName.find_last_of("\\/") + 1);
 	LoadNode(scene->mRootNode, scene);
 	LoadMaterials(scene);
 }
@@ -87,7 +89,7 @@ void Model::LoadNode(aiNode * node, const aiScene * scene)
 	}
 }
 
-//pasa una malla de Assimp al formato de MeshModel (x y z, s t, nx ny nz)
+//pasa una malla de Assimp al formato de MeshModel, con los mismos 8 valores por vertice
 void Model::LoadMesh(aiMesh * mesh, const aiScene * scene)
 {
 	std::vector<GLfloat> vertices;
@@ -104,7 +106,7 @@ void Model::LoadMesh(aiMesh * mesh, const aiScene * scene)
 		{
 			vertices.insert(vertices.end(), { 0.0f, 0.0f });
 		}
-		//normales: van con signo negativo por como el shader calcula la luz (igual que en el cubo de main.cpp)
+		//las normales van con signo negativo por como el shader calcula la luz, igual que en el cubo de main.cpp
 		vertices.insert(vertices.end(), { -mesh->mNormals[i].x, -mesh->mNormals[i].y, -mesh->mNormals[i].z });
 	}
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -137,13 +139,19 @@ void Model::LoadMaterials(const aiScene * scene)
 			aiString path;
 			if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
 			{
-				//se queda solo con el nombre del archivo, quitando las carpetas (todo lo que esta antes del ultimo \ o /)
+				//se queda solo con el nombre del archivo y quita las carpetas, que es todo lo que esta antes del ultimo \ o /
 				//si no hay carpeta, idx + 1 vale 0 y se toma el nombre completo
 				std::string fullPath = std::string(path.data);
 				std::size_t idx = fullPath.find_last_of("\\/");
 				std::string filename = fullPath.substr(idx + 1);
 
-				std::string texPath = std::string("Textures/") + filename;
+				//primero se busca en la carpeta Textures del propio modelo, por ejemplo Models/Carnivora/Textures/
+				//si ahi no esta, se busca en la carpeta Textures/ del proyecto
+				std::string texPath = carpeta + "Textures/" + filename;
+				if (!std::ifstream(texPath).good())
+				{
+					texPath = std::string("Textures/") + filename;
+				}
 				//si ya se cargo esta textura antes, se reutiliza
 				auto it = loadedTextures.find(texPath);
 				if (it != loadedTextures.end())

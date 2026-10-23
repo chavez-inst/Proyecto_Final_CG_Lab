@@ -20,6 +20,12 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 {
 	GLfloat velocity = moveSpeed * deltaTime;
 
+	//con Shift izquierdo presionado se mueve al doble de velocidad
+	if (keys[GLFW_KEY_LEFT_SHIFT])
+	{
+		velocity = velocity * 2.0f;
+	}
+
 	if (keys[GLFW_KEY_W])
 	{
 		position += front * velocity;
@@ -38,6 +44,17 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 	if (keys[GLFW_KEY_D])
 	{
 		position += right * velocity;
+	}
+
+	//Espacio sube y Ctrl izquierdo baja, siempre en vertical (worldUp), sin importar a donde se este viendo
+	if (keys[GLFW_KEY_SPACE])
+	{
+		position += worldUp * velocity;
+	}
+
+	if (keys[GLFW_KEY_LEFT_CONTROL])
+	{
+		position -= worldUp * velocity;
 	}
 }
 

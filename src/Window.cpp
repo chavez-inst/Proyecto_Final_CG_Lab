@@ -12,6 +12,28 @@ Window::Window()
 	xChange = 0.0f;
 	yChange = 0.0f;
 	muevex = 2.0f;
+
+	//valor inicial de las variables de cada actividad (va en los dos constructores)
+	//--- personajes ---
+	caminaHeadcrab = false;
+
+	//--- planetas: Xen y planeta 2 ---
+	zonaPlaneta = 0;
+
+	//--- pista de carreras y naves ---
+
+	//--- satelites y cuerpos espaciales ---
+
+	//--- plataforma de lanzamiento y cohete ---
+
+	//--- estacion espacial y naves ---
+
+	//--- avatar ---
+
+	//--- camaras y recorridos ---
+
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -30,6 +52,28 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	xChange = 0.0f;
 	yChange = 0.0f;
 	muevex = 2.0f;
+
+	//valor inicial de las variables de cada actividad (va en los dos constructores)
+	//--- personajes ---
+	caminaHeadcrab = false;
+
+	//--- planetas: Xen y planeta 2 ---
+	zonaPlaneta = 0;
+
+	//--- pista de carreras y naves ---
+
+	//--- satelites y cuerpos espaciales ---
+
+	//--- plataforma de lanzamiento y cohete ---
+
+	//--- estacion espacial y naves ---
+
+	//--- avatar ---
+
+	//--- camaras y recorridos ---
+
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -48,7 +92,7 @@ int Window::Initialise()
 	//version de OpenGL que pedimos (4.3)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	//core profile: solo OpenGL moderno, sin las funciones viejas
+	//con el core profile solo se usa OpenGL moderno, sin las funciones viejas
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -111,7 +155,7 @@ GLfloat Window::getYChange()
 	return theChange;
 }
 
-//se llama una vez por cada evento de teclado (presionar, mantener o soltar una tecla)
+//se llama una vez por cada evento de teclado, ya sea al presionar, mantener o soltar una tecla
 //aqui se agregan las teclas nuevas
 void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode)
 {
@@ -121,7 +165,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	//Y/U cambian muevex al presionar y mientras se deja presionada la tecla
+	//Y y U cambian muevex al presionar la tecla y mientras se deja presionada
 	if (key == GLFW_KEY_Y && action != GLFW_RELEASE)
 	{
 		theWindow->muevex += 1.0;
@@ -131,8 +175,45 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		theWindow->muevex -= 1.0;
 	}
 
+	//teclas de cada actividad (la tabla de que tecla es de quien esta en README.md)
+	//--- personajes ---
+	if (key == GLFW_KEY_H && action == GLFW_PRESS)
+	{
+		theWindow->caminaHeadcrab = !theWindow->caminaHeadcrab;
+	}
+
+	//--- planetas: Xen y planeta 2 ---
+	//Z lleva a la superficie de Xen, X a la del planeta 2 y C regresa al espacio
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 1;
+	}
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 2;
+	}
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 0;
+	}
+
+	//--- pista de carreras y naves ---
+
+	//--- satelites y cuerpos espaciales ---
+
+	//--- plataforma de lanzamiento y cohete ---
+
+	//--- estacion espacial y naves ---
+
+	//--- avatar ---
+
+	//--- camaras y recorridos ---
+
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
+
 	//guarda que teclas estan presionadas, la camara lo lee con getsKeys()
-	//ojo: WASD ya los usa la camara
+	//las teclas WASD ya las usa la camara
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)

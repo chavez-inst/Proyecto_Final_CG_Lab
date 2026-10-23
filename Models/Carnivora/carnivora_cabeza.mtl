@@ -1,0 +1,16 @@
+newmtl chomper_hat_d
+Kd 1 1 1
+map_Kd chomper_hat_d_diffuse.png
+
+newmtl chomper_mouth_d
+Kd 1 1 1
+map_Kd chomper_mouth_d_diffuse.png
+
+newmtl chomper_head_d
+Kd 1 1 1
+map_Kd chomper_head_d_diffuse.png
+
+newmtl chomper_body_d
+Kd 1 1 1
+map_Kd chomper_body_d_diffuse.png
+

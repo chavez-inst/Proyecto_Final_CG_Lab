@@ -48,15 +48,15 @@ bool Texture::LoadTextureFile(bool useAlpha)
 		printf("No se encontro la textura: %s\n", fileLocation);
 		return false;
 	}
-	glGenTextures(1, &textureID); //parecido al VAO: se crea la textura y se le da un id
+	glGenTextures(1, &textureID); //igual que con el VAO, se crea la textura y se le da un id
 	glBindTexture(GL_TEXTURE_2D, textureID); //textura 2D, para superficies es suficiente
 
-	//que pasa cuando las UV se salen de 0 a 1:
-	//GL_REPEAT repite la imagen, GL_MIRRORED_REPEAT la repite en espejo, GL_CLAMP_TO_EDGE estira el borde
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //eje S (como X)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); //eje T (como Y)
-	//MIN_FILTER: cuando la textura se ve mas chica (lejos). MAG_FILTER: cuando se ve mas grande (cerca)
-	//GL_LINEAR mezcla los texels cercanos (se ve suave), GL_NEAREST toma el mas cercano (se ve pixeleado)
+	//si las UV se salen de 0 a 1, GL_REPEAT repite la imagen, GL_MIRRORED_REPEAT la repite en espejo
+	//y GL_CLAMP_TO_EDGE estira el borde
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //eje S, que es como X
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); //eje T, que es como Y
+	//MIN_FILTER se usa cuando la textura se ve mas chica porque esta lejos y MAG_FILTER cuando se ve mas grande porque esta cerca
+	//GL_LINEAR mezcla los texels cercanos y se ve suave, GL_NEAREST toma el mas cercano y se ve pixeleado
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, formato, width, height, 0, formato, GL_UNSIGNED_BYTE, texData);
