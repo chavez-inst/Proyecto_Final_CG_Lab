@@ -25,7 +25,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Ambientacion de los universos y tematicas | 40 | todos | pendiente | cada quien mete elementos de su universo |
 | NPCs (otras especies intergalacticas) | 10 | por definir | pendiente | gradas con aliens (plano), criaturas de Xen |
 | Pista de carreras con naves corriendo | 20 | Dylan | en proceso | pista, nave y satelite cargados; falta que las naves recorran el circuito |
-| Plataforma de lanzamiento con cohete | 20 | por definir | pendiente | |
+| Plataforma de lanzamiento con cohete | 20 | Andrea | en proceso | |
 | Estacion espacial (entran y salen naves) | 20 | por definir | pendiente | |
 | Satelites y cuerpos espaciales | 10 | Dylan | en proceso | lunas, asteroides, satelites |
 | Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | planeta 1: Xen (Half-Life); planeta 2 por definir |
@@ -76,6 +76,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 |---|---|---|
 | `main` | todos | version que compila y junta lo de todos |
 | `alejandro-planetas` | Alejandro | planetas (Xen y el segundo) |
+| `andrea-plataforma` | Andrea | plataforma de lanzamiento y cohete |
 
 - Cada quien crea su rama y la agrega a esta tabla. Las ramas no se borran (el profesor las revisa).
 - Nadie sube directo a `main`: se revisan e integran los avances de cada rama.
