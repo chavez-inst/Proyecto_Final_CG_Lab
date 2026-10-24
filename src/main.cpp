@@ -255,6 +255,10 @@ Model pistaM;
 Model nave1Race;
 Model meta;
 Model cubiertaMeta;
+Model puestoObservacion1;
+Model puestoObservacion2;
+Model puestoObservacion3;
+Model puestoObservacion4;
 
 //--- satelites y cuerpos espaciales ---
 Model sateliteRace;
@@ -605,6 +609,15 @@ int main()
 	meta.LoadModel("Models/meta/meta.obj");
 	cubiertaMeta = Model();
 	cubiertaMeta.LoadModel("Models/cubiertaMeta/cubiertaMeta.obj");
+	puestoObservacion1 = Model();
+	puestoObservacion1.LoadModel("Models/puestoObservacion1/puestoObservacion1.obj");
+	puestoObservacion2 = Model();
+	puestoObservacion2.LoadModel("Models/puestoObservacion2/puestoObservacion2.obj");
+	puestoObservacion3 = Model();
+	puestoObservacion3.LoadModel("Models/puestoObservacion3/puestoObservacion3.obj");
+	puestoObservacion4 = Model();
+	puestoObservacion4.LoadModel("Models/puestoObservacion4/puestoObservacion4.obj");
+
 
 	//--- satelites y cuerpos espaciales ---
 	sateliteRace = Model();
@@ -952,12 +965,13 @@ int main()
 		//pista de carreras
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
+		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		modelaux = model;
 		modelaux2 = model;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		pistaM.RenderModel();
 
@@ -968,7 +982,7 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		model = glm::translate(model, glm::vec3(0.0f, 0.05f, 0.0f));
 		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		meta.RenderModel();
 
@@ -979,9 +993,108 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		//model = glm::translate(model, glm::vec3(0.0f, 0.00f, 0.0f));
 		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		cubiertaMeta.RenderModel();
+		
+		//puestoObservacion1_1
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(75.0f, 10.00f, 130.0f));
+		model = glm::rotate(model, -65.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion1.RenderModel();
+		glDisable(GL_BLEND);
+
+		//puestoObservacion1_2
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-75.0f, 10.00f, 130.0f));
+		model = glm::rotate(model, -115.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion1.RenderModel();
+		glDisable(GL_BLEND);
+
+		//puestoObservacion2_1
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 20.00f, 700.0f));
+		model = glm::rotate(model, -25.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion2.RenderModel();
+
+		//puestoObservacion2_2
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(300.0f, 200.00f, 700.0f));
+		model = glm::rotate(model, 45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion2.RenderModel();
+
+		//puestoObservacion3_1
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(150.0f, 180.00f, 800.0f));
+		//model = glm::rotate(model, 45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion3.RenderModel();
+		glDisable(GL_BLEND);
+
+		//puestoObservacion3_2
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(150.0f, 90.00f, -680.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion3.RenderModel();
+		glDisable(GL_BLEND);
+
+		//puestoObservacion4_1
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 20.00f, -600.0f));
+		model = glm::rotate(model, 35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion4.RenderModel();
+		glDisable(GL_BLEND);
+
+		//puestoObservacion4_2
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(300.0f, 100.00f, -600.0f));
+		model = glm::rotate(model, -35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion4.RenderModel();
+		glDisable(GL_BLEND);
+
 
 
 		//nave 1 de la pista
@@ -1001,7 +1114,7 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		model = glm::translate(model, glm::vec3(340.0f, 50.0f, -530.0f));
 		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		sateliteRace.RenderModel();
 
