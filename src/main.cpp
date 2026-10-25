@@ -317,6 +317,67 @@ Texture verdaniaPastoTexture;
 float anguloVerdania = 0.0f;
 float anguloVerdaniaOffset = 2.0f;
 
+//el peashooter mide como 1.5 de alto
+const int NUM_PIEZAS_PEASHOOTER = 12;
+Model Peashooter_M[NUM_PIEZAS_PEASHOOTER];
+const char* piezasPeashooter[NUM_PIEZAS_PEASHOOTER] = {
+	"base", "tallo1", "tallo2", "cabeza", "pelo_izq", "pelo_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
+int padresPeashooter[NUM_PIEZAS_PEASHOOTER] = {
+	-1, 0, 1, 2, 3, 3, 2, 2, 0, 0, 0, 0 };
+glm::vec3 pivotesPeashooter[NUM_PIEZAS_PEASHOOTER] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(0.0000f, 0.2630f, 0.2242f),       //tallo1
+	glm::vec3(0.0000f, 0.6249f, 0.1036f),       //tallo2
+	glm::vec3(0.0000f, 0.8897f, 0.0169f),       //cabeza
+	glm::vec3(0.0581f, 1.3543f, -0.2124f),      //pelo_izq
+	glm::vec3(-0.0751f, 1.3665f, -0.1937f),     //pelo_der
+	glm::vec3(0.0583f, 0.6875f, 0.0730f),       //brazo_izq
+	glm::vec3(-0.0583f, 0.6875f, 0.0730f),      //brazo_der
+	glm::vec3(0.0622f, 0.2206f, 0.2834f),       //hoja_del_izq
+	glm::vec3(-0.0622f, 0.2206f, 0.2834f),      //hoja_del_der
+	glm::vec3(0.0622f, 0.2206f, 0.1582f),       //hoja_tras_izq
+	glm::vec3(-0.0622f, 0.2206f, 0.1582f)       //hoja_tras_der
+};
+glm::vec3 rotPeashooter[NUM_PIEZAS_PEASHOOTER];
+//el peashooter camina en circulo como el headcrab, pero sin tecla, siempre esta caminando
+glm::vec3 centroPeashooter = glm::vec3(0.0f, 0.0f, -2.0f); //el centro del circulo se mide desde posVerdania
+float radioPeashooter = 2.5f;
+float anguloPeashooter = 0.0f;
+float anguloPeashooterOffset = 0.4f;
+
+//crazy dave mide como 2.3 de alto contando la olla
+const int NUM_PIEZAS_CRAZYDAVE = 17;
+Model CrazyDave_M[NUM_PIEZAS_CRAZYDAVE];
+const char* piezasCrazyDave[NUM_PIEZAS_CRAZYDAVE] = {
+	"cadera", "torso", "cabeza", "mandibula", "olla", "brazo_der", "antebrazo_der", "mano_der", "brazo_izq", "antebrazo_izq", "mano_izq", "muslo_der", "pierna_der", "pie_der", "muslo_izq", "pierna_izq", "pie_izq" };
+int padresCrazyDave[NUM_PIEZAS_CRAZYDAVE] = {
+	-1, 0, 1, 2, 2, 1, 5, 6, 1, 8, 9, 0, 11, 12, 0, 14, 15 };
+glm::vec3 pivotesCrazyDave[NUM_PIEZAS_CRAZYDAVE] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //cadera
+	glm::vec3(0.0000f, 1.1078f, -0.0846f),      //torso
+	glm::vec3(-0.0001f, 1.7563f, -0.0820f),     //cabeza
+	glm::vec3(-0.0001f, 1.9597f, -0.0165f),     //mandibula
+	glm::vec3(-0.0001f, 2.0927f, -0.0618f),     //olla
+	glm::vec3(-0.3109f, 1.6046f, -0.1178f),     //brazo_der
+	glm::vec3(-0.6130f, 1.3205f, -0.1140f),     //antebrazo_der
+	glm::vec3(-0.8265f, 1.1239f, 0.0458f),      //mano_der
+	glm::vec3(0.3109f, 1.6046f, -0.1178f),      //brazo_izq
+	glm::vec3(0.6130f, 1.3205f, -0.1140f),      //antebrazo_izq
+	glm::vec3(0.8265f, 1.1239f, 0.0458f),       //mano_izq
+	glm::vec3(-0.1930f, 0.8930f, -0.0748f),     //muslo_der
+	glm::vec3(-0.1930f, 0.5450f, -0.0488f),     //pierna_der
+	glm::vec3(-0.1927f, 0.1641f, -0.0969f),     //pie_der
+	glm::vec3(0.1930f, 0.8930f, -0.0748f),      //muslo_izq
+	glm::vec3(0.1930f, 0.5450f, -0.0488f),      //pierna_izq
+	glm::vec3(0.1927f, 0.1641f, -0.0969f)       //pie_izq
+};
+glm::vec3 rotCrazyDave[NUM_PIEZAS_CRAZYDAVE];
+//crazy dave va y viene en linea recta en X entre -limiteDave y limiteDave, como los paneles del satelite de la practica 9
+float posDave = 0.0f;
+float posDaveOffset = 0.02f;
+float limiteDave = 4.0f;
+bool daveAdelante = true;
+
 //--- pista de carreras y naves ---
 Model pistaM;
 Model nave1Race;
@@ -695,6 +756,21 @@ int main()
 
 	verdaniaPastoTexture = Texture("Textures/verdania_pasto.png");
 	verdaniaPastoTexture.LoadTextureA();
+
+	//las rutas se arman con el nombre de cada pieza, igual que la carnivora
+	for (int i = 0; i < NUM_PIEZAS_PEASHOOTER; i++)
+	{
+		std::string ruta = std::string("Models/Peashooter/peashooter_") + piezasPeashooter[i] + ".obj";
+		Peashooter_M[i] = Model();
+		Peashooter_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_CRAZYDAVE; i++)
+	{
+		std::string ruta = std::string("Models/CrazyDave/crazydave_") + piezasCrazyDave[i] + ".obj";
+		CrazyDave_M[i] = Model();
+		CrazyDave_M[i].LoadModel(ruta);
+	}
 
 	//--- pista de carreras y naves ---
 	pistaM = Model();
@@ -1128,6 +1204,62 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		verdaniaPastoTexture.UseTexture();
 		meshListModel[0]->RenderMeshModel();
+
+		//peashooter: camina en circulo; las hojas-pata van y vienen cruzadas (la delantera izquierda con la trasera derecha)
+		anguloPeashooter += anguloPeashooterOffset * deltaTime;
+		if (anguloPeashooter > 360.0f)
+			anguloPeashooter -= 360.0f;
+		float pasoPea = sin(anguloVerdania * 3.0f * toRadians);
+		rotPeashooter[8].x = 25.0f * pasoPea;   //hoja_del_izq
+		rotPeashooter[11].x = 25.0f * pasoPea;  //hoja_tras_der
+		rotPeashooter[9].x = -25.0f * pasoPea;  //hoja_del_der
+		rotPeashooter[10].x = -25.0f * pasoPea; //hoja_tras_izq
+		//los brazos vienen extendidos en T en el modelo; se bajan 70 grados en Z y se balancean en X al caminar
+		rotPeashooter[6].z = -70.0f;
+		rotPeashooter[7].z = 70.0f;
+		rotPeashooter[6].x = -20.0f * pasoPea;
+		rotPeashooter[7].x = 20.0f * pasoPea;
+		//la cabeza rebota dos veces por cada paso y el tallo se mece un poco
+		rotPeashooter[3].x = 4.0f * sin(anguloVerdania * 6.0f * toRadians);
+		rotPeashooter[1].z = 3.0f * pasoPea;
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + centroPeashooter +
+			glm::vec3(radioPeashooter * sin(anguloPeashooter * toRadians), 0.0f, radioPeashooter * cos(anguloPeashooter * toRadians)));
+		model = glm::rotate(model, (anguloPeashooter + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(Peashooter_M, padresPeashooter, pivotesPeashooter, rotPeashooter, NUM_PIEZAS_PEASHOOTER, model, uniformModel);
+
+		//crazy dave: camina de un lado a otro; al llegar al limite se voltea y regresa
+		if (daveAdelante)
+		{
+			posDave += posDaveOffset * deltaTime;
+			if (posDave > limiteDave)
+				daveAdelante = false;
+		}
+		else
+		{
+			posDave -= posDaveOffset * deltaTime;
+			if (posDave < -limiteDave)
+				daveAdelante = true;
+		}
+		float pasoDave = sin(anguloVerdania * 4.0f * toRadians);
+		//piernas contrarias, y cada brazo va al reves que su pierna, como cuando camina una persona
+		rotCrazyDave[11].x = 25.0f * pasoDave;  //muslo_der
+		rotCrazyDave[14].x = -25.0f * pasoDave; //muslo_izq
+		//los brazos vienen abiertos; se bajan 45 grados en Z y se balancean en X
+		rotCrazyDave[5].z = 45.0f;
+		rotCrazyDave[8].z = -45.0f;
+		rotCrazyDave[5].x = -20.0f * pasoDave;
+		rotCrazyDave[8].x = 20.0f * pasoDave;
+		//la olla de la cabeza se tambalea
+		rotCrazyDave[4].z = 6.0f * sin(anguloVerdania * 8.0f * toRadians);
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(posDave, 0.0f, -8.0f));
+		//el modelo mira hacia +Z; con 90 grados mira hacia +X y con -90 hacia -X
+		if (daveAdelante)
+			model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		else
+			model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(CrazyDave_M, padresCrazyDave, pivotesCrazyDave, rotCrazyDave, NUM_PIEZAS_CRAZYDAVE, model, uniformModel);
 
 		//--- pista de carreras y naves ---
 		//pista de carreras
