@@ -1,0 +1,8 @@
+newmtl PeaCannon_Body_Ice
+Kd 1 1 1
+map_Kd PeaCannon_Body_Ice_diffuse.png
+
+newmtl LightningReed_Body_Default
+Kd 1 1 1
+map_Kd LightningReed_Body_Default_diffuse.png
+

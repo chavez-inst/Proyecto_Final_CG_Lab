@@ -1,0 +1,2 @@
+pieza padre pivote_x pivote_y pivote_z triangulos
+cuerpo - 0.0000 0.0000 0.0000 2308

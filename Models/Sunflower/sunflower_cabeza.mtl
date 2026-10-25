@@ -1,0 +1,16 @@
+newmtl sunflower_head_d
+Kd 1 1 1
+map_Kd sunflower_head_d_diffuse.png
+
+newmtl eyeball_r
+Kd 1 1 1
+map_Kd eyeball_r_diffuse.png
+
+newmtl eyeball_l
+Kd 1 1 1
+map_Kd eyeball_l_diffuse.png
+
+newmtl sunflower_body_d
+Kd 1 1 1
+map_Kd sunflower_body_d_diffuse.png
+

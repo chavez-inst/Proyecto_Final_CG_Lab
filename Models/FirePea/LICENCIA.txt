@@ -1,0 +1,11 @@
+Model Information:
+* title:	Fire Pea - PVZ Garden Warfare
+* source:	https://sketchfab.com/3d-models/fire-pea-pvz-garden-warfare-a886d8b30ae645729be2f766ca4ab708
+* author:	Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Hot-Dog_1947)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Fire Pea - PVZ Garden Warfare" (https://sketchfab.com/3d-models/fire-pea-pvz-garden-warfare-a886d8b30ae645729be2f766ca4ab708) by Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Hot-Dog_1947) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

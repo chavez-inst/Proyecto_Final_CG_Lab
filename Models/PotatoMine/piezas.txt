@@ -1,0 +1,4 @@
+pieza padre pivote_x pivote_y pivote_z triangulos
+tierra - -0.0042 0.1899 0.0095 1488
+cuerpo tierra -0.0042 0.1899 0.0095 1890
+antena cuerpo -0.0042 0.4880 0.0104 228

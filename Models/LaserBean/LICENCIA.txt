@@ -1,0 +1,11 @@
+Model Information:
+* title:	Laser Bean - PVZ Garden Warfare
+* source:	https://sketchfab.com/3d-models/laser-bean-pvz-garden-warfare-ea41711e07d34450995837fa990fb7af
+* author:	Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Deduska_1947)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Laser Bean - PVZ Garden Warfare" (https://sketchfab.com/3d-models/laser-bean-pvz-garden-warfare-ea41711e07d34450995837fa990fb7af) by Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Deduska_1947) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

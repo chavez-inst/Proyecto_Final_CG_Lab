@@ -1,0 +1,11 @@
+Model Information:
+* title:	Stuffy Flower GW2 3D Model
+* source:	https://sketchfab.com/3d-models/stuffy-flower-gw2-3d-model-c6d40c4e6f2c4661b8ec11d699588ef4
+* author:	burger989 (https://sketchfab.com/burger989)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Stuffy Flower GW2 3D Model" (https://sketchfab.com/3d-models/stuffy-flower-gw2-3d-model-c6d40c4e6f2c4661b8ec11d699588ef4) by burger989 (https://sketchfab.com/burger989) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

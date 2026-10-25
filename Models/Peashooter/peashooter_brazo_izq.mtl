@@ -1,0 +1,8 @@
+newmtl PeaShooter_Body_DefaultPea
+Kd 1 1 1
+map_Kd PeaShooter_Body_DefaultPea_diffuse.png
+
+newmtl PeaShooter_Arms_DefaultPea
+Kd 1 1 1
+map_Kd PeaShooter_Arms_DefaultPea_diffuse.png
+

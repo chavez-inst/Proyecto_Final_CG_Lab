@@ -1,0 +1,12 @@
+newmtl sunflower_head_defaultflower_color
+Kd 1 1 1
+map_Kd sunflower_head_defaultflower_color_baseColor.png
+
+newmtl sunflower_eye_color
+Kd 1 1 1
+map_Kd sunflower_eye_color_baseColor.png
+
+newmtl sunflower_body_defaultflower_color
+Kd 1 1 1
+map_Kd sunflower_body_defaultflower_color_baseColor.png
+

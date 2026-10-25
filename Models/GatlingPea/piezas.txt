@@ -1,0 +1,10 @@
+pieza padre pivote_x pivote_y pivote_z triangulos
+base - 0.0000 0.0000 0.0000 394
+tallo base 0.0000 0.5482 -0.0555 326
+cabeza tallo 0.0000 0.9346 -0.1253 2492
+boca cabeza -0.0000 1.1496 0.2911 354
+canones boca -0.0000 1.1496 0.2911 240
+hoja_izq base 0.0361 0.5212 -0.0433 242
+hoja_frente base 0.0005 0.5212 -0.0123 242
+hoja_der base -0.0299 0.5212 -0.0441 242
+hoja_atras base 0.0000 0.5212 -0.0783 242
