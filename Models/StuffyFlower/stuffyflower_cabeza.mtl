@@ -1,0 +1,12 @@
+newmtl sunflower_patch_stuffy_color
+Kd 1 1 1
+map_Kd sunflower_patch_stuffy_color_baseColor.png
+
+newmtl sunflower_head_stuffy_color
+Kd 1 1 1
+map_Kd sunflower_head_stuffy_color_baseColor.png
+
+newmtl sunflower_body_stuffy_color
+Kd 1 1 1
+map_Kd sunflower_body_stuffy_color_baseColor.png
+

@@ -1,0 +1,4 @@
+newmtl PeaCannon_Body_Ice
+Kd 1 1 1
+map_Kd PeaCannon_Body_Ice_diffuse.png
+

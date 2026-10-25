@@ -1,0 +1,8 @@
+newmtl cactus_arm_d
+Kd 1 1 1
+map_Kd cactus_arm_d_diffuse.png
+
+newmtl cactus_d
+Kd 1 1 1
+map_Kd cactus_d_diffuse.png
+

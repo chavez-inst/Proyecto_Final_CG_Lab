@@ -1,0 +1,8 @@
+newmtl CrazyDave_BodySkin_CrazyDave
+Kd 1 1 1
+map_Kd CrazyDave_BodySkin_CrazyDave_diffuse.png
+
+newmtl CrazyDave_BodyClothing_CrazyDave
+Kd 1 1 1
+map_Kd CrazyDave_BodyClothing_CrazyDave_diffuse.png
+

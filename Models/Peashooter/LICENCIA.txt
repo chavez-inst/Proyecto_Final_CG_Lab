@@ -1,0 +1,11 @@
+Model Information:
+* title:	Peashooter - PVZ Garden Warfare 2
+* source:	https://sketchfab.com/3d-models/peashooter-pvz-garden-warfare-2-4204531da122409abe25a9d808bff294
+* author:	Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Hot-Dog_1947)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Peashooter - PVZ Garden Warfare 2" (https://sketchfab.com/3d-models/peashooter-pvz-garden-warfare-2-4204531da122409abe25a9d808bff294) by Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Hot-Dog_1947) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

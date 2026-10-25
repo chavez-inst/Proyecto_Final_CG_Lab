@@ -1,0 +1,11 @@
+Model Information:
+* title:	Gatling Pea - PVZ Garden Warfare 2
+* source:	https://sketchfab.com/3d-models/gatling-pea-pvz-garden-warfare-2-35f332f760c14ebaa9bdb5e7f4082e01
+* author:	Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Hot-Dog_1947)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Gatling Pea - PVZ Garden Warfare 2" (https://sketchfab.com/3d-models/gatling-pea-pvz-garden-warfare-2-35f332f760c14ebaa9bdb5e7f4082e01) by Nazar Okruzhko (Назар Окружко) (https://sketchfab.com/Hot-Dog_1947) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

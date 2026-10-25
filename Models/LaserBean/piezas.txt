@@ -1,0 +1,4 @@
+pieza padre pivote_x pivote_y pivote_z triangulos
+maceta - 0.0000 0.3107 -0.0000 400
+cuerpo maceta 0.0000 0.5511 0.2324 1646
+pelo cuerpo -0.0000 1.1489 -0.1837 288

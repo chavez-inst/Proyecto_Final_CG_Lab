@@ -1,0 +1,11 @@
+Model Information:
+* title:	pvz Garden Warfare 2 - Giga Torchwood
+* source:	https://sketchfab.com/3d-models/pvz-garden-warfare-2-giga-torchwood-ba6a24c5f9c047b3b2d17731efe8f2d3
+* author:	eduardosouzabarbosadasilva (https://sketchfab.com/eduardosouzabarbosadasilva)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "pvz Garden Warfare 2 - Giga Torchwood" (https://sketchfab.com/3d-models/pvz-garden-warfare-2-giga-torchwood-ba6a24c5f9c047b3b2d17731efe8f2d3) by eduardosouzabarbosadasilva (https://sketchfab.com/eduardosouzabarbosadasilva) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
