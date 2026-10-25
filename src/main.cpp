@@ -304,6 +304,19 @@ glm::vec3 posPlantas[NUM_PLANTAS] = {
 float alturaPlantas[NUM_PLANTAS] = { 1.0f, 1.0f, 1.0f };
 float altoTallo = 1.62f; //altura de la punta del tallo, ahi va el foco
 
+//--- planeta 3: Verdania (Abraham) ---
+//la superficie de Verdania es otro piso aparte y lejos, igual que Xen y el planeta 2, pero hacia Z positivo
+glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 3000.0f);
+Skybox skyboxVerdania;
+Texture verdaniaPastoTexture;
+
+//todas las plantas de Verdania son modelos descargados y separados en piezas por sus huesos
+//los creditos estan en el LICENCIA.txt de cada una y los pivotes salen del piezas.txt de cada carpeta
+//las animaciones salen del seno de anguloVerdania, que avanza cada frame igual que el de las islas de Xen;
+//cada planta lo multiplica por su propia velocidad y le suma un desfase para que no se muevan todas igual
+float anguloVerdania = 0.0f;
+float anguloVerdaniaOffset = 2.0f;
+
 //--- pista de carreras y naves ---
 Model pistaM;
 Model nave1Race;
@@ -669,6 +682,20 @@ int main()
 	Planeta2Colina_M = Model();
 	Planeta2Colina_M.LoadModel("Models/Planeta2/planeta2_colina.obj");
 
+	//--- planeta 3: Verdania (Abraham) ---
+	//skybox de Verdania, generado por codigo con ruido; las caras van en el mismo orden: rt, lf, dn, up, bk, ft
+	std::vector<std::string> skyboxVerdaniaFaces;
+	skyboxVerdaniaFaces.push_back("Textures/Skybox/verdania_rt.png");
+	skyboxVerdaniaFaces.push_back("Textures/Skybox/verdania_lf.png");
+	skyboxVerdaniaFaces.push_back("Textures/Skybox/verdania_dn.png");
+	skyboxVerdaniaFaces.push_back("Textures/Skybox/verdania_up.png");
+	skyboxVerdaniaFaces.push_back("Textures/Skybox/verdania_bk.png");
+	skyboxVerdaniaFaces.push_back("Textures/Skybox/verdania_ft.png");
+	skyboxVerdania = Skybox(skyboxVerdaniaFaces);
+
+	verdaniaPastoTexture = Texture("Textures/verdania_pasto.png");
+	verdaniaPastoTexture.LoadTextureA();
+
 	//--- pista de carreras y naves ---
 	pistaM = Model();
 	pistaM.LoadModel("Models/pista/pista.obj");
@@ -766,6 +793,10 @@ int main()
 			skyboxXen.DrawSkybox(view, projection, deltaTime);
 		else if (zonaActual == 2)
 			skyboxPlaneta2.DrawSkybox(view, projection, deltaTime);
+
+		else if (zonaActual == 3)
+			skyboxVerdania.DrawSkybox(view, projection, deltaTime);
+
 		else
 			skybox.DrawSkybox(view, projection, deltaTime);
 
@@ -906,6 +937,8 @@ int main()
 				camera = Camera(posXen + glm::vec3(0.0f, 1.5f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.3f, 0.5f);
 			else if (zonaActual == 2)
 				camera = Camera(posPlaneta2 + glm::vec3(0.0f, 1.5f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.3f, 0.5f);
+			else if (zonaActual == 3)
+				camera = Camera(posVerdania + glm::vec3(0.0f, 1.5f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.3f, 0.5f);
 			else
 				camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
 		}
@@ -1079,6 +1112,22 @@ int main()
 		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		WarpStar_M.RenderModel();
+
+		//--- planeta 3: Verdania (Abraham) ---
+		//el angulo comun de las animaciones avanza cada frame y se regresa a 0 al dar la vuelta
+		anguloVerdania += anguloVerdaniaOffset * deltaTime;
+		if (anguloVerdania > 360.0f)
+			anguloVerdania -= 360.0f;
+
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		//piso de pasto, del mismo tamano que el de Xen (200 por 200)
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania);
+		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		verdaniaPastoTexture.UseTexture();
+		meshListModel[0]->RenderMeshModel();
 
 		//--- pista de carreras y naves ---
 		//pista de carreras

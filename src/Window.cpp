@@ -197,6 +197,13 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		theWindow->zonaPlaneta = 0;
 	}
 
+	//--- planeta 3: Verdania (Abraham) ---
+	//N lleva a la superficie de Verdania, que es la zona 3; C regresa al espacio igual que en los otros planetas
+	if (key == GLFW_KEY_N && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 3;
+	}
+
 	//--- pista de carreras y naves ---
 
 	//--- satelites y cuerpos espaciales ---
