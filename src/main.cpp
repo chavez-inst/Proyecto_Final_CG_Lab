@@ -503,6 +503,8 @@ Model puestoObservacion1;
 Model puestoObservacion2;
 Model puestoObservacion3;
 Model puestoObservacion4;
+Model warehousePort;
+Model barcoEspacial;
 Model blueFalcon;
 Model blackBull;
 Model fireStingray;
@@ -870,6 +872,10 @@ int main()
 	puestoObservacion3.LoadModel("Models/puestoObservacion3/puestoObservacion3.obj");
 	puestoObservacion4 = Model();
 	puestoObservacion4.LoadModel("Models/puestoObservacion4/puestoObservacion4.obj");
+	warehousePort = Model();
+	warehousePort.LoadModel("Models/warehousePort/warehousePort.obj");
+	barcoEspacial = Model();
+	barcoEspacial.LoadModel("Models/barcoEspacial/barcoEspacial.obj");
 
 
 	InicializarRutaPista();
@@ -1034,7 +1040,7 @@ int main()
 		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); //con blanco la textura se ve con sus colores normales
 
 		// ---------- objetos opacos ----------
-
+		/*
 		//piso
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
@@ -1044,6 +1050,7 @@ int main()
 		pruebaTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshListModel[0]->RenderMeshModel();
+		*/
 
 		//el cubo se mueve en X con las teclas Y y U, que estan en Window.cpp
 		model = glm::mat4(1.0);
@@ -1067,7 +1074,8 @@ int main()
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(240.0f, 15.0f, -130.0f));
+		model = glm::translate(model, glm::vec3(-3.0f, -0.2f, -3.0f));
+		model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		capitanFalcon.RenderModel();
 
@@ -1253,7 +1261,7 @@ int main()
 		//--- pista de carreras y naves ---
 		//pista de carreras
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
+		model = glm::translate(model, glm::vec3(-300.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		modelauxMaquinas = model;
 		model = glm::scale(model, glm::vec3(-1.0f, 1.0f, -1.0));
@@ -1313,7 +1321,7 @@ int main()
 			float desfaseAtras = -10.0f * (i + 1);
 
 			// Pequeña oscilación senoidal para dar el efecto de levitación antigravedad
-			float flotacion = 1.00f + 0.15f * sin((avanceCarrera * 0.1f) + i);
+			float flotacion = 1.00f + 0.07f * sin((avanceCarrera * 0.1f) + i);
 
 			model = modelauxMaquinas * ObtenerMatrizNavePista(avanceCarrera + desfaseAtras, carrilX, flotacion);
 			model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1411,33 +1419,32 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		blackBull.RenderModel();
 		*/
-		//puestoObservacion1_1
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//model = glm::translate(model, glm::vec3(200.f, -150.00f, 200.0f));
+		//puestoObservacion1_1 EDICIOS CENTRALES
+		
 		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(75.0f, 10.00f, 130.0f));
-		model = glm::rotate(model, -65.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(175.0f, 80.00f, 500.0f));
+		model = glm::rotate(model, -45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion1.RenderModel();
-		glDisable(GL_BLEND);
+		
 
 		//puestoObservacion1_2
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(-75.0f, 10.00f, 130.0f));
+		model = glm::translate(model, glm::vec3(175.0f, 80.00f, -375.0f));
 		model = glm::rotate(model, -115.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion1.RenderModel();
-		glDisable(GL_BLEND);
+		
 
-		//puestoObservacion2_1
+		//puestoObservacion2_1 BUILDINGS ALTOS
 		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -1457,9 +1464,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion2.RenderModel();
 
-		//puestoObservacion3_1
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//puestoObservacion3_1 EDICICIOS CENTRALES DEL CONTORNO
+		
 		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -1468,24 +1474,22 @@ int main()
 		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion3.RenderModel();
-		glDisable(GL_BLEND);
+		
 
 		//puestoObservacion3_2
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(150.0f, 90.00f, -680.0f));
+		model = glm::translate(model, glm::vec3(150.0f, 140.00f, -680.0f));
 		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion3.RenderModel();
-		glDisable(GL_BLEND);
+		
 
 		//puestoObservacion4_1
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -1494,11 +1498,10 @@ int main()
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion4.RenderModel();
-		glDisable(GL_BLEND);
+		
 
 		//puestoObservacion4_2
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -1507,27 +1510,71 @@ int main()
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion4.RenderModel();
-		glDisable(GL_BLEND);
+		
+
+		//puestoObservacion4_2
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(300.0f, 100.00f, -600.0f));
+		model = glm::rotate(model, -35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion4.RenderModel();
+		
+		//barcoEspacial
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(650.f, 200.00f, 0.0f));
+		model = glm::rotate(model, 85.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		barcoEspacial.RenderModel();
+
+		//warehousePort
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(200.f, -150.00f, 50.0f));
+		model = glm::rotate(model, 60.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		warehousePort.RenderModel();
+
 
 
 
 		//nave 1 de la pista
-		model = glm::mat4(1.0f);
+		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(270.0f, 40.0f, -130.0f));
+		model = glm::translate(model, glm::vec3(70.0f, 140.0f, 30.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		nave1Race.RenderModel();
+
+		//nave 2 de la pista
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-70.0f, 140.0f, 30.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, -30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		nave1Race.RenderModel();
 
 		//--- satelites y cuerpos espaciales ---
 		//satelite
-		model = glm::mat4(1.0f);
+		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(340.0f, 50.0f, -530.0f));
-		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(-250.0f, 50.0f, -550.0f));
+		model = glm::rotate(model, 240.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		sateliteRace.RenderModel();
