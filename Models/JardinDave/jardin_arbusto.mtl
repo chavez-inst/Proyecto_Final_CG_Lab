@@ -1,0 +1,7 @@
+newmtl Leaves_TwistedTree
+Kd 1 1 1
+map_Kd Leaves_NormalTree_C.png
+
+newmtl Material
+Kd 1 1 1
+

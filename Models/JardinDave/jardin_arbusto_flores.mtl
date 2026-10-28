@@ -1,0 +1,8 @@
+newmtl Flowers
+Kd 1 1 1
+map_Kd Flowers.png
+
+newmtl Leaves_NormalTree
+Kd 1 1 1
+map_Kd Leaves_NormalTree_C.png
+

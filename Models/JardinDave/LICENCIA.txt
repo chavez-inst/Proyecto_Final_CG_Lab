@@ -1,0 +1,7 @@
+Modelos del jardin de Crazy Dave en Verdania. Todos son CC0 (dominio publico), no piden credito pero se da:
+
+- casa, cercas, calle y farol: Kenney (www.kenney.nl), paquetes "City Kit (Suburban)" y "City Kit (Roads)", licencia CC0 1.0
+  https://www.kenney.nl/assets/city-kit-suburban  y  https://kenney-assets.itch.io/city-kit-roads
+  sus materiales solo tenian color, asi que los colores se pasaron a la textura kenney_colores.png
+- arboles, arbustos, flores, roca, caminos de piedra, hongo, trebol y helecho: Quaternius, "Stylized Nature MegaKit" (Standard), licencia CC0
+  https://quaternius.com/packs/stylizednaturemegakit.html

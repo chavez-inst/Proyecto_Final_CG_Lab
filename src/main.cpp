@@ -611,6 +611,77 @@ glm::vec3 rotTorchwood[NUM_PIEZAS_TORCHWOOD];
 //la wall-nut es una sola pieza, por eso es un Model normal
 Model WallNut_M;
 
+//jardin de crazy dave: casa, calle, cercas, farol, arboles, arbustos, flores y piedras (modelos CC0 de Kenney y Quaternius)
+//es como si crazy dave hubiera llegado a Verdania y armado su jardin donde ya vivian las plantas
+//todos estan en Models/JardinDave y los creditos en su LICENCIA.txt
+Model JardinCasa_M;
+Model JardinCalle_M;
+Model JardinCalleFin_M;
+Model JardinCerca_M;
+Model JardinCercaPuerta_M;
+Model JardinFarol_M;
+Model JardinArbol1_M;
+Model JardinArbol2_M;
+Model JardinArbusto_M;
+Model JardinArbustoFlores_M;
+Model JardinFlores1_M;
+Model JardinFlores2_M;
+Model JardinRoca_M;
+Model JardinCaminoPiedra_M;
+Model JardinHongo_M;
+Model JardinTrebol_M;
+Model JardinHelecho_M;
+//los modelos de Kenney (casa, calle, cercas y farol) son muy chicos, una casa mide 1.2 de alto; con escala 6.5 queda de casi 8
+float escalaKenney = 6.5f;
+
+//la calle va en linea recta sobre X; cada tramo mide 1 por 1 (6.5 ya escalado) y el ultimo es el final de la calle
+const int NUM_TRAMOS_CALLE = 4;
+float posCalleX[NUM_TRAMOS_CALLE] = { 19.5f, 26.0f, 32.5f, 39.0f };
+float posCalleZ = -27.0f;
+
+//el camino de piedra sigue donde termina la calle, pasa por la puerta de la cerca y entra al jardin
+const int NUM_PIEDRAS_CAMINO = 9;
+glm::vec3 posCamino[NUM_PIEDRAS_CAMINO] = {
+	glm::vec3(12.0f, 0.0f, -26.5f), glm::vec3(10.0f, 0.0f, -25.8f), glm::vec3(8.0f, 0.0f, -24.8f),
+	glm::vec3(6.5f, 0.0f, -23.4f), glm::vec3(5.5f, 0.0f, -21.8f), glm::vec3(5.2f, 0.0f, -20.0f),
+	glm::vec3(5.4f, 0.0f, -18.2f), glm::vec3(5.9f, 0.0f, -16.4f), glm::vec3(6.6f, 0.0f, -14.7f) };
+
+//la cerca separa el jardin de la casa; la pieza de en medio-derecha es la puerta, por donde pasa el camino
+const int NUM_CERCAS_JARDIN = 4;
+float posCercaX[NUM_CERCAS_JARDIN] = { -15.6f, -5.2f, 5.2f, 15.6f };
+float posCercaZ = -22.0f;
+int indicePuerta = 2;
+//la puerta mide 1.2 de ancho y las otras cercas 1.6, por eso la puerta se estira en X para que no queden huecos
+float estiraPuerta = 1.33f;
+
+//arboles, arbustos, flores y piedras: posicion, tamano y giro de cada uno; el mismo modelo se repite cambiando el giro
+//y el tamano para que no se vean todos iguales, como los arboles del planeta 2
+const int NUM_ARBOLES_JARDIN = 4;
+glm::vec3 posArbolesJardin[NUM_ARBOLES_JARDIN] = {
+	glm::vec3(-14.0f, 0.0f, -27.0f), glm::vec3(18.0f, 0.0f, -14.0f), glm::vec3(-20.0f, 0.0f, -4.0f), glm::vec3(16.0f, 0.0f, 7.0f) };
+float escalaArbolesJardin[NUM_ARBOLES_JARDIN] = { 1.0f, 0.8f, 0.9f, 0.7f };
+float giroArbolesJardin[NUM_ARBOLES_JARDIN] = { 0.0f, 80.0f, 150.0f, 230.0f };
+
+const int NUM_ARBUSTOS_JARDIN = 6;
+glm::vec3 posArbustosJardin[NUM_ARBUSTOS_JARDIN] = {
+	glm::vec3(-9.0f, 0.0f, -20.0f), glm::vec3(-12.0f, 0.0f, -10.0f), glm::vec3(11.0f, 0.0f, -19.5f),
+	glm::vec3(12.0f, 0.0f, -3.0f), glm::vec3(-10.0f, 0.0f, 8.0f), glm::vec3(-16.0f, 0.0f, -18.0f) };
+float escalaArbustosJardin[NUM_ARBUSTOS_JARDIN] = { 1.2f, 1.0f, 1.1f, 1.3f, 0.9f, 1.0f };
+float giroArbustosJardin[NUM_ARBUSTOS_JARDIN] = { 10.0f, 70.0f, 130.0f, 200.0f, 260.0f, 320.0f };
+
+const int NUM_FLORES_JARDIN = 8;
+glm::vec3 posFloresJardin[NUM_FLORES_JARDIN] = {
+	glm::vec3(-2.0f, 0.0f, -6.0f), glm::vec3(3.0f, 0.0f, -5.0f), glm::vec3(-8.5f, 0.0f, -3.0f), glm::vec3(9.0f, 0.0f, 1.0f),
+	glm::vec3(2.0f, 0.0f, 5.0f), glm::vec3(-5.0f, 0.0f, -15.0f), glm::vec3(8.0f, 0.0f, -13.0f), glm::vec3(-3.0f, 0.0f, 6.0f) };
+float escalaFloresJardin[NUM_FLORES_JARDIN] = { 0.5f, 0.45f, 0.55f, 0.5f, 0.4f, 0.6f, 0.5f, 0.45f };
+
+const int NUM_DETALLES_JARDIN = 8;
+glm::vec3 posDetallesJardin[NUM_DETALLES_JARDIN] = {
+	glm::vec3(-4.0f, 0.0f, 2.0f), glm::vec3(4.0f, 0.0f, 1.0f), glm::vec3(-7.0f, 0.0f, -9.0f), glm::vec3(10.0f, 0.0f, -12.0f),
+	glm::vec3(1.0f, 0.0f, -10.0f), glm::vec3(-12.0f, 0.0f, 2.0f), glm::vec3(13.0f, 0.0f, -8.0f), glm::vec3(-6.0f, 0.0f, 11.0f) };
+//cada tipo de detalle viene de distinto tamano: el trebol mide 1.1, el helecho 9 de ancho y el hongo 0.45, por eso cada uno lleva su escala
+float escalaDetallesJardin[3] = { 0.6f, 0.25f, 2.0f }; //trebol, helecho, hongo
+
 //--- pista de carreras y naves ---
 Model pistaM;
 Model nave1Race;
@@ -1080,6 +1151,42 @@ int main()
 
 	WallNut_M = Model();
 	WallNut_M.LoadModel("Models/WallNut/wallnut_cuerpo.obj");
+
+	//jardin de crazy dave
+	JardinCasa_M = Model();
+	JardinCasa_M.LoadModel("Models/JardinDave/jardin_casa.obj");
+	JardinCalle_M = Model();
+	JardinCalle_M.LoadModel("Models/JardinDave/jardin_calle.obj");
+	JardinCalleFin_M = Model();
+	JardinCalleFin_M.LoadModel("Models/JardinDave/jardin_calle_fin.obj");
+	JardinCerca_M = Model();
+	JardinCerca_M.LoadModel("Models/JardinDave/jardin_cerca.obj");
+	JardinCercaPuerta_M = Model();
+	JardinCercaPuerta_M.LoadModel("Models/JardinDave/jardin_cerca_puerta.obj");
+	JardinFarol_M = Model();
+	JardinFarol_M.LoadModel("Models/JardinDave/jardin_farol.obj");
+	JardinArbol1_M = Model();
+	JardinArbol1_M.LoadModel("Models/JardinDave/jardin_arbol1.obj");
+	JardinArbol2_M = Model();
+	JardinArbol2_M.LoadModel("Models/JardinDave/jardin_arbol2.obj");
+	JardinArbusto_M = Model();
+	JardinArbusto_M.LoadModel("Models/JardinDave/jardin_arbusto.obj");
+	JardinArbustoFlores_M = Model();
+	JardinArbustoFlores_M.LoadModel("Models/JardinDave/jardin_arbusto_flores.obj");
+	JardinFlores1_M = Model();
+	JardinFlores1_M.LoadModel("Models/JardinDave/jardin_flores1.obj");
+	JardinFlores2_M = Model();
+	JardinFlores2_M.LoadModel("Models/JardinDave/jardin_flores2.obj");
+	JardinRoca_M = Model();
+	JardinRoca_M.LoadModel("Models/JardinDave/jardin_roca.obj");
+	JardinCaminoPiedra_M = Model();
+	JardinCaminoPiedra_M.LoadModel("Models/JardinDave/jardin_camino_piedra1.obj");
+	JardinHongo_M = Model();
+	JardinHongo_M.LoadModel("Models/JardinDave/jardin_hongo.obj");
+	JardinTrebol_M = Model();
+	JardinTrebol_M.LoadModel("Models/JardinDave/jardin_trebol.obj");
+	JardinHelecho_M = Model();
+	JardinHelecho_M.LoadModel("Models/JardinDave/jardin_helecho.obj");
 
 	for (int i = 0; i < NUM_PIEZAS_CRAZYDAVE; i++)
 	{
@@ -1719,6 +1826,142 @@ int main()
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -18.0f));
 		DibujaJerarquia(Torchwood_M, padresTorchwood, pivotesTorchwood, rotTorchwood, NUM_PIEZAS_TORCHWOOD, model, uniformModel);
+
+		//--- jardin de crazy dave ---
+		//son objetos quietos; cada uno se pone con translate (lugar), rotate (hacia donde ve) y scale (tamano)
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		//casa de crazy dave al fondo; el modelo tiene la puerta hacia -Z, por eso se gira 180 grados para que vea al jardin
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -34.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		JardinCasa_M.RenderModel();
+
+		//calle: los tramos rectos se giran 90 grados para que corran sobre X, y en la punta va el final de la calle
+		for (int i = 0; i < NUM_TRAMOS_CALLE; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posVerdania + glm::vec3(posCalleX[i], 0.01f, posCalleZ));
+			model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			JardinCalle_M.RenderModel();
+		}
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(posCalleX[0] - 6.5f, 0.01f, posCalleZ));
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		JardinCalleFin_M.RenderModel();
+
+		//farol junto a donde termina la calle
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(posCalleX[0] - 5.0f, 0.0f, posCalleZ - 4.0f));
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		JardinFarol_M.RenderModel();
+
+		//camino de piedra; cada piedra se gira distinto para que el camino no se vea repetido
+		for (int i = 0; i < NUM_PIEDRAS_CAMINO; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posVerdania + posCamino[i]);
+			model = glm::rotate(model, i * 47.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			JardinCaminoPiedra_M.RenderModel();
+		}
+
+		//cerca entre el jardin y la casa; en indicePuerta va la pieza con la puerta abierta
+		for (int i = 0; i < NUM_CERCAS_JARDIN; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posVerdania + glm::vec3(posCercaX[i], 0.0f, posCercaZ));
+			if (i == indicePuerta)
+			{
+				model = glm::scale(model, glm::vec3(escalaKenney * estiraPuerta, escalaKenney, escalaKenney));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				JardinCercaPuerta_M.RenderModel();
+			}
+			else
+			{
+				model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				JardinCerca_M.RenderModel();
+			}
+		}
+
+		//arboles: se alternan los dos modelos de arbol (los pares usan el 1 y los impares el 2)
+		for (int i = 0; i < NUM_ARBOLES_JARDIN; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posVerdania + posArbolesJardin[i]);
+			model = glm::rotate(model, giroArbolesJardin[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaArbolesJardin[i], escalaArbolesJardin[i], escalaArbolesJardin[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			if (i % 2 == 0)
+				JardinArbol1_M.RenderModel();
+			else
+				JardinArbol2_M.RenderModel();
+		}
+
+		//arbustos: se alternan el arbusto normal y el que tiene flores
+		for (int i = 0; i < NUM_ARBUSTOS_JARDIN; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posVerdania + posArbustosJardin[i]);
+			model = glm::rotate(model, giroArbustosJardin[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaArbustosJardin[i], escalaArbustosJardin[i], escalaArbustosJardin[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			if (i % 2 == 0)
+				JardinArbusto_M.RenderModel();
+			else
+				JardinArbustoFlores_M.RenderModel();
+		}
+
+		//flores: se alternan los dos ramos de flores, cada uno con un giro distinto
+		for (int i = 0; i < NUM_FLORES_JARDIN; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posVerdania + posFloresJardin[i]);
+			model = glm::rotate(model, i * 63.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaFloresJardin[i], escalaFloresJardin[i], escalaFloresJardin[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			if (i % 2 == 0)
+				JardinFlores1_M.RenderModel();
+			else
+				JardinFlores2_M.RenderModel();
+		}
+
+		//detalles chicos en el pasto: se reparten en orden trebol, helecho, hongo, trebol, helecho... (i % 3 dice cual toca)
+		for (int i = 0; i < NUM_DETALLES_JARDIN; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posVerdania + posDetallesJardin[i]);
+			model = glm::rotate(model, i * 71.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaDetallesJardin[i % 3], escalaDetallesJardin[i % 3], escalaDetallesJardin[i % 3]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			if (i % 3 == 0)
+				JardinTrebol_M.RenderModel();
+			else if (i % 3 == 1)
+				JardinHelecho_M.RenderModel();
+			else
+				JardinHongo_M.RenderModel();
+		}
+
+		//dos rocas grandes en las orillas del jardin
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(-17.0f, 0.0f, -13.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		JardinRoca_M.RenderModel();
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(15.0f, 0.0f, -24.0f));
+		model = glm::rotate(model, 120.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		JardinRoca_M.RenderModel();
 
 		//planeta Verdania en el espacio: gira despacio sobre Y como Xen; mide como 0.73 de alto, con escala 130 queda de unas 95 unidades
 		giroPlanetaVerdania += giroPlanetaVerdaniaOffset * deltaTime;

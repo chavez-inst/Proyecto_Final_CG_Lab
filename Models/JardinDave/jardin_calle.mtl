@@ -1,0 +1,16 @@
+newmtl pavement
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl asphalt
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl asphaltEdge
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl line
+Kd 1 1 1
+map_Kd kenney_colores.png
+
