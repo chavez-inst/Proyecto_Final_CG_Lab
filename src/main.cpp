@@ -312,8 +312,13 @@ Texture verdaniaPastoTexture;
 
 //todas las plantas de Verdania son modelos descargados y separados en piezas por sus huesos
 //los creditos estan en el LICENCIA.txt de cada una y los pivotes salen del piezas.txt de cada carpeta
-//las animaciones salen del seno de anguloVerdania, que avanza cada frame igual que el de las islas de Xen;
-//cada planta lo multiplica por su propia velocidad y le suma un desfase para que no se muevan todas igual
+//cada planta por piezas tiene los mismos arreglos que la carnivora:
+// - piezas: el nombre de cada archivo .obj
+// - padres: el indice de la pieza de la que cuelga cada una (-1 es la raiz); el padre siempre va antes que sus hijos
+// - pivotes: el punto de la articulacion donde gira cada pieza
+// - rot: cuantos grados gira cada pieza en x, y, z; se cambian en el while para animarlas
+//anguloVerdania es el "reloj" de todas las animaciones de Verdania: avanza cada frame mientras la tecla V
+//las tenga prendidas, igual que el angulo de las islas de Xen; cada planta usa el seno de ese angulo
 float anguloVerdania = 0.0f;
 float anguloVerdaniaOffset = 2.0f;
 
@@ -339,7 +344,7 @@ glm::vec3 pivotesPeashooter[NUM_PIEZAS_PEASHOOTER] = {
 	glm::vec3(-0.0622f, 0.2206f, 0.1582f)       //hoja_tras_der
 };
 glm::vec3 rotPeashooter[NUM_PIEZAS_PEASHOOTER];
-//el peashooter camina en circulo como el headcrab, pero sin tecla, siempre esta caminando
+//el peashooter camina en circulo como el headcrab; se prende y se apaga con V junto con las demas plantas
 glm::vec3 centroPeashooter = glm::vec3(0.0f, 0.0f, -2.0f); //el centro del circulo se mide desde posVerdania
 float radioPeashooter = 2.5f;
 float anguloPeashooter = 0.0f;
@@ -377,6 +382,10 @@ float posDave = 0.0f;
 float posDaveOffset = 0.02f;
 float limiteDave = 4.0f;
 bool daveAdelante = true;
+//hacia donde mira crazy dave, en grados alrededor de Y: 90 cuando camina hacia +X y -90 hacia -X;
+//al cambiar de direccion se va girando de rumboDaveOffset en rumboDaveOffset para que la vuelta no sea de golpe
+float rumboDave = 90.0f;
+float rumboDaveOffset = 6.0f;
 
 //Verdania vista desde el espacio: es la cabeza del peashooter en grande, lisa y con textura de planeta
 //peashooter_planeta.obj es la cabeza sin cuello, sin cejas y redonda por abajo; su textura es la de Verdania
@@ -386,6 +395,221 @@ glm::vec3 posPlanetaVerdania = glm::vec3(-450.0f, 70.0f, -330.0f);
 glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
 float giroPlanetaVerdania = 0.0f;
 float giroPlanetaVerdaniaOffset = 0.05f;
+
+//NPCs de Verdania: los tres peas en maceta miden como 1.4 de alto y el cactus como 1.45
+//ice pea: pea de hielo en maceta
+const int NUM_PIEZAS_ICEPEA = 8;
+Model IcePea_M[NUM_PIEZAS_ICEPEA];
+const char* piezasIcePea[NUM_PIEZAS_ICEPEA] = {
+	"base", "tallo", "cabeza", "boca", "hoja_izq", "hoja_frente", "hoja_der", "hoja_atras" };
+int padresIcePea[NUM_PIEZAS_ICEPEA] = {
+	-1, 0, 1, 2, 0, 0, 0, 0 };
+glm::vec3 pivotesIcePea[NUM_PIEZAS_ICEPEA] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(0.0000f, 0.5482f, 0.0449f),       //tallo
+	glm::vec3(0.0000f, 0.9346f, -0.0249f),      //cabeza
+	glm::vec3(0.0000f, 1.1496f, 0.3915f),       //boca
+	glm::vec3(0.0361f, 0.5212f, 0.0572f),       //hoja_izq
+	glm::vec3(0.0005f, 0.5212f, 0.0882f),       //hoja_frente
+	glm::vec3(-0.0299f, 0.5212f, 0.0563f),      //hoja_der
+	glm::vec3(0.0000f, 0.5212f, 0.0221f)        //hoja_atras
+};
+glm::vec3 rotIcePea[NUM_PIEZAS_ICEPEA];
+
+//gatling pea: pea con casco y canones de metralleta; los canones son una pieza aparte para que puedan girar
+const int NUM_PIEZAS_GATLINGPEA = 9;
+Model GatlingPea_M[NUM_PIEZAS_GATLINGPEA];
+const char* piezasGatlingPea[NUM_PIEZAS_GATLINGPEA] = {
+	"base", "tallo", "cabeza", "boca", "canones", "hoja_izq", "hoja_frente", "hoja_der", "hoja_atras" };
+int padresGatlingPea[NUM_PIEZAS_GATLINGPEA] = {
+	-1, 0, 1, 2, 3, 0, 0, 0, 0 };
+glm::vec3 pivotesGatlingPea[NUM_PIEZAS_GATLINGPEA] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(0.0000f, 0.5482f, -0.0555f),      //tallo
+	glm::vec3(0.0000f, 0.9346f, -0.1253f),      //cabeza
+	glm::vec3(0.0000f, 1.1496f, 0.2911f),       //boca
+	glm::vec3(0.0000f, 1.1496f, 0.2911f),       //canones
+	glm::vec3(0.0361f, 0.5212f, -0.0433f),      //hoja_izq
+	glm::vec3(0.0005f, 0.5212f, -0.0123f),      //hoja_frente
+	glm::vec3(-0.0299f, 0.5212f, -0.0441f),     //hoja_der
+	glm::vec3(0.0000f, 0.5212f, -0.0783f)       //hoja_atras
+};
+glm::vec3 rotGatlingPea[NUM_PIEZAS_GATLINGPEA];
+//angulo de los canones de la gatling pea; avanza mientras V este prendida
+float giroCanones = 0.0f;
+float giroCanonesOffset = 8.0f;
+
+//fire pea: pea de fuego en maceta
+const int NUM_PIEZAS_FIREPEA = 8;
+Model FirePea_M[NUM_PIEZAS_FIREPEA];
+const char* piezasFirePea[NUM_PIEZAS_FIREPEA] = {
+	"base", "tallo", "cabeza", "boca", "hoja_izq", "hoja_frente", "hoja_der", "hoja_atras" };
+int padresFirePea[NUM_PIEZAS_FIREPEA] = {
+	-1, 0, 1, 2, 0, 0, 0, 0 };
+glm::vec3 pivotesFirePea[NUM_PIEZAS_FIREPEA] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(0.0000f, 0.5357f, -0.0244f),      //tallo
+	glm::vec3(0.0000f, 0.9221f, -0.0942f),      //cabeza
+	glm::vec3(0.0000f, 1.1371f, 0.3222f),       //boca
+	glm::vec3(0.0361f, 0.5087f, -0.0121f),      //hoja_izq
+	glm::vec3(0.0005f, 0.5087f, 0.0188f),       //hoja_frente
+	glm::vec3(-0.0299f, 0.5087f, -0.0130f),     //hoja_der
+	glm::vec3(0.0000f, 0.5087f, -0.0472f)       //hoja_atras
+};
+glm::vec3 rotFirePea[NUM_PIEZAS_FIREPEA];
+
+//cactus: tallo de dos partes con un brazo de cada lado
+const int NUM_PIEZAS_CACTUS = 6;
+Model Cactus_M[NUM_PIEZAS_CACTUS];
+const char* piezasCactus[NUM_PIEZAS_CACTUS] = {
+	"base", "tallo1", "tallo2", "cabeza", "brazo_izq", "brazo_der" };
+int padresCactus[NUM_PIEZAS_CACTUS] = {
+	-1, 0, 1, 2, 2, 2 };
+glm::vec3 pivotesCactus[NUM_PIEZAS_CACTUS] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(-0.0128f, 0.2208f, -0.0435f),     //tallo1
+	glm::vec3(-0.0128f, 0.5095f, -0.0425f),     //tallo2
+	glm::vec3(-0.0128f, 0.9318f, -0.0415f),     //cabeza
+	glm::vec3(0.2003f, 0.6514f, -0.0490f),      //brazo_izq
+	glm::vec3(-0.2346f, 0.5808f, -0.0527f)      //brazo_der
+};
+glm::vec3 rotCactus[NUM_PIEZAS_CACTUS];
+
+//plantas de adorno de Verdania, cada una con una animacion sencilla
+//girasol de Garden Warfare 1 (mide como 1.1 de alto)
+const int NUM_PIEZAS_SUNFLOWER = 12;
+Model Sunflower_M[NUM_PIEZAS_SUNFLOWER];
+const char* piezasSunflower[NUM_PIEZAS_SUNFLOWER] = {
+	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
+int padresSunflower[NUM_PIEZAS_SUNFLOWER] = {
+	-1, 0, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0 };
+glm::vec3 pivotesSunflower[NUM_PIEZAS_SUNFLOWER] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(-0.0018f, 0.1895f, 0.0845f),      //tallo1
+	glm::vec3(-0.0018f, 0.4573f, -0.0415f),     //tallo2
+	glm::vec3(-0.0008f, 0.7407f, 0.0224f),      //cabeza
+	glm::vec3(0.0328f, 0.5654f, -0.0662f),      //ala_izq
+	glm::vec3(-0.0364f, 0.5654f, -0.0662f),     //ala_der
+	glm::vec3(0.0332f, 0.4957f, -0.0525f),      //brazo_izq
+	glm::vec3(-0.0367f, 0.4957f, -0.0525f),     //brazo_der
+	glm::vec3(0.0355f, 0.1462f, 0.1199f),       //hoja_del_izq
+	glm::vec3(-0.0390f, 0.1462f, 0.1199f),      //hoja_del_der
+	glm::vec3(0.0355f, 0.1462f, 0.0450f),       //hoja_tras_izq
+	glm::vec3(-0.0390f, 0.1462f, 0.0450f)       //hoja_tras_der
+};
+glm::vec3 rotSunflower[NUM_PIEZAS_SUNFLOWER];
+
+//girasol de Garden Warfare 2 (mide como 1.9 de alto)
+const int NUM_PIEZAS_SUNFLOWER2 = 12;
+Model Sunflower2_M[NUM_PIEZAS_SUNFLOWER2];
+const char* piezasSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
+	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
+int padresSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
+	-1, 0, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0 };
+glm::vec3 pivotesSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(-0.0029f, 0.3168f, 0.1419f),      //tallo1
+	glm::vec3(-0.0029f, 0.7646f, -0.0687f),     //tallo2
+	glm::vec3(-0.0014f, 1.2384f, 0.0380f),      //cabeza
+	glm::vec3(0.0549f, 0.9454f, -0.1100f),      //ala_izq
+	glm::vec3(-0.0608f, 0.9454f, -0.1100f),     //ala_der
+	glm::vec3(0.0556f, 0.8288f, -0.0871f),      //brazo_izq
+	glm::vec3(-0.0614f, 0.8288f, -0.0871f),     //brazo_der
+	glm::vec3(0.0593f, 0.2445f, 0.2011f),       //hoja_del_izq
+	glm::vec3(-0.0652f, 0.2445f, 0.2011f),      //hoja_del_der
+	glm::vec3(0.0593f, 0.2445f, 0.0759f),       //hoja_tras_izq
+	glm::vec3(-0.0652f, 0.2445f, 0.0759f)       //hoja_tras_der
+};
+glm::vec3 rotSunflower2[NUM_PIEZAS_SUNFLOWER2];
+
+//girasol de peluche (stuffy flower) de Garden Warfare 2, tiene las mismas piezas que el girasol
+const int NUM_PIEZAS_STUFFYFLOWER = 12;
+Model StuffyFlower_M[NUM_PIEZAS_STUFFYFLOWER];
+const char* piezasStuffyFlower[NUM_PIEZAS_STUFFYFLOWER] = {
+	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
+int padresStuffyFlower[NUM_PIEZAS_STUFFYFLOWER] = {
+	-1, 0, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0 };
+glm::vec3 pivotesStuffyFlower[NUM_PIEZAS_STUFFYFLOWER] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(-0.0037f, 0.3196f, 0.1353f),      //tallo1
+	glm::vec3(-0.0037f, 0.7674f, -0.0753f),     //tallo2
+	glm::vec3(-0.0021f, 1.2413f, 0.0315f),      //cabeza
+	glm::vec3(0.0542f, 0.9482f, -0.1166f),      //ala_izq
+	glm::vec3(-0.0615f, 0.9482f, -0.1166f),     //ala_der
+	glm::vec3(0.0548f, 0.8316f, -0.0937f),      //brazo_izq
+	glm::vec3(-0.0622f, 0.8316f, -0.0937f),     //brazo_der
+	glm::vec3(0.0586f, 0.2473f, 0.1945f),       //hoja_del_izq
+	glm::vec3(-0.0659f, 0.2473f, 0.1945f),      //hoja_del_der
+	glm::vec3(0.0586f, 0.2473f, 0.0693f),       //hoja_tras_izq
+	glm::vec3(-0.0659f, 0.2473f, 0.0693f)       //hoja_tras_der
+};
+glm::vec3 rotStuffyFlower[NUM_PIEZAS_STUFFYFLOWER];
+
+//hypno-shroom: hongo con tallo, sombrero y boca
+const int NUM_PIEZAS_HYPNOSHROOM = 4;
+Model HypnoShroom_M[NUM_PIEZAS_HYPNOSHROOM];
+const char* piezasHypnoShroom[NUM_PIEZAS_HYPNOSHROOM] = {
+	"base", "tallo", "sombrero", "boca" };
+int padresHypnoShroom[NUM_PIEZAS_HYPNOSHROOM] = {
+	-1, 0, 1, 1 };
+glm::vec3 pivotesHypnoShroom[NUM_PIEZAS_HYPNOSHROOM] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(-0.0064f, 0.1996f, 0.0044f),      //tallo
+	glm::vec3(-0.0157f, 0.5987f, 0.0004f),      //sombrero
+	glm::vec3(-0.0024f, 0.1765f, 0.1307f)       //boca
+};
+glm::vec3 rotHypnoShroom[NUM_PIEZAS_HYPNOSHROOM];
+
+//laser bean: frijol en maceta; la maceta es la raiz y el cuerpo cuelga de ella
+const int NUM_PIEZAS_LASERBEAN = 3;
+Model LaserBean_M[NUM_PIEZAS_LASERBEAN];
+const char* piezasLaserBean[NUM_PIEZAS_LASERBEAN] = {
+	"maceta", "cuerpo", "pelo" };
+int padresLaserBean[NUM_PIEZAS_LASERBEAN] = {
+	-1, 0, 1 };
+glm::vec3 pivotesLaserBean[NUM_PIEZAS_LASERBEAN] = {
+	glm::vec3(0.0000f, 0.3107f, 0.0000f),       //maceta
+	glm::vec3(0.0000f, 0.5511f, 0.2324f),       //cuerpo
+	glm::vec3(0.0000f, 1.1489f, -0.1837f)       //pelo
+};
+glm::vec3 rotLaserBean[NUM_PIEZAS_LASERBEAN];
+
+//potato mine: papa enterrada; la tierra es la raiz, el cuerpo cuelga de ella y la antena del cuerpo
+const int NUM_PIEZAS_POTATOMINE = 3;
+Model PotatoMine_M[NUM_PIEZAS_POTATOMINE];
+const char* piezasPotatoMine[NUM_PIEZAS_POTATOMINE] = {
+	"tierra", "cuerpo", "antena" };
+int padresPotatoMine[NUM_PIEZAS_POTATOMINE] = {
+	-1, 0, 1 };
+glm::vec3 pivotesPotatoMine[NUM_PIEZAS_POTATOMINE] = {
+	glm::vec3(-0.0042f, 0.1899f, 0.0095f),      //tierra
+	glm::vec3(-0.0042f, 0.1899f, 0.0095f),      //cuerpo
+	glm::vec3(-0.0042f, 0.4880f, 0.0104f)       //antena
+};
+glm::vec3 rotPotatoMine[NUM_PIEZAS_POTATOMINE];
+
+//torchwood: tronco con cabeza, boca y brazos (mide como 2.7 de alto)
+const int NUM_PIEZAS_TORCHWOOD = 9;
+Model Torchwood_M[NUM_PIEZAS_TORCHWOOD];
+const char* piezasTorchwood[NUM_PIEZAS_TORCHWOOD] = {
+	"base", "tronco", "cabeza", "fuego", "mandibula", "brazo_izq", "antebrazo_izq", "brazo_der", "antebrazo_der" };
+int padresTorchwood[NUM_PIEZAS_TORCHWOOD] = {
+	-1, 0, 1, 2, 2, 2, 5, 2, 7 };
+glm::vec3 pivotesTorchwood[NUM_PIEZAS_TORCHWOOD] = {
+	glm::vec3(0.0000f, 0.0000f, 0.0000f),       //base
+	glm::vec3(0.0202f, 0.8698f, -0.1053f),      //tronco
+	glm::vec3(0.0185f, 1.2176f, -0.1224f),      //cabeza
+	glm::vec3(0.0133f, 2.1441f, -0.1968f),      //fuego
+	glm::vec3(0.0121f, 1.4448f, 0.2648f),       //mandibula
+	glm::vec3(0.5861f, 1.6801f, -0.2093f),      //brazo_izq
+	glm::vec3(0.9585f, 1.4009f, -0.2865f),      //antebrazo_izq
+	glm::vec3(-0.5941f, 1.7198f, -0.2244f),     //brazo_der
+	glm::vec3(-0.9764f, 1.2656f, -0.2501f)      //antebrazo_der
+};
+glm::vec3 rotTorchwood[NUM_PIEZAS_TORCHWOOD];
+
+//la wall-nut es una sola pieza, por eso es un Model normal
+Model WallNut_M;
 
 //--- pista de carreras y naves ---
 Model pistaM;
@@ -776,6 +1000,86 @@ int main()
 
 	PlanetaVerdania_M = Model();
 	PlanetaVerdania_M.LoadModel("Models/Peashooter/peashooter_planeta.obj");
+
+	for (int i = 0; i < NUM_PIEZAS_ICEPEA; i++)
+	{
+		std::string ruta = std::string("Models/IcePea/icepea_") + piezasIcePea[i] + ".obj";
+		IcePea_M[i] = Model();
+		IcePea_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_GATLINGPEA; i++)
+	{
+		std::string ruta = std::string("Models/GatlingPea/gatlingpea_") + piezasGatlingPea[i] + ".obj";
+		GatlingPea_M[i] = Model();
+		GatlingPea_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_FIREPEA; i++)
+	{
+		std::string ruta = std::string("Models/FirePea/firepea_") + piezasFirePea[i] + ".obj";
+		FirePea_M[i] = Model();
+		FirePea_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_CACTUS; i++)
+	{
+		std::string ruta = std::string("Models/Cactus/cactus_") + piezasCactus[i] + ".obj";
+		Cactus_M[i] = Model();
+		Cactus_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_SUNFLOWER; i++)
+	{
+		std::string ruta = std::string("Models/Sunflower/sunflower_") + piezasSunflower[i] + ".obj";
+		Sunflower_M[i] = Model();
+		Sunflower_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_SUNFLOWER2; i++)
+	{
+		std::string ruta = std::string("Models/Sunflower2/sunflower2_") + piezasSunflower2[i] + ".obj";
+		Sunflower2_M[i] = Model();
+		Sunflower2_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_STUFFYFLOWER; i++)
+	{
+		std::string ruta = std::string("Models/StuffyFlower/stuffyflower_") + piezasStuffyFlower[i] + ".obj";
+		StuffyFlower_M[i] = Model();
+		StuffyFlower_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_HYPNOSHROOM; i++)
+	{
+		std::string ruta = std::string("Models/HypnoShroom/hypnoshroom_") + piezasHypnoShroom[i] + ".obj";
+		HypnoShroom_M[i] = Model();
+		HypnoShroom_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_LASERBEAN; i++)
+	{
+		std::string ruta = std::string("Models/LaserBean/laserbean_") + piezasLaserBean[i] + ".obj";
+		LaserBean_M[i] = Model();
+		LaserBean_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_POTATOMINE; i++)
+	{
+		std::string ruta = std::string("Models/PotatoMine/potatomine_") + piezasPotatoMine[i] + ".obj";
+		PotatoMine_M[i] = Model();
+		PotatoMine_M[i].LoadModel(ruta);
+	}
+
+	for (int i = 0; i < NUM_PIEZAS_TORCHWOOD; i++)
+	{
+		std::string ruta = std::string("Models/Torchwood/torchwood_") + piezasTorchwood[i] + ".obj";
+		Torchwood_M[i] = Model();
+		Torchwood_M[i].LoadModel(ruta);
+	}
+
+	WallNut_M = Model();
+	WallNut_M.LoadModel("Models/WallNut/wallnut_cuerpo.obj");
 
 	for (int i = 0; i < NUM_PIEZAS_CRAZYDAVE; i++)
 	{
@@ -1202,10 +1506,58 @@ int main()
 		WarpStar_M.RenderModel();
 
 		//--- planeta 3: Verdania (Abraham) ---
-		//el angulo comun de las animaciones avanza cada frame y se regresa a 0 al dar la vuelta
-		anguloVerdania += anguloVerdaniaOffset * deltaTime;
-		if (anguloVerdania > 360.0f)
-			anguloVerdania -= 360.0f;
+		//como funcionan las animaciones de Verdania:
+		// - anguloVerdania es un "reloj" que va de 0 a 360 grados; avanza un poco cada frame (Offset * deltaTime)
+		// - cada parte que se mueve usa sin(anguloVerdania * N), que va y viene suave entre -1 y 1;
+		//   ese valor se multiplica por los grados maximos que se quiere mover la pieza
+		// - N siempre es un numero entero (1, 2, 3...), asi el seno da exactamente lo mismo en 360 que en 0
+		//   y cuando el reloj regresa a 0 la pieza sigue su movimiento sin brincar
+		// - N mas grande = movimiento mas rapido; sumar grados dentro del seno (+120, +240) es un desfase,
+		//   para que plantas iguales no se muevan todas al mismo tiempo
+		//las animaciones solo avanzan mientras esten prendidas con la tecla V, igual que la caminata del headcrab con H;
+		//si se apagan, los angulos y posiciones ya no cambian y las plantas se quedan quietas en su ultima pose
+		if (mainWindow.getanimaVerdania())
+		{
+			//el reloj comun avanza y al llegar a 360 se regresa a 0
+			anguloVerdania += anguloVerdaniaOffset * deltaTime;
+			if (anguloVerdania > 360.0f)
+				anguloVerdania -= 360.0f;
+			//el peashooter avanza en su circulo
+			anguloPeashooter += anguloPeashooterOffset * deltaTime;
+			if (anguloPeashooter > 360.0f)
+				anguloPeashooter -= 360.0f;
+			//crazy dave avanza hacia un lado; al pasar el limite cambia de direccion
+			if (daveAdelante)
+			{
+				posDave += posDaveOffset * deltaTime;
+				if (posDave > limiteDave)
+					daveAdelante = false;
+			}
+			else
+			{
+				posDave -= posDaveOffset * deltaTime;
+				if (posDave < -limiteDave)
+					daveAdelante = true;
+			}
+			//crazy dave se voltea poco a poco hacia donde camina (90 grados hacia +X y -90 hacia -X),
+			//en lugar de girar de golpe al llegar al limite
+			if (daveAdelante && rumboDave < 90.0f)
+			{
+				rumboDave += rumboDaveOffset * deltaTime;
+				if (rumboDave > 90.0f)
+					rumboDave = 90.0f;
+			}
+			if (!daveAdelante && rumboDave > -90.0f)
+			{
+				rumboDave -= rumboDaveOffset * deltaTime;
+				if (rumboDave < -90.0f)
+					rumboDave = -90.0f;
+			}
+			//los canones de la gatling pea giran sin parar
+			giroCanones += giroCanonesOffset * deltaTime;
+			if (giroCanones > 360.0f)
+				giroCanones -= 360.0f;
+		}
 
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
@@ -1217,61 +1569,156 @@ int main()
 		verdaniaPastoTexture.UseTexture();
 		meshListModel[0]->RenderMeshModel();
 
-		//peashooter: camina en circulo; las hojas-pata van y vienen cruzadas (la delantera izquierda con la trasera derecha)
-		anguloPeashooter += anguloPeashooterOffset * deltaTime;
-		if (anguloPeashooter > 360.0f)
-			anguloPeashooter -= 360.0f;
+		//todas las plantas se dibujan igual: primero se ponen las rotaciones de sus piezas (en grados),
+		//luego la matriz model con su lugar en Verdania y hacia donde mira, y al final DibujaJerarquia
+		//dibuja cada pieza encima de su padre girando en su pivote
+
+		//peashooter (NPC): camina en circulo como el headcrab
+		//pasoPea va de -1 a 1; las hojas-pata se mueven cruzadas: la delantera izquierda junto con la trasera derecha
+		//y la delantera derecha junto con la trasera izquierda, como caminan los animales de cuatro patas
 		float pasoPea = sin(anguloVerdania * 3.0f * toRadians);
 		rotPeashooter[8].x = 25.0f * pasoPea;   //hoja_del_izq
 		rotPeashooter[11].x = 25.0f * pasoPea;  //hoja_tras_der
 		rotPeashooter[9].x = -25.0f * pasoPea;  //hoja_del_der
 		rotPeashooter[10].x = -25.0f * pasoPea; //hoja_tras_izq
-		//los brazos vienen extendidos en T en el modelo; se bajan 70 grados en Z y se balancean en X al caminar
-		rotPeashooter[6].z = -70.0f;
-		rotPeashooter[7].z = 70.0f;
-		rotPeashooter[6].x = -20.0f * pasoPea;
-		rotPeashooter[7].x = 20.0f * pasoPea;
-		//la cabeza rebota dos veces por cada paso y el tallo se mece un poco
-		rotPeashooter[3].x = 4.0f * sin(anguloVerdania * 6.0f * toRadians);
-		rotPeashooter[1].z = 3.0f * pasoPea;
+		//los brazos vienen extendidos en T en el modelo; se bajan 70 grados en Z en el hombro
+		//y se balancean en X al caminar, cada uno al reves del otro
+		rotPeashooter[6].z = -70.0f;            //brazo_izq abajo
+		rotPeashooter[7].z = 70.0f;             //brazo_der abajo
+		rotPeashooter[6].x = -20.0f * pasoPea;  //brazo_izq adelante y atras
+		rotPeashooter[7].x = 20.0f * pasoPea;   //brazo_der adelante y atras
+		//la cabeza rebota dos veces por cada paso (N = 6, el doble que el paso) y el tallo se mece un poco
+		rotPeashooter[3].x = 4.0f * sin(anguloVerdania * 6.0f * toRadians); //cabeza
+		rotPeashooter[1].z = 3.0f * pasoPea;                                 //tallo1
+		//la posicion en el circulo sale del seno y el coseno de su angulo, y se gira 90 grados mas para que mire hacia donde avanza
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + centroPeashooter +
 			glm::vec3(radioPeashooter * sin(anguloPeashooter * toRadians), 0.0f, radioPeashooter * cos(anguloPeashooter * toRadians)));
 		model = glm::rotate(model, (anguloPeashooter + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Peashooter_M, padresPeashooter, pivotesPeashooter, rotPeashooter, NUM_PIEZAS_PEASHOOTER, model, uniformModel);
 
-		//crazy dave: camina de un lado a otro; al llegar al limite se voltea y regresa
-		if (daveAdelante)
-		{
-			posDave += posDaveOffset * deltaTime;
-			if (posDave > limiteDave)
-				daveAdelante = false;
-		}
-		else
-		{
-			posDave -= posDaveOffset * deltaTime;
-			if (posDave < -limiteDave)
-				daveAdelante = true;
-		}
+		//crazy dave (NPC): camina de un lado a otro en linea recta
+		//las piernas van contrarias y cada brazo va al reves que su pierna, como cuando camina una persona;
+		//la pantorrilla y el pie son hijos del muslo, asi que se mueven con el sin tocarlos
 		float pasoDave = sin(anguloVerdania * 4.0f * toRadians);
-		//piernas contrarias, y cada brazo va al reves que su pierna, como cuando camina una persona
 		rotCrazyDave[11].x = 25.0f * pasoDave;  //muslo_der
 		rotCrazyDave[14].x = -25.0f * pasoDave; //muslo_izq
-		//los brazos vienen abiertos; se bajan 45 grados en Z y se balancean en X
-		rotCrazyDave[5].z = 45.0f;
-		rotCrazyDave[8].z = -45.0f;
-		rotCrazyDave[5].x = -20.0f * pasoDave;
-		rotCrazyDave[8].x = 20.0f * pasoDave;
-		//la olla de la cabeza se tambalea
-		rotCrazyDave[4].z = 6.0f * sin(anguloVerdania * 8.0f * toRadians);
+		//los brazos vienen abiertos en el modelo; se bajan 45 grados en Z y se balancean en X
+		rotCrazyDave[5].z = 45.0f;              //brazo_der abajo
+		rotCrazyDave[8].z = -45.0f;             //brazo_izq abajo
+		rotCrazyDave[5].x = -20.0f * pasoDave;  //brazo_der adelante y atras
+		rotCrazyDave[8].x = 20.0f * pasoDave;   //brazo_izq adelante y atras
+		//la olla de la cabeza se tambalea rapido (N = 8)
+		rotCrazyDave[4].z = 6.0f * sin(anguloVerdania * 8.0f * toRadians); //olla
+		//el modelo mira hacia +Z; rumboDave lo gira en Y hacia donde camina
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(posDave, 0.0f, -8.0f));
-		//el modelo mira hacia +Z; con 90 grados mira hacia +X y con -90 hacia -X
-		if (daveAdelante)
-			model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		else
-			model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, rumboDave * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(CrazyDave_M, padresCrazyDave, pivotesCrazyDave, rotCrazyDave, NUM_PIEZAS_CRAZYDAVE, model, uniformModel);
+
+		//los tres peas en maceta (NPCs) vigilan: voltean la cabeza de un lado a otro hasta 35 grados (en Y)
+		//y el tallo se inclina un poco hacia adelante y atras (en X); cada uno lleva un desfase distinto (0, 120 y 240)
+		rotIcePea[2].y = 35.0f * sin(anguloVerdania * toRadians);       //cabeza
+		rotIcePea[1].x = 4.0f * sin(anguloVerdania * 2.0f * toRadians); //tallo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(-6.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(IcePea_M, padresIcePea, pivotesIcePea, rotIcePea, NUM_PIEZAS_ICEPEA, model, uniformModel);
+
+		rotGatlingPea[2].y = 35.0f * sin((anguloVerdania + 120.0f) * toRadians);       //cabeza
+		rotGatlingPea[1].x = 4.0f * sin((anguloVerdania * 2.0f + 120.0f) * toRadians); //tallo
+		//los canones giran sobre su propio eje, que es el eje Z del modelo; como son hijos de la boca, siguen a la cabeza
+		rotGatlingPea[4].z = giroCanones;
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(-7.0f, 0.0f, -3.0f));
+		model = glm::rotate(model, 55.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(GatlingPea_M, padresGatlingPea, pivotesGatlingPea, rotGatlingPea, NUM_PIEZAS_GATLINGPEA, model, uniformModel);
+
+		rotFirePea[2].y = 35.0f * sin((anguloVerdania + 240.0f) * toRadians);       //cabeza
+		rotFirePea[1].x = 4.0f * sin((anguloVerdania * 2.0f + 240.0f) * toRadians); //tallo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(-6.5f, 0.0f, -6.5f));
+		model = glm::rotate(model, 70.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(FirePea_M, padresFirePea, pivotesFirePea, rotFirePea, NUM_PIEZAS_FIREPEA, model, uniformModel);
+
+		//cactus (NPC): sube y baja los brazos en Z (el mismo valor en los dos hace que uno suba mientras el otro baja,
+		//porque estan de lados contrarios) y el tallo de arriba se mece
+		rotCactus[4].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_izq
+		rotCactus[5].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_der
+		rotCactus[2].z = 3.0f * sin(anguloVerdania * toRadians);         //tallo2
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(6.5f, 0.0f, -1.0f));
+		model = glm::rotate(model, -40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(Cactus_M, padresCactus, pivotesCactus, rotCactus, NUM_PIEZAS_CACTUS, model, uniformModel);
+
+		//girasoles (adorno): mecen la cabeza de lado (Z) y el tallo hacia adelante y atras (X), como con el viento;
+		//cada uno va desfasado 120 grados del anterior
+		rotSunflower[6].z = -60.0f; //los brazos tambien vienen en T y se bajan 60 grados
+		rotSunflower[7].z = 60.0f;
+		rotSunflower[3].z = 8.0f * sin(anguloVerdania * toRadians); //cabeza
+		rotSunflower[1].x = 3.0f * sin(anguloVerdania * toRadians); //tallo1
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(-3.0f, 0.0f, -12.0f));
+		model = glm::rotate(model, 15.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(Sunflower_M, padresSunflower, pivotesSunflower, rotSunflower, NUM_PIEZAS_SUNFLOWER, model, uniformModel);
+
+		rotSunflower2[6].z = -60.0f;
+		rotSunflower2[7].z = 60.0f;
+		rotSunflower2[3].z = 8.0f * sin((anguloVerdania + 120.0f) * toRadians); //cabeza
+		rotSunflower2[1].x = 3.0f * sin((anguloVerdania + 120.0f) * toRadians); //tallo1
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -13.0f));
+		DibujaJerarquia(Sunflower2_M, padresSunflower2, pivotesSunflower2, rotSunflower2, NUM_PIEZAS_SUNFLOWER2, model, uniformModel);
+
+		rotStuffyFlower[6].z = -60.0f;
+		rotStuffyFlower[7].z = 60.0f;
+		rotStuffyFlower[3].z = 8.0f * sin((anguloVerdania + 240.0f) * toRadians); //cabeza
+		rotStuffyFlower[1].x = 3.0f * sin((anguloVerdania + 240.0f) * toRadians); //tallo1
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(3.0f, 0.0f, -12.0f));
+		model = glm::rotate(model, -15.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(StuffyFlower_M, padresStuffyFlower, pivotesStuffyFlower, rotStuffyFlower, NUM_PIEZAS_STUFFYFLOWER, model, uniformModel);
+
+		//hypno-shroom (adorno): el sombrero se tambalea de lado y el tallo gira un poco sobre si mismo
+		rotHypnoShroom[2].z = 6.0f * sin(anguloVerdania * 2.0f * toRadians); //sombrero
+		rotHypnoShroom[1].y = 10.0f * sin(anguloVerdania * toRadians);       //tallo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(7.0f, 0.0f, -6.0f));
+		model = glm::rotate(model, -50.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(HypnoShroom_M, padresHypnoShroom, pivotesHypnoShroom, rotHypnoShroom, NUM_PIEZAS_HYPNOSHROOM, model, uniformModel);
+
+		//laser bean (adorno): el cuerpo se balancea dentro de su maceta y el pelo rebota al doble de rapido
+		rotLaserBean[1].z = 8.0f * sin(anguloVerdania * toRadians);         //cuerpo
+		rotLaserBean[2].x = 15.0f * sin(anguloVerdania * 2.0f * toRadians); //pelo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(5.0f, 0.0f, 3.0f));
+		model = glm::rotate(model, -30.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(LaserBean_M, padresLaserBean, pivotesLaserBean, rotLaserBean, NUM_PIEZAS_LASERBEAN, model, uniformModel);
+
+		//potato mine (adorno): la antena se mueve rapido de un lado a otro
+		rotPotatoMine[2].z = 15.0f * sin(anguloVerdania * 3.0f * toRadians); //antena
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(-4.0f, 0.0f, 4.0f));
+		model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(PotatoMine_M, padresPotatoMine, pivotesPotatoMine, rotPotatoMine, NUM_PIEZAS_POTATOMINE, model, uniformModel);
+
+		//wall-nut (adorno): como es una sola pieza, se balancea todo el modelo hasta 6 grados en Z;
+		//su origen esta en la base, asi que gira apoyada en el piso
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(8.5f, 0.0f, -9.0f));
+		model = glm::rotate(model, -40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 6.0f * sin(anguloVerdania * toRadians) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		WallNut_M.RenderModel();
+
+		//torchwood (adorno): los brazos suben y bajan en Z y la mandibula se abre entre 0 y 12 grados en X
+		//(6 + 6 * seno nunca baja de 0, asi la boca no se cierra de mas)
+		rotTorchwood[5].z = 8.0f * sin(anguloVerdania * toRadians);               //brazo_izq
+		rotTorchwood[7].z = -8.0f * sin(anguloVerdania * toRadians);              //brazo_der
+		rotTorchwood[4].x = 6.0f + 6.0f * sin(anguloVerdania * 2.0f * toRadians); //mandibula
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -18.0f));
+		DibujaJerarquia(Torchwood_M, padresTorchwood, pivotesTorchwood, rotTorchwood, NUM_PIEZAS_TORCHWOOD, model, uniformModel);
 
 		//planeta Verdania en el espacio: gira despacio sobre Y como Xen; mide como 0.73 de alto, con escala 130 queda de unas 95 unidades
 		giroPlanetaVerdania += giroPlanetaVerdaniaOffset * deltaTime;

@@ -20,6 +20,9 @@ Window::Window()
 	//--- planetas: Xen y planeta 2 ---
 	zonaPlaneta = 0;
 
+	//--- planeta 3: Verdania (Abraham) ---
+	animaVerdania = false;
+
 	//--- pista de carreras y naves ---
 
 	//--- satelites y cuerpos espaciales ---
@@ -59,6 +62,9 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 
 	//--- planetas: Xen y planeta 2 ---
 	zonaPlaneta = 0;
+
+	//--- planeta 3: Verdania (Abraham) ---
+	animaVerdania = false;
 
 	//--- pista de carreras y naves ---
 
@@ -199,6 +205,13 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
 		theWindow->zonaPlaneta = 0;
+	}
+
+	//--- planeta 3: Verdania (Abraham) ---
+	//V prende o apaga las animaciones de las plantas de Verdania, como la H con el headcrab
+	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	{
+		theWindow->animaVerdania = !theWindow->animaVerdania;
 	}
 
 	//--- pista de carreras y naves ---

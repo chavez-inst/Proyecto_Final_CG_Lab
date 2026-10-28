@@ -23,6 +23,9 @@ public:
 	//--- planetas: Xen y planeta 2 ---
 	int getzonaPlaneta() { return zonaPlaneta; }
 
+	//--- planeta 3: Verdania (Abraham) ---
+	bool getanimaVerdania() { return animaVerdania; }
+
 	//--- pista de carreras y naves ---
 
 	//--- satelites y cuerpos espaciales ---
@@ -63,6 +66,9 @@ private:
 
 	//--- planetas: Xen y planeta 2 ---
 	int zonaPlaneta; //zona donde esta el usuario, vale 0 en el espacio, 1 en Xen y 2 en el planeta 2, y la cambian las teclas Z, X y C
+
+	//--- planeta 3: Verdania (Abraham) ---
+	bool animaVerdania; //V prende o apaga las animaciones de las plantas de Verdania
 
 	//--- pista de carreras y naves ---
 
