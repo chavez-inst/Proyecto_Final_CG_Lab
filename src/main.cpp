@@ -378,6 +378,14 @@ float posDaveOffset = 0.02f;
 float limiteDave = 4.0f;
 bool daveAdelante = true;
 
+//Verdania vista desde el espacio: es la cabeza del peashooter (con sus dos hojas de pelo) en grande,
+//se reusan las piezas que ya se cargaron para el NPC, asi que no se carga ningun modelo nuevo
+glm::vec3 posPlanetaVerdania = glm::vec3(-450.0f, 70.0f, -330.0f);
+//centro de la cabeza en las coordenadas del modelo; ahi se gira y se escala para que no gire alrededor de los pies
+glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
+float giroPlanetaVerdania = 0.0f;
+float giroPlanetaVerdaniaOffset = 0.05f;
+
 //--- pista de carreras y naves ---
 Model pistaM;
 Model nave1Race;
@@ -1260,6 +1268,20 @@ int main()
 		else
 			model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(CrazyDave_M, padresCrazyDave, pivotesCrazyDave, rotCrazyDave, NUM_PIEZAS_CRAZYDAVE, model, uniformModel);
+
+		//planeta Verdania en el espacio: gira despacio sobre Y como Xen; mide como 0.73 de alto, con escala 130 queda de unas 95 unidades
+		giroPlanetaVerdania += giroPlanetaVerdaniaOffset * deltaTime;
+		if (giroPlanetaVerdania > 360.0f)
+			giroPlanetaVerdania -= 360.0f;
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlanetaVerdania);
+		model = glm::rotate(model, giroPlanetaVerdania * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(130.0f, 130.0f, 130.0f));
+		model = glm::translate(model, -centroCabezaPea);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Peashooter_M[3].RenderModel(); //cabeza
+		Peashooter_M[4].RenderModel(); //pelo_izq
+		Peashooter_M[5].RenderModel(); //pelo_der
 
 		//--- pista de carreras y naves ---
 		//pista de carreras
