@@ -182,26 +182,23 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		theWindow->caminaHeadcrab = !theWindow->caminaHeadcrab;
 	}
 
-	//--- planetas: Xen y planeta 2 ---
-	//Z lleva a la superficie de Xen, X a la del planeta 2 y C regresa al espacio
-	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
-	{
-		theWindow->zonaPlaneta = 1;
-	}
+	//Z y X rotan entre los planetas: X va al siguiente y Z al anterior (1 Xen, 2 planeta 2, 3 Verdania)
+	//al pasar del ultimo se regresa al primero y al reves; C regresa al espacio
 	if (key == GLFW_KEY_X && action == GLFW_PRESS)
 	{
-		theWindow->zonaPlaneta = 2;
+		theWindow->zonaPlaneta += 1;
+		if (theWindow->zonaPlaneta > 3)
+			theWindow->zonaPlaneta = 1;
+	}
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta -= 1;
+		if (theWindow->zonaPlaneta < 1)
+			theWindow->zonaPlaneta = 3;
 	}
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
 		theWindow->zonaPlaneta = 0;
-	}
-
-	//--- planeta 3: Verdania (Abraham) ---
-	//N lleva a la superficie de Verdania, que es la zona 3; C regresa al espacio igual que en los otros planetas
-	if (key == GLFW_KEY_N && action == GLFW_PRESS)
-	{
-		theWindow->zonaPlaneta = 3;
 	}
 
 	//--- pista de carreras y naves ---

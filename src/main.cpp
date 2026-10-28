@@ -378,8 +378,9 @@ float posDaveOffset = 0.02f;
 float limiteDave = 4.0f;
 bool daveAdelante = true;
 
-//Verdania vista desde el espacio: es la cabeza del peashooter (con sus dos hojas de pelo) en grande,
-//se reusan las piezas que ya se cargaron para el NPC, asi que no se carga ningun modelo nuevo
+//Verdania vista desde el espacio: es la cabeza del peashooter en grande, lisa y con textura de planeta
+//peashooter_planeta.obj es la cabeza sin cuello, sin cejas y redonda por abajo; su textura es la de Verdania
+Model PlanetaVerdania_M;
 glm::vec3 posPlanetaVerdania = glm::vec3(-450.0f, 70.0f, -330.0f);
 //centro de la cabeza en las coordenadas del modelo; ahi se gira y se escala para que no gire alrededor de los pies
 glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
@@ -772,6 +773,9 @@ int main()
 		Peashooter_M[i] = Model();
 		Peashooter_M[i].LoadModel(ruta);
 	}
+
+	PlanetaVerdania_M = Model();
+	PlanetaVerdania_M.LoadModel("Models/Peashooter/peashooter_planeta.obj");
 
 	for (int i = 0; i < NUM_PIEZAS_CRAZYDAVE; i++)
 	{
@@ -1279,9 +1283,7 @@ int main()
 		model = glm::scale(model, glm::vec3(130.0f, 130.0f, 130.0f));
 		model = glm::translate(model, -centroCabezaPea);
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Peashooter_M[3].RenderModel(); //cabeza
-		Peashooter_M[4].RenderModel(); //pelo_izq
-		Peashooter_M[5].RenderModel(); //pelo_der
+		PlanetaVerdania_M.RenderModel();
 
 		//--- pista de carreras y naves ---
 		//pista de carreras
