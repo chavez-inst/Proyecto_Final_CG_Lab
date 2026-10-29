@@ -15,6 +15,7 @@ las suyas para que casi no haya conflictos al juntar las ramas. Las teclas de ca
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <vector>
+#include <algorithm>
 
 #include <glew.h>
 #include <glfw3.h>
@@ -41,6 +42,9 @@ las suyas para que casi no haya conflictos al juntar las ramas. Las teclas de ca
 const float toRadians = 3.14159265f / 180.0f;
 
 // ================== 1. VARIABLES GLOBALES ==================
+
+
+
 
 Window mainWindow;
 std::vector<MeshModel*> meshListModel; //mallas hechas a mano, cada vertice lleva x y z de la posicion, u v de la textura y nx ny nz de la normal
@@ -683,8 +687,264 @@ glm::vec3 posDetallesJardin[NUM_DETALLES_JARDIN] = {
 float escalaDetallesJardin[3] = { 0.6f, 0.25f, 2.0f }; //trebol, helecho, hongo
 
 //--- pista de carreras y naves ---
+
+struct NodoPista {
+	glm::vec3 pos;    // Posición en coordenadas de pista.obj
+	glm::vec3 normal; // Vector normal del piso en ese punto
+};
+
+// Pega aquí los puntos generados por el script de Blender
+// (Si el orden sale en sentido contrario al avance, invierte el vector con std::reverse)
+std::vector<NodoPista> rutaPista = {
+		{ glm::vec3(27.000f, 0.000f, -0.542f), glm::vec3(-0.000f, 1.000f, -0.002f) },
+		{ glm::vec3(27.101f, 0.053f, -68.762f), glm::vec3(-0.004f, 1.000f, 0.001f) },
+		{ glm::vec3(27.387f, 0.203f, -137.512f), glm::vec3(-0.014f, 1.000f, 0.002f) },
+		{ glm::vec3(27.831f, 0.437f, -206.262f), glm::vec3(-0.030f, 1.000f, 0.003f) },
+		{ glm::vec3(28.406f, 0.739f, -275.012f), glm::vec3(-0.051f, 0.999f, 0.003f) },
+		{ glm::vec3(29.087f, 1.097f, -343.762f), glm::vec3(-0.074f, 0.997f, 0.004f) },
+		{ glm::vec3(29.848f, 1.496f, -412.512f), glm::vec3(-0.098f, 0.995f, 0.004f) },
+		{ glm::vec3(30.661f, 1.923f, -481.262f), glm::vec3(-0.122f, 0.993f, 0.004f) },
+		{ glm::vec3(31.500f, 2.364f, -550.012f), glm::vec3(-0.146f, 0.989f, 0.003f) },
+		{ glm::vec3(32.339f, 2.805f, -618.762f), glm::vec3(-0.168f, 0.986f, 0.003f) },
+		{ glm::vec3(33.152f, 3.232f, -687.512f), glm::vec3(-0.188f, 0.982f, 0.003f) },
+		{ glm::vec3(33.913f, 3.632f, -756.262f), glm::vec3(-0.206f, 0.978f, 0.002f) },
+		{ glm::vec3(34.594f, 3.990f, -825.012f), glm::vec3(-0.222f, 0.975f, 0.002f) },
+		{ glm::vec3(35.170f, 4.292f, -893.762f), glm::vec3(-0.234f, 0.972f, 0.001f) },
+		{ glm::vec3(35.613f, 4.525f, -962.512f), glm::vec3(-0.243f, 0.970f, 0.001f) },
+		{ glm::vec3(35.899f, 4.675f, -1031.262f), glm::vec3(-0.249f, 0.969f, 0.000f) },
+		{ glm::vec3(36.000f, 4.728f, -1100.012f), glm::vec3(-0.251f, 0.968f, 0.018f) },
+		{ glm::vec3(33.466f, 6.016f, -1151.844f), glm::vec3(-0.248f, 0.966f, 0.072f) },
+		{ glm::vec3(25.938f, 9.851f, -1202.957f), glm::vec3(-0.238f, 0.961f, 0.143f) },
+		{ glm::vec3(13.546f, 16.182f, -1252.819f), glm::vec3(-0.223f, 0.951f, 0.213f) },
+		{ glm::vec3(-3.476f, 24.894f, -1300.717f), glm::vec3(-0.201f, 0.939f, 0.280f) },
+		{ glm::vec3(-24.894f, 35.876f, -1346.189f), glm::vec3(-0.173f, 0.923f, 0.344f) },
+		{ glm::vec3(-50.345f, 48.942f, -1388.620f), glm::vec3(-0.140f, 0.904f, 0.404f) },
+		{ glm::vec3(-79.517f, 63.930f, -1427.642f), glm::vec3(-0.102f, 0.882f, 0.460f) },
+		{ glm::vec3(-111.948f, 80.600f, -1462.767f), glm::vec3(-0.060f, 0.857f, 0.511f) },
+		{ glm::vec3(-147.271f, 98.760f, -1493.735f), glm::vec3(-0.013f, 0.830f, 0.557f) },
+		{ glm::vec3(-184.958f, 118.129f, -1520.205f), glm::vec3(0.037f, 0.801f, 0.597f) },
+		{ glm::vec3(-224.617f, 138.501f, -1542.027f), glm::vec3(0.090f, 0.771f, 0.631f) },
+		{ glm::vec3(-265.689f, 159.579f, -1559.014f), glm::vec3(0.146f, 0.738f, 0.659f) },
+		{ glm::vec3(-307.782f, 181.155f, -1571.128f), glm::vec3(0.204f, 0.705f, 0.679f) },
+		{ glm::vec3(-350.337f, 202.932f, -1578.328f), glm::vec3(0.263f, 0.671f, 0.694f) },
+		{ glm::vec3(-392.987f, 224.717f, -1580.677f), glm::vec3(0.323f, 0.636f, 0.701f) },
+		{ glm::vec3(-435.202f, 246.232f, -1578.269f), glm::vec3(0.385f, 0.600f, 0.701f) },
+		{ glm::vec3(-476.658f, 267.305f, -1571.250f), glm::vec3(0.443f, 0.567f, 0.695f) },
+		{ glm::vec3(-516.881f, 287.692f, -1559.830f), glm::vec3(0.501f, 0.533f, 0.682f) },
+		{ glm::vec3(-555.600f, 307.252f, -1544.218f), glm::vec3(0.558f, 0.500f, 0.662f) },
+		{ glm::vec3(-592.412f, 325.781f, -1524.711f), glm::vec3(0.613f, 0.469f, 0.636f) },
+		{ glm::vec3(-627.108f, 343.176f, -1501.561f), glm::vec3(0.665f, 0.439f, 0.605f) },
+		{ glm::vec3(-659.366f, 359.277f, -1475.127f), glm::vec3(0.714f, 0.410f, 0.567f) },
+		{ glm::vec3(-689.041f, 374.018f, -1445.678f), glm::vec3(0.759f, 0.384f, 0.525f) },
+		{ glm::vec3(-715.891f, 387.288f, -1413.607f), glm::vec3(0.801f, 0.360f, 0.478f) },
+		{ glm::vec3(-739.829f, 399.053f, -1379.180f), glm::vec3(0.838f, 0.339f, 0.427f) },
+		{ glm::vec3(-760.693f, 409.247f, -1342.804f), glm::vec3(0.871f, 0.320f, 0.372f) },
+		{ glm::vec3(-778.442f, 417.865f, -1304.723f), glm::vec3(0.899f, 0.303f, 0.315f) },
+		{ glm::vec3(-792.984f, 424.877f, -1265.334f), glm::vec3(0.923f, 0.290f, 0.254f) },
+		{ glm::vec3(-804.312f, 430.303f, -1224.854f), glm::vec3(0.941f, 0.280f, 0.192f) },
+		{ glm::vec3(-812.389f, 434.142f, -1183.654f), glm::vec3(0.954f, 0.272f, 0.129f) },
+		{ glm::vec3(-817.230f, 436.426f, -1141.918f), glm::vec3(0.961f, 0.268f, 0.065f) },
+		{ glm::vec3(-818.837f, 437.179f, -1099.988f), glm::vec3(0.975f, 0.223f, 0.016f) },
+		{ glm::vec3(-818.918f, 436.991f, -1037.455f), glm::vec3(0.984f, 0.175f, 0.002f) },
+		{ glm::vec3(-819.155f, 436.323f, -974.988f), glm::vec3(0.986f, 0.164f, 0.006f) },
+		{ glm::vec3(-819.559f, 435.022f, -912.455f), glm::vec3(0.989f, 0.148f, 0.010f) },
+		{ glm::vec3(-820.148f, 432.938f, -849.988f), glm::vec3(0.992f, 0.129f, 0.014f) },
+		{ glm::vec3(-820.927f, 429.914f, -787.455f), glm::vec3(0.994f, 0.109f, 0.018f) },
+		{ glm::vec3(-821.871f, 425.796f, -724.988f), glm::vec3(0.996f, 0.091f, 0.021f) },
+		{ glm::vec3(-822.904f, 420.406f, -662.455f), glm::vec3(0.997f, 0.077f, 0.022f) },
+		{ glm::vec3(-823.878f, 413.575f, -599.988f), glm::vec3(0.998f, 0.067f, 0.021f) },
+		{ glm::vec3(-824.620f, 405.343f, -537.455f), glm::vec3(0.998f, 0.064f, 0.018f) },
+		{ glm::vec3(-824.992f, 396.090f, -474.988f), glm::vec3(0.998f, 0.065f, 0.012f) },
+		{ glm::vec3(-824.858f, 386.083f, -412.455f), glm::vec3(0.998f, 0.070f, 0.005f) },
+		{ glm::vec3(-824.107f, 375.642f, -349.988f), glm::vec3(0.997f, 0.078f, -0.004f) },
+		{ glm::vec3(-822.665f, 365.053f, -287.455f), glm::vec3(0.996f, 0.088f, -0.013f) },
+		{ glm::vec3(-820.506f, 354.657f, -224.988f), glm::vec3(0.995f, 0.099f, -0.023f) },
+		{ glm::vec3(-817.652f, 344.754f, -162.455f), glm::vec3(0.993f, 0.112f, -0.033f) },
+		{ glm::vec3(-814.184f, 335.684f, -99.988f), glm::vec3(0.991f, 0.124f, -0.046f) },
+		{ glm::vec3(-809.499f, 327.338f, -37.455f), glm::vec3(0.988f, 0.136f, -0.070f) },
+		{ glm::vec3(-803.165f, 319.591f, 25.012f), glm::vec3(0.985f, 0.146f, -0.093f) },
+		{ glm::vec3(-795.534f, 312.618f, 87.545f), glm::vec3(0.982f, 0.154f, -0.111f) },
+		{ glm::vec3(-787.005f, 306.571f, 150.012f), glm::vec3(0.979f, 0.160f, -0.124f) },
+		{ glm::vec3(-777.957f, 301.519f, 212.545f), glm::vec3(0.978f, 0.162f, -0.131f) },
+		{ glm::vec3(-768.809f, 297.493f, 275.012f), glm::vec3(0.978f, 0.160f, -0.132f) },
+		{ glm::vec3(-759.936f, 294.460f, 337.545f), glm::vec3(0.980f, 0.154f, -0.128f) },
+		{ glm::vec3(-751.741f, 292.362f, 400.012f), glm::vec3(0.983f, 0.144f, -0.113f) },
+		{ glm::vec3(-745.241f, 291.467f, 462.545f), glm::vec3(0.989f, 0.123f, -0.087f) },
+		{ glm::vec3(-740.971f, 291.708f, 525.012f), glm::vec3(0.994f, 0.091f, -0.057f) },
+		{ glm::vec3(-738.496f, 292.623f, 587.545f), glm::vec3(0.998f, 0.052f, -0.033f) },
+		{ glm::vec3(-737.389f, 293.880f, 650.012f), glm::vec3(1.000f, 0.010f, -0.013f) },
+		{ glm::vec3(-737.222f, 295.233f, 712.545f), glm::vec3(1.000f, -0.030f, -0.000f) },
+		{ glm::vec3(-737.586f, 296.470f, 775.012f), glm::vec3(0.998f, -0.064f, 0.006f) },
+		{ glm::vec3(-738.086f, 297.386f, 837.545f), glm::vec3(0.996f, -0.087f, 0.006f) },
+		{ glm::vec3(-738.337f, 297.749f, 900.012f), glm::vec3(0.995f, -0.095f, -0.021f) },
+		{ glm::vec3(-736.439f, 297.354f, 940.578f), glm::vec3(0.991f, -0.091f, -0.094f) },
+		{ glm::vec3(-730.578f, 296.065f, 981.918f), glm::vec3(0.979f, -0.078f, -0.186f) },
+		{ glm::vec3(-721.243f, 293.890f, 1021.170f), glm::vec3(0.960f, -0.058f, -0.275f) },
+		{ glm::vec3(-708.438f, 290.739f, 1059.367f), glm::vec3(0.933f, -0.032f, -0.358f) },
+		{ glm::vec3(-692.304f, 286.552f, 1096.245f), glm::vec3(0.900f, 0.001f, -0.437f) },
+		{ glm::vec3(-672.315f, 281.089f, 1132.650f), glm::vec3(0.860f, 0.041f, -0.509f) },
+		{ glm::vec3(-649.890f, 274.645f, 1166.037f), glm::vec3(0.814f, 0.085f, -0.574f) },
+		{ glm::vec3(-624.630f, 267.030f, 1197.310f), glm::vec3(0.765f, 0.133f, -0.631f) },
+		{ glm::vec3(-596.731f, 258.217f, 1226.208f), glm::vec3(0.711f, 0.185f, -0.679f) },
+		{ glm::vec3(-565.386f, 247.845f, 1253.276f), glm::vec3(0.654f, 0.240f, -0.717f) },
+		{ glm::vec3(-532.793f, 236.557f, 1276.560f), glm::vec3(0.596f, 0.295f, -0.747f) },
+		{ glm::vec3(-498.263f, 224.055f, 1296.705f), glm::vec3(0.538f, 0.351f, -0.766f) },
+		{ glm::vec3(-462.072f, 210.360f, 1313.469f), glm::vec3(0.480f, 0.407f, -0.777f) },
+		{ glm::vec3(-423.289f, 195.007f, 1326.990f), glm::vec3(0.422f, 0.463f, -0.779f) },
+		{ glm::vec3(-384.671f, 179.005f, 1336.203f), glm::vec3(0.363f, 0.546f, -0.755f) },
+		{ glm::vec3(-345.377f, 161.957f, 1341.400f), glm::vec3(0.314f, 0.592f, -0.742f) },
+		{ glm::vec3(-305.516f, 144.427f, 1342.414f), glm::vec3(0.244f, 0.591f, -0.769f) },
+		{ glm::vec3(-263.936f, 126.471f, 1338.938f), glm::vec3(0.184f, 0.649f, -0.738f) },
+		{ glm::vec3(-223.700f, 109.378f, 1331.116f), glm::vec3(0.129f, 0.702f, -0.701f) },
+		{ glm::vec3(-183.975f, 92.752f, 1318.896f), glm::vec3(0.079f, 0.750f, -0.657f) },
+		{ glm::vec3(-145.228f, 76.764f, 1302.326f), glm::vec3(0.035f, 0.794f, -0.607f) },
+		{ glm::vec3(-106.751f, 61.108f, 1280.775f), glm::vec3(-0.004f, 0.833f, -0.553f) },
+		{ glm::vec3(-71.415f, 46.933f, 1255.765f), glm::vec3(-0.037f, 0.867f, -0.496f) },
+		{ glm::vec3(-38.432f, 33.887f, 1226.924f), glm::vec3(-0.064f, 0.897f, -0.438f) },
+		{ glm::vec3(-8.214f, 22.112f, 1194.541f), glm::vec3(-0.086f, 0.921f, -0.379f) },
+		{ glm::vec3(19.672f, 11.420f, 1157.762f), glm::vec3(-0.103f, 0.942f, -0.320f) },
+		{ glm::vec3(43.126f, 2.581f, 1119.292f), glm::vec3(-0.115f, 0.958f, -0.262f) },
+		{ glm::vec3(62.901f, -4.552f, 1078.060f), glm::vec3(-0.159f, 0.986f, -0.044f) },
+		{ glm::vec3(78.309f, -9.834f, 1035.744f), glm::vec3(-0.094f, 0.987f, -0.132f) },
+		{ glm::vec3(89.868f, -13.952f, 990.206f), glm::vec3(-0.098f, 0.992f, -0.084f) },
+		{ glm::vec3(96.634f, -16.287f, 945.240f), glm::vec3(-0.100f, 0.994f, -0.038f) },
+		{ glm::vec3(99.110f, -17.024f, 899.997f), glm::vec3(-0.102f, 0.995f, -0.002f) },
+		{ glm::vec3(98.456f, -16.834f, 875.974f), glm::vec3(-0.102f, 0.994f, 0.024f) },
+		{ glm::vec3(96.724f, -16.116f, 847.974f), glm::vec3(-0.104f, 0.994f, 0.043f) },
+		{ glm::vec3(94.416f, -15.150f, 823.973f), glm::vec3(-0.106f, 0.993f, 0.059f) },
+		{ glm::vec3(91.507f, -14.298f, 800.134f), glm::vec3(-0.090f, 0.975f, -0.204f) },
+		{ glm::vec3(88.022f, -12.965f, 775.987f), glm::vec3(-0.077f, 0.994f, 0.075f) },
+		{ glm::vec3(83.475f, -11.070f, 747.987f), glm::vec3(-0.080f, 0.993f, 0.082f) },
+		{ glm::vec3(79.300f, -9.331f, 723.987f), glm::vec3(-0.083f, 0.993f, 0.087f) },
+		{ glm::vec3(75.001f, -7.540f, 699.987f), glm::vec3(-0.086f, 0.992f, 0.089f) },
+		{ glm::vec3(70.701f, -5.748f, 675.987f), glm::vec3(-0.089f, 0.992f, 0.088f) },
+		{ glm::vec3(65.852f, -3.727f, 647.987f), glm::vec3(-0.093f, 0.992f, 0.084f) },
+		{ glm::vec3(61.979f, -2.114f, 623.987f), glm::vec3(-0.096f, 0.992f, 0.078f) },
+		{ glm::vec3(58.501f, -0.665f, 599.987f), glm::vec3(-0.099f, 0.993f, 0.068f) },
+		{ glm::vec3(55.541f, 0.569f, 575.987f), glm::vec3(-0.102f, 0.993f, 0.056f) },
+		{ glm::vec3(52.908f, 1.666f, 547.987f), glm::vec3(-0.105f, 0.994f, 0.040f) },
+		{ glm::vec3(51.498f, 2.253f, 523.987f), glm::vec3(-0.107f, 0.994f, 0.021f) },
+		{ glm::vec3(51.001f, 2.460f, 499.987f), glm::vec3(-0.108f, 0.994f, -0.002f) },
+		{ glm::vec3(50.728f, 2.086f, 474.787f), glm::vec3(-0.094f, 0.995f, -0.018f) },
+		{ glm::vec3(49.971f, 1.278f, 449.987f), glm::vec3(-0.062f, 0.998f, -0.022f) },
+		{ glm::vec3(48.778f, 0.460f, 424.787f), glm::vec3(-0.024f, 1.000f, -0.015f) },
+		{ glm::vec3(47.255f, 0.096f, 399.987f), glm::vec3(-0.003f, 1.000f, -0.004f) },
+		{ glm::vec3(45.424f, 0.096f, 374.787f), glm::vec3(-0.000f, 1.000f, -0.000f) },
+		{ glm::vec3(43.410f, 0.096f, 349.987f), glm::vec3(-0.000f, 1.000f, 0.000f) },
+		{ glm::vec3(41.257f, 0.096f, 325.187f), glm::vec3(-0.000f, 1.000f, 0.000f) },
+		{ glm::vec3(38.282f, 0.096f, 299.987f), glm::vec3(-0.000f, 1.000f, 0.000f) },
+		{ glm::vec3(34.448f, 0.096f, 274.787f), glm::vec3(-0.000f, 1.000f, 0.000f) },
+		{ glm::vec3(30.733f, 0.096f, 249.987f), glm::vec3(-0.000f, 1.000f, 0.000f) },
+		{ glm::vec3(27.929f, 0.096f, 224.787f), glm::vec3(-0.000f, 1.000f, 0.000f) },
+		{ glm::vec3(27.001f, 0.096f, 202.787f), glm::vec3(-0.000f, 1.000f, -0.000f) },
+		{ glm::vec3(27.001f, 0.096f, 174.787f), glm::vec3(-0.000f, 1.000f, -0.000f) },
+		{ glm::vec3(27.001f, 0.096f, 149.987f), glm::vec3(-0.000f, 1.000f, -0.000f) },
+		{ glm::vec3(27.001f, 0.096f, 124.787f), glm::vec3(-0.000f, 1.000f, -0.002f) },
+		{ glm::vec3(27.000f, 0.048f, 100.857f), glm::vec3(-0.000f, 1.000f, -0.002f) },
+		{ glm::vec3(27.000f, 0.096f, 73.728f), glm::vec3(-0.000f, 1.000f, -0.000f) },
+		{ glm::vec3(27.000f, 0.096f, 48.928f), glm::vec3(-0.000f, 1.000f, -0.000f) },
+		{ glm::vec3(27.000f, 0.096f, 23.728f), glm::vec3(-0.000f, 1.000f, -0.002f) },
+};
+
+std::vector<float> distAcumuladaPista;
+float longitudTotalPista = 0.0f;
+float avanceCarrera = 0.0f;
+float velocidadCarrera = 2.5f; // Ajusta la velocidad de las naves aquí
+const float ESCALA_INTERNA_PISTA = 0.45f; // Compensa el segundo scale(0.45f) de pistaM
+
+
+void InicializarRutaPista()
+{
+	int n = rutaPista.size();
+	if (n < 2) return;
+	//std::reverse(rutaPista.begin(), rutaPista.end());
+	distAcumuladaPista.resize(n + 1, 0.0f);
+	longitudTotalPista = 0.0f;
+
+	for (int i = 0; i < n; i++)
+	{
+		glm::vec3 pActual = rutaPista[i].pos * ESCALA_INTERNA_PISTA;
+		glm::vec3 pSig = rutaPista[(i + 1) % n].pos * ESCALA_INTERNA_PISTA;
+		longitudTotalPista += glm::distance(pActual, pSig);
+		distAcumuladaPista[i + 1] = longitudTotalPista;
+	}
+}
+
+// Devuelve la matriz local respecto a modelaux para cualquier nave según su distancia, carril y altura
+glm::mat4 ObtenerMatrizNavePista(float distancia, float carrilX, float alturaFlotacion)
+{
+	int n = rutaPista.size();
+	if (n < 2 || longitudTotalPista <= 0.0f) return glm::mat4(1.0f);
+
+	// Mantener la distancia siempre dentro del circuito cerrado [0, longitudTotalPista)
+	float d = fmod(distancia, longitudTotalPista);
+	if (d < 0.0f) d += longitudTotalPista;
+
+	// Buscar en qué segmento se encuentra la nave
+	int idx = 0;
+	for (int i = 0; i < n; i++)
+	{
+		if (d >= distAcumuladaPista[i] && d <= distAcumuladaPista[i + 1])
+		{
+			idx = i;
+			break;
+		}
+	}
+
+	int idxSig = (idx + 1) % n;
+	int idxSig2 = (idx + 2) % n;
+
+	float longSeg = distAcumuladaPista[idx + 1] - distAcumuladaPista[idx];
+	float t = (longSeg > 0.0001f) ? (d - distAcumuladaPista[idx]) / longSeg : 0.0f;
+
+	// 1. Interpolar posición central y vector normal del suelo
+	glm::vec3 p0 = rutaPista[idx].pos * ESCALA_INTERNA_PISTA;
+	glm::vec3 p1 = rutaPista[idxSig].pos * ESCALA_INTERNA_PISTA;
+	glm::vec3 p2 = rutaPista[idxSig2].pos * ESCALA_INTERNA_PISTA;
+
+	glm::vec3 posCentro = glm::mix(p0, p1, t);
+	glm::vec3 normalPiso = glm::normalize(glm::mix(rutaPista[idx].normal, rutaPista[idxSig].normal, t));
+
+	// 2. Interpolar la tangente de avance (Frente) para que el giro entre tramos sea suave
+	glm::vec3 tangenteActual = glm::normalize(p1 - p0);
+	glm::vec3 tangenteSig = glm::normalize(p2 - p1);
+	glm::vec3 frente = glm::normalize(glm::mix(tangenteActual, tangenteSig, t));
+
+	// 3. Construir el marco ortonormal (Derecha, Arriba/Normal, Frente)
+	glm::vec3 derecha = glm::normalize(glm::cross(frente, normalPiso));
+	glm::vec3 arriba = glm::normalize(glm::cross(derecha, frente));
+
+	// 4. Calcular posición final desplazando hacia el carril lateral y elevando sobre la normal
+	glm::vec3 posFinal = posCentro + (derecha * carrilX) + (arriba * alturaFlotacion);
+
+	// 5. Armar matriz 4x4 (Como las naves miran hacia -Z, el eje +Z local es -frente)
+	glm::mat4 transform(1.0f);
+	transform[0] = glm::vec4(-derecha, 0.0f); // Columna 0: Eje X local (Peralte lateral)
+	transform[1] = glm::vec4(arriba, 0.0f); // Columna 1: Eje Y local (Normal de la pista)
+	transform[2] = glm::vec4(-frente, 0.0f); // Columna 2: Eje Z local (Dirección opuesta al frente)
+	transform[3] = glm::vec4(posFinal, 1.0f);// Columna 3: Traslación
+
+	return transform;
+}
+
 Model pistaM;
 Model nave1Race;
+Model meta;
+Model cubiertaMeta;
+Model puestoObservacion1;
+Model puestoObservacion2;
+Model puestoObservacion3;
+Model puestoObservacion4;
+Model warehousePort;
+Model barcoEspacial;
+Model blueFalcon;
+Model blackBull;
+Model fireStingray;
+Model goldenFox;
+Model nightThunder;
+Model rainbowPhoenix;
+Model redGazzelle;
+Model wildGoose;
 
 //--- satelites y cuerpos espaciales ---
 Model sateliteRace;
@@ -922,6 +1182,12 @@ int main()
 	CreateObjects();
 	CrearCubo();
 	CreateShaders();
+
+	//VARIABLES DE APOYO
+
+	glm::mat4 modelaux(1.0);
+	glm::mat4 modelaux2(1.0);
+	glm::mat4 modelauxMaquinas(1.0);
 
 	//Camera(posicion inicial, vector up, yaw, pitch, velocidad de movimiento, velocidad de giro)
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
@@ -1200,6 +1466,59 @@ int main()
 	pistaM.LoadModel("Models/pista/pista.obj");
 	nave1Race = Model();
 	nave1Race.LoadModel("Models/nave1Race/nave1Race.obj");
+	meta = Model();
+	meta.LoadModel("Models/meta/meta.obj");
+	cubiertaMeta = Model();
+	cubiertaMeta.LoadModel("Models/cubiertaMeta/cubiertaMeta.obj");
+	puestoObservacion1 = Model();
+	puestoObservacion1.LoadModel("Models/puestoObservacion1/puestoObservacion1.obj");
+	puestoObservacion2 = Model();
+	puestoObservacion2.LoadModel("Models/puestoObservacion2/puestoObservacion2.obj");
+	puestoObservacion3 = Model();
+	puestoObservacion3.LoadModel("Models/puestoObservacion3/puestoObservacion3.obj");
+	puestoObservacion4 = Model();
+	puestoObservacion4.LoadModel("Models/puestoObservacion4/puestoObservacion4.obj");
+	warehousePort = Model();
+	warehousePort.LoadModel("Models/warehousePort/warehousePort.obj");
+	barcoEspacial = Model();
+	barcoEspacial.LoadModel("Models/barcoEspacial/barcoEspacial.obj");
+
+
+	InicializarRutaPista();
+
+	//maquinas
+	/*
+	Model blueFalcon;
+	Model blackBull;
+	Model fireStingray;
+	Model goldenFox;
+	Model nightThunder;
+	Model rainbowPhoenix;
+	Model redGazzelle;
+	Model wildGoose;
+	*/
+
+	blueFalcon = Model();
+	blueFalcon.LoadModel("Models/blueFalcon/blueFalcon.obj");
+	blackBull = Model();
+	blackBull.LoadModel("Models/blackBull/blackBull.obj");
+	fireStingray = Model();
+	fireStingray.LoadModel("Models/fireStingray/fireStingray.obj");
+	goldenFox = Model();
+	goldenFox.LoadModel("Models/goldenFox/goldenFox.obj");
+	nightThunder = Model();
+	nightThunder.LoadModel("Models/nightThunder/nightThunder.obj");
+	rainbowPhoenix = Model();
+	rainbowPhoenix.LoadModel("Models/rainbowPhoenix/rainbowPhoenix.obj");
+	redGazzelle = Model();
+	redGazzelle.LoadModel("Models/redGazzelle/redGazzelle.obj");
+	wildGoose = Model();
+	wildGoose.LoadModel("Models/wildGoose/wildGoose.obj");
+
+
+
+
+
 
 	//--- satelites y cuerpos espaciales ---
 	sateliteRace = Model();
@@ -1333,7 +1652,7 @@ int main()
 		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); //con blanco la textura se ve con sus colores normales
 
 		// ---------- objetos opacos ----------
-
+		/*
 		//piso
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
@@ -1343,6 +1662,7 @@ int main()
 		pruebaTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshListModel[0]->RenderMeshModel();
+		*/
 
 		//el cubo se mueve en X con las teclas Y y U, que estan en Window.cpp
 		model = glm::mat4(1.0);
@@ -1366,7 +1686,8 @@ int main()
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(240.0f, 15.0f, -130.0f));
+		model = glm::translate(model, glm::vec3(-3.0f, -0.2f, -3.0f));
+		model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		capitanFalcon.RenderModel();
 
@@ -1978,31 +2299,321 @@ int main()
 		//--- pista de carreras y naves ---
 		//pista de carreras
 		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-300.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		modelauxMaquinas = model;
+		model = glm::scale(model, glm::vec3(-1.0f, 1.0f, -1.0));
+		modelaux = model;
+		modelaux2 = model;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(240.0f, 10.0f, -130.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+
+		model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		pistaM.RenderModel();
 
-		//nave 1 de la pista
-		model = glm::mat4(1.0f);
+		//meta
+
+		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(270.0f, 40.0f, -130.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.05f, 0.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		meta.RenderModel();
+
+		//meta
+
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		//model = glm::translate(model, glm::vec3(0.0f, 0.00f, 0.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		cubiertaMeta.RenderModel();
+
+		// Avanzar toda la formación de naves cada frame
+		// Avanzar toda la formación de naves cada frame
+		// Avanzar toda la formación de naves cada frame
+		avanceCarrera += velocidadCarrera * deltaTime;
+		if (longitudTotalPista > 0.0f && avanceCarrera > longitudTotalPista)
+			avanceCarrera -= longitudTotalPista;
+
+		// Arreglo con punteros a tus 8 modelos en el orden exacto de la parrilla de salida
+		Model* navesFZero[8] = {
+			&blueFalcon,     &fireStingray,
+			&goldenFox,      &wildGoose,
+			&nightThunder,   &rainbowPhoenix,
+			&redGazzelle,    &blackBull
+		};
+
+		for (int i = 0; i < 8; i++)
+		{
+			// Los pares (0, 2, 4, 6) van en el carril izquierdo (-7.15f)
+			// Los impares (1, 3, 5, 7) van en el carril derecho (+7.15f)
+			float carrilX = (i % 2 == 0) ? -5.15f : 2.15f;
+
+			// Desfase longitudinal: -10, -20, -30... hasta -80 detrás del líder
+			float desfaseAtras = -10.0f * (i + 1);
+
+			// Pequeña oscilación senoidal para dar el efecto de levitación antigravedad
+			float flotacion = 1.00f + 0.07f * sin((avanceCarrera * 0.1f) + i);
+
+			model = modelauxMaquinas * ObtenerMatrizNavePista(avanceCarrera + desfaseAtras, carrilX, flotacion);
+			model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			navesFZero[i]->RenderModel();
+		}
+
+
+		/*
+		//Blue Falcon
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-7.15f, 1.00f, -10.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		blueFalcon.RenderModel();
+
+		//fireStingray
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(7.15f, 1.00f, -20.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		fireStingray.RenderModel();
+
+		//goldenFox
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-7.15f, 1.00f, -30.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		goldenFox.RenderModel();
+
+		//wildGoose
+
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(7.15f, 1.00f, -40.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		wildGoose.RenderModel();
+		
+		//nightThunder
+		 
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-7.15f, 1.00f, -50.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		nightThunder.RenderModel();
+		
+		//rainbowPhoenix
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(7.15f, 1.00f, -60.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		rainbowPhoenix.RenderModel();
+		
+		//redGazzelle
+		 
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-7.15f, 1.00f, -70.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		redGazzelle.RenderModel();
+
+		//blackBull
+
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(7.15f, 1.00f, -80.0f));
+		//model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		blackBull.RenderModel();
+		*/
+		//model = glm::translate(model, glm::vec3(200.f, -150.00f, 200.0f));
+		//puestoObservacion1_1 EDICIOS CENTRALES
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(175.0f, 80.00f, 500.0f));
+		model = glm::rotate(model, -45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion1.RenderModel();
+		
+
+		//puestoObservacion1_2
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(175.0f, 80.00f, -375.0f));
+		model = glm::rotate(model, -115.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion1.RenderModel();
+		
+
+		//puestoObservacion2_1 BUILDINGS ALTOS
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 20.00f, 700.0f));
+		model = glm::rotate(model, -25.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion2.RenderModel();
+
+		//puestoObservacion2_2
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(300.0f, 200.00f, 700.0f));
+		model = glm::rotate(model, 45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion2.RenderModel();
+
+		//puestoObservacion3_1 EDICICIOS CENTRALES DEL CONTORNO
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(150.0f, 180.00f, 800.0f));
+		//model = glm::rotate(model, 45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion3.RenderModel();
+		
+
+		//puestoObservacion3_2
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(150.0f, 140.00f, -680.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion3.RenderModel();
+		
+
+		//puestoObservacion4_1
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 20.00f, -600.0f));
+		model = glm::rotate(model, 35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion4.RenderModel();
+		
+
+		//puestoObservacion4_2
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(300.0f, 100.00f, -600.0f));
+		model = glm::rotate(model, -35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion4.RenderModel();
+		
+
+		//puestoObservacion4_2
+		
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(300.0f, 100.00f, -600.0f));
+		model = glm::rotate(model, -35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		puestoObservacion4.RenderModel();
+		
+		//barcoEspacial
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(650.f, 200.00f, 0.0f));
+		model = glm::rotate(model, 85.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		barcoEspacial.RenderModel();
+
+		//warehousePort
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(200.f, -150.00f, 50.0f));
+		model = glm::rotate(model, 60.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		warehousePort.RenderModel();
+
+
+
+
+		//nave 1 de la pista
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(70.0f, 140.0f, 30.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		nave1Race.RenderModel();
+
+		//nave 2 de la pista
+		model = modelaux;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-70.0f, 140.0f, 30.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, -30.0f * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		nave1Race.RenderModel();
 
 		//--- satelites y cuerpos espaciales ---
 		//satelite
-		model = glm::mat4(1.0f);
+		model = modelaux;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(340.0f, 50.0f, -530.0f));
-		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
+		model = glm::translate(model, glm::vec3(-250.0f, 50.0f, -550.0f));
+		model = glm::rotate(model, 240.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		sateliteRace.RenderModel();
 
