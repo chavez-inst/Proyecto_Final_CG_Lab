@@ -23,7 +23,7 @@ public:
 	//--- planetas: Xen y planeta 2 ---
 	int getzonaPlaneta() { return zonaPlaneta; }
 
-	//--- planeta 3: Verdania (Abraham) ---
+	//--- planeta 3: Verdania ---
 	bool getanimaVerdania() { return animaVerdania; }
 
 	//--- pista de carreras y naves ---
@@ -37,6 +37,8 @@ public:
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	int getviajeNodriza() { return viajeNodriza; }
+	int getviajePista() { return viajePista; }
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
@@ -65,9 +67,9 @@ private:
 	bool caminaHeadcrab; //H prende o apaga la caminata del headcrab
 
 	//--- planetas: Xen y planeta 2 ---
-	int zonaPlaneta; //zona donde esta el usuario, vale 0 en el espacio, 1 en Xen y 2 en el planeta 2, y la cambian las teclas Z, X y C
+	int zonaPlaneta; //zona donde esta el usuario, vale 0 en el espacio, 1 en Xen, 2 en el planeta 2 y 3 en Verdania, y la cambian las teclas Z, X y C
 
-	//--- planeta 3: Verdania (Abraham) ---
+	//--- planeta 3: Verdania ---
 	bool animaVerdania; //V prende o apaga las animaciones de las plantas de Verdania
 
 	//--- pista de carreras y naves ---
@@ -81,6 +83,8 @@ private:
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	int viajeNodriza; //cuantas veces se ha presionado la N para ir a la nave nodriza
+	int viajePista; //cuantas veces se ha presionado la M para ir a la pista de carreras
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
