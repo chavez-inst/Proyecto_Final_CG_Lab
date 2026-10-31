@@ -307,6 +307,66 @@ glm::vec3 posPlantas[NUM_PLANTAS] = {
 float alturaPlantas[NUM_PLANTAS] = { 1.0f, 1.0f, 1.0f };
 float altoTallo = 1.62f; //altura de la punta del tallo, ahi va el foco
 
+//--- nave de Among Us y crewmates ---
+//nave de Among Us con la puerta abierta y 6 crewmates que se salieron y van flotando en el espacio
+//la nave se hizo en Blender, mide como 12 de largo y tiene el frente hacia Z positivo y la puerta atras, hacia Z negativo
+//el crewmate es descargado y sus creditos estan en el LICENCIA.txt de su carpeta; mide 1 de alto y esta separado
+//en cuerpo y visor, el cuerpo tiene la textura en gris para pintarlo de cualquier color con el uniform color
+//y el visor se dibuja con blanco para que no se pinte
+Model AmongUsNave_M;
+Model CrewmateCuerpo_M;
+Model CrewmateVisor_M;
+
+//el grupo esta enfrente de donde empieza la camara y se gira para que la puerta quede viendo hacia ella
+glm::vec3 posNaveAmongUs = glm::vec3(10.0f, -2.0f, -48.0f);
+float giroNaveAmongUs = 160.0f;
+
+//la nave y los crewmates van hacia adelante y hacia atras con el seno de anguloAmongUs, que avanza cada frame
+//como el de las islas de Xen; cada crewmate va desfasado 60 grados del anterior para que no se muevan todos juntos
+float anguloAmongUs = 0.0f;
+float anguloAmongUsOffset = 0.4f;
+float avanceNave = 0.5f;      //lo mas que se mueve la nave hacia adelante o hacia atras
+float avanceCrewmates = 0.4f; //lo mismo para los crewmates, que se acercan y se alejan de la puerta
+
+//el lugar de cada crewmate se mide desde el centro de la nave; el primero apenas va saliendo por la puerta y los
+//demas estan cada vez mas lejos, girados en Y hacia distintos lados y ladeados en Z como si dieran vueltas
+//la puerta esta en z = -4.5 y entre los motores, que estan en x = 2.3 y x = -2.3, por eso los crewmates cercanos
+//van mas al centro en X que los que ya pasaron la punta del fuego
+const int NUM_CREWMATES_NAVE = 6;
+glm::vec3 posCrewmates[NUM_CREWMATES_NAVE] = {
+	glm::vec3(0.0f, -0.9f, -5.4f),
+	glm::vec3(-0.8f, 0.3f, -6.6f),
+	glm::vec3(0.9f, -1.3f, -7.6f),
+	glm::vec3(-0.4f, 0.9f, -8.6f),
+	glm::vec3(-1.9f, -0.4f, -9.7f),
+	glm::vec3(1.1f, 0.7f, -10.6f) };
+float giroYCrewmates[NUM_CREWMATES_NAVE] = { 180.0f, 150.0f, 220.0f, 110.0f, 190.0f, 250.0f };
+float ladeoCrewmates[NUM_CREWMATES_NAVE] = { 0.0f, 25.0f, -40.0f, 150.0f, 70.0f, -110.0f };
+//rojo, azul, verde, rosa, naranja y amarillo, como en el juego
+glm::vec3 colorCrewmates[NUM_CREWMATES_NAVE] = {
+	glm::vec3(0.77f, 0.07f, 0.07f),
+	glm::vec3(0.07f, 0.18f, 0.82f),
+	glm::vec3(0.07f, 0.50f, 0.18f),
+	glm::vec3(0.93f, 0.33f, 0.73f),
+	glm::vec3(0.94f, 0.49f, 0.05f),
+	glm::vec3(0.96f, 0.96f, 0.34f) };
+
+//hay un crewmate escondido en cada planeta, en Xen arriba de la isla flotante mas baja, en el planeta 2 atras de la
+//colina del fondo a la izquierda y en Verdania atras de la casa de crazy dave
+//su lugar se mide desde el centro de la superficie de su planeta; el de Xen esta en la altura de la isla mas lo que
+//sale la isla hacia arriba, que con su escala de 3 es 0.6
+const int NUM_CREWMATES_ESCONDIDOS = 3;
+glm::vec3 posEscondidos[NUM_CREWMATES_ESCONDIDOS] = {
+	glm::vec3(-20.0f, 12.6f, -30.0f),
+	glm::vec3(-35.0f, 0.0f, -97.0f),
+	glm::vec3(2.5f, 0.0f, -39.5f) };
+float giroEscondidos[NUM_CREWMATES_ESCONDIDOS] = { 30.0f, 0.0f, 200.0f };
+//blanco, morado y cian
+glm::vec3 colorEscondidos[NUM_CREWMATES_ESCONDIDOS] = {
+	glm::vec3(0.84f, 0.88f, 0.94f),
+	glm::vec3(0.42f, 0.18f, 0.73f),
+	glm::vec3(0.22f, 0.95f, 0.86f) };
+
 //--- planeta 3: Verdania ---
 //la superficie de Verdania es otro piso aparte y lejos, igual que Xen y el planeta 2, pero hacia Z positivo
 glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 3000.0f);
@@ -1463,6 +1523,14 @@ int main()
 	Planeta2Colina_M = Model();
 	Planeta2Colina_M.LoadModel("Models/Planeta2/planeta2_colina.obj");
 
+	//--- nave de Among Us y crewmates ---
+	AmongUsNave_M = Model();
+	AmongUsNave_M.LoadModel("Models/AmongUs/amongus_nave.obj");
+	CrewmateCuerpo_M = Model();
+	CrewmateCuerpo_M.LoadModel("Models/AmongUs/amongus_crewmate_cuerpo.obj");
+	CrewmateVisor_M = Model();
+	CrewmateVisor_M.LoadModel("Models/AmongUs/amongus_crewmate_visor.obj");
+
 	//--- planeta 3: Verdania ---
 	//skybox de Verdania, generado por codigo con ruido; las caras van en el mismo orden: rt, lf, dn, up, bk, ft
 	std::vector<std::string> skyboxVerdaniaFaces;
@@ -2071,6 +2139,69 @@ int main()
 		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		WarpStar_M.RenderModel();
+
+		//--- nave de Among Us y crewmates ---
+		anguloAmongUs += anguloAmongUsOffset * deltaTime;
+		if (anguloAmongUs > 360.0f)
+			anguloAmongUs -= 360.0f;
+
+		//modelauxAmongUs guarda el lugar y el giro del grupo, y de ahi se ponen la nave y los crewmates
+		glm::mat4 modelauxAmongUs = glm::mat4(1.0);
+		modelauxAmongUs = glm::translate(modelauxAmongUs, posNaveAmongUs);
+		modelauxAmongUs = glm::rotate(modelauxAmongUs, giroNaveAmongUs * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		//la nave va y viene en Z, que es hacia donde apunta su frente
+		model = modelauxAmongUs;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, avanceNave * sin(anguloAmongUs * toRadians)));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		AmongUsNave_M.RenderModel();
+
+		//cada crewmate va y viene en Z, alejandose y acercandose a la puerta de atras, y se ladea un poco con el mismo seno
+		//se ladea desde la mitad del cuerpo y no desde los pies, por eso se sube 0.5 antes de girar y se baja despues
+		//cada uno se dibuja dos veces, el cuerpo con su color y el visor con blanco
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		for (int i = 0; i < NUM_CREWMATES_NAVE; i++)
+		{
+			float onda = sin((anguloAmongUs + i * 60.0f) * toRadians);
+			model = modelauxAmongUs;
+			model = glm::translate(model, posCrewmates[i] + glm::vec3(0.0f, 0.0f, -avanceCrewmates * onda));
+			model = glm::rotate(model, giroYCrewmates[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f));
+			model = glm::rotate(model, (ladeoCrewmates[i] + 10.0f * onda) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			color = colorCrewmates[i];
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			CrewmateCuerpo_M.RenderModel();
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			CrewmateVisor_M.RenderModel();
+		}
+
+		//crewmates escondidos; el primero va en Xen, el segundo en el planeta 2 y el tercero en Verdania
+		//el de Xen sube y baja igual que la isla donde esta parado, que es la primera y no va desfasada
+		glm::vec3 superficies[NUM_CREWMATES_ESCONDIDOS] = { posXen, posPlaneta2, posVerdania };
+		for (int i = 0; i < NUM_CREWMATES_ESCONDIDOS; i++)
+		{
+			glm::vec3 pos = superficies[i] + posEscondidos[i];
+			if (i == 0)
+				pos.y += 0.8f * sin(anguloIslas * toRadians);
+			model = glm::mat4(1.0);
+			model = glm::translate(model, pos);
+			model = glm::rotate(model, giroEscondidos[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			color = colorEscondidos[i];
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			CrewmateCuerpo_M.RenderModel();
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			CrewmateVisor_M.RenderModel();
+		}
+		//se regresa el material opaco, que es el que traen las secciones de abajo
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		//--- planeta 3: Verdania ---
 		//anguloVerdania va de 0 a 360 grados y avanza un poco cada frame con su offset por deltaTime

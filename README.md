@@ -101,6 +101,7 @@ Despues viene una seccion por actividad, siempre en el mismo orden:
 ```
 //--- personajes ---
 //--- planetas: Xen y planeta 2 ---
+//--- nave de Among Us y crewmates ---
 //--- planeta 3: Verdania ---
 //--- pista de carreras y naves ---
 //--- satelites y cuerpos espaciales ---
