@@ -1,0 +1,4 @@
+newmtl Material.027
+Kd 1 1 1
+map_Kd Material.027_diffuse.png
+

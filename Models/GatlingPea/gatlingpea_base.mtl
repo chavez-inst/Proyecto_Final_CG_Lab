@@ -1,0 +1,8 @@
+newmtl PeaGatling_Body_Default
+Kd 1 1 1
+map_Kd PeaGatling_Body_Default_diffuse.png
+
+newmtl LightningReed_Body_Default
+Kd 1 1 1
+map_Kd LightningReed_Body_Default_diffuse.png
+

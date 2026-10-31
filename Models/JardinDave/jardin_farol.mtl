@@ -1,0 +1,12 @@
+newmtl pavement
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl light
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl _defaultMat
+Kd 1 1 1
+map_Kd kenney_colores.png
+

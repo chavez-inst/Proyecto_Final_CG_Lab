@@ -1,0 +1,10 @@
+pieza padre pivote_x pivote_y pivote_z triangulos
+base - 0.0000 0.0000 0.0000 5082
+tronco base 0.0202 0.8698 -0.1053 1197
+cabeza tronco 0.0185 1.2176 -0.1224 4128
+fuego cabeza 0.0133 2.1441 -0.1968 2573
+mandibula cabeza 0.0121 1.4448 0.2648 1687
+brazo_izq cabeza 0.5861 1.6801 -0.2093 1357
+antebrazo_izq brazo_izq 0.9585 1.4009 -0.2865 2009
+brazo_der cabeza -0.5941 1.7198 -0.2244 1359
+antebrazo_der brazo_der -0.9764 1.2656 -0.2501 2275

@@ -1,0 +1,4 @@
+newmtl sunflower_body_defaultflower_color
+Kd 1 1 1
+map_Kd sunflower_body_defaultflower_color_baseColor.png
+

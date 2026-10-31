@@ -1,0 +1,4 @@
+newmtl tallnut_d
+Kd 1 1 1
+map_Kd tallnut_d_diffuse.png
+

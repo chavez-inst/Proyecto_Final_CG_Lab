@@ -1,0 +1,4 @@
+newmtl HypnoShroom_Body_Default
+Kd 1 1 1
+map_Kd HypnoShroom_Body_Default_diffuse.png
+

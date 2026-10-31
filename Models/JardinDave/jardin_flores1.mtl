@@ -1,0 +1,8 @@
+newmtl Flowers
+Kd 1 1 1
+map_Kd Flowers.png
+
+newmtl Leaves
+Kd 1 1 1
+map_Kd Leaves.png
+

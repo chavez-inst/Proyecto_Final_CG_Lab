@@ -101,6 +101,8 @@ Despues viene una seccion por actividad, siempre en el mismo orden:
 ```
 //--- personajes ---
 //--- planetas: Xen y planeta 2 ---
+//--- nave de Among Us y crewmates ---
+//--- planeta 3: Verdania ---
 //--- pista de carreras y naves ---
 //--- satelites y cuerpos espaciales ---
 //--- plataforma de lanzamiento y cohete ---
@@ -140,14 +142,16 @@ agrega a esta tabla.
 | ESC | base | cerrar |
 | Y / U | base | mover el cubo de prueba |
 | 1 2 3 4 5 | camaras y recorridos | 1 libre, 2 avatar en el planeta, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento/estacion |
+| N M | camaras y recorridos | viaje rapido: N a la nave nodriza, M a la pista de carreras |
 | flechas | avatar | caminar en 3a persona |
-| Z X C | planetas | ir a Xen, ir al planeta 2, regresar al espacio |
+| Z X C | planetas | X va al siguiente planeta y Z al anterior (Xen, planeta 2 y Verdania), C regresa al espacio |
 | P | pista de carreras | iniciar/pausar la carrera |
 | R T | plataforma de lanzamiento | lanzar el cohete, reiniciar |
 | E Q | estacion espacial | abrir/cerrar compuerta, otra animacion |
 | L K J | iluminacion | prender/apagar spotlights |
-| G F V B H | personajes | animacion basica de cada personaje (Gordon, Falcon, carnivora, Kirby, headcrab) |
-| I O M N | libres | se piden en el grupo |
+| G F B H | personajes | animacion basica de cada personaje (Gordon, Falcon, Kirby, headcrab) |
+| V | planeta 3: Verdania | prender/apagar las animaciones de las plantas |
+| I O | libres | se piden en el grupo |
 
 ### Reglas importantes
 

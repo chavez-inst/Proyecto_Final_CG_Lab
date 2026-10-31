@@ -1,0 +1,8 @@
+newmtl Material.008
+Kd 1 1 1
+map_Kd Material.008_baseColor.png
+
+newmtl Material.007
+Kd 1 1 1
+map_Kd Material.008_baseColor.png
+

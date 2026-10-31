@@ -1,0 +1,20 @@
+newmtl border
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl window
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl _defaultMat
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl roof
+Kd 1 1 1
+map_Kd kenney_colores.png
+
+newmtl door
+Kd 1 1 1
+map_Kd kenney_colores.png
+

@@ -1,0 +1,8 @@
+newmtl sunflower_hand_d
+Kd 1 1 1
+map_Kd sunflower_hand_d_diffuse.png
+
+newmtl sunflower_body_d
+Kd 1 1 1
+map_Kd sunflower_body_d_diffuse.png
+

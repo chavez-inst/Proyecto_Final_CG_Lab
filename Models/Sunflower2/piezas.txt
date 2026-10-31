@@ -1,0 +1,13 @@
+pieza padre pivote_x pivote_y pivote_z triangulos
+base - 0.0000 0.0000 0.0000 662
+tallo1 base -0.0029 0.3168 0.1419 298
+tallo2 tallo1 -0.0029 0.7646 -0.0687 138
+cabeza tallo2 -0.0014 1.2384 0.0380 12974
+ala_izq tallo2 0.0549 0.9454 -0.1100 256
+ala_der tallo2 -0.0608 0.9454 -0.1100 256
+brazo_izq tallo2 0.0556 0.8288 -0.0871 780
+brazo_der tallo2 -0.0614 0.8288 -0.0871 780
+hoja_del_izq base 0.0593 0.2445 0.2011 172
+hoja_del_der base -0.0652 0.2445 0.2011 172
+hoja_tras_izq base 0.0593 0.2445 0.0759 174
+hoja_tras_der base -0.0652 0.2445 0.0759 174

@@ -16,7 +16,7 @@ class Skybox
 public:
 	Skybox();
 	Skybox(std::vector<std::string> faceLocations);
-	void DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime);
+	void DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime, bool gira);
 
 	~Skybox();
 private:

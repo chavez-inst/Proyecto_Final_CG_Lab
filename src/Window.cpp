@@ -20,6 +20,9 @@ Window::Window()
 	//--- planetas: Xen y planeta 2 ---
 	zonaPlaneta = 0;
 
+	//--- planeta 3: Verdania ---
+	animaVerdania = false;
+
 	//--- pista de carreras y naves ---
 
 	//--- satelites y cuerpos espaciales ---
@@ -31,6 +34,8 @@ Window::Window()
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	viajeNodriza = 0;
+	viajePista = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
@@ -60,6 +65,9 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	//--- planetas: Xen y planeta 2 ---
 	zonaPlaneta = 0;
 
+	//--- planeta 3: Verdania ---
+	animaVerdania = false;
+
 	//--- pista de carreras y naves ---
 
 	//--- satelites y cuerpos espaciales ---
@@ -71,6 +79,8 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	viajeNodriza = 0;
+	viajePista = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
@@ -183,18 +193,30 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 
 	//--- planetas: Xen y planeta 2 ---
-	//Z lleva a la superficie de Xen, X a la del planeta 2 y C regresa al espacio
-	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
-	{
-		theWindow->zonaPlaneta = 1;
-	}
+	//X lleva al siguiente planeta y Z al anterior, en el orden Xen, planeta 2 y Verdania
+	//despues del ultimo se regresa al primero y al reves, y C regresa al espacio
 	if (key == GLFW_KEY_X && action == GLFW_PRESS)
 	{
-		theWindow->zonaPlaneta = 2;
+		theWindow->zonaPlaneta += 1;
+		if (theWindow->zonaPlaneta > 3)
+			theWindow->zonaPlaneta = 1;
+	}
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta -= 1;
+		if (theWindow->zonaPlaneta < 1)
+			theWindow->zonaPlaneta = 3;
 	}
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
 		theWindow->zonaPlaneta = 0;
+	}
+
+	//--- planeta 3: Verdania ---
+	//V prende o apaga las animaciones de las plantas de Verdania, como la H con el headcrab
+	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	{
+		theWindow->animaVerdania = !theWindow->animaVerdania;
 	}
 
 	//--- pista de carreras y naves ---
@@ -208,6 +230,19 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	//N lleva a la nave nodriza y M a la pista de carreras; cada vez que se presiona se suma 1
+	//y en el while se compara con el valor anterior para saber que hay que mover la camara
+	//tambien regresan la zona al espacio por si se presionan estando en un planeta
+	if (key == GLFW_KEY_N && action == GLFW_PRESS)
+	{
+		theWindow->viajeNodriza += 1;
+		theWindow->zonaPlaneta = 0;
+	}
+	if (key == GLFW_KEY_M && action == GLFW_PRESS)
+	{
+		theWindow->viajePista += 1;
+		theWindow->zonaPlaneta = 0;
+	}
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
