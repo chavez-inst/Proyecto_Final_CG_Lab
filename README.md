@@ -32,12 +32,23 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 
 | Tecla       | Que hace                     |
 |-------------|------------------------------|
-| W A S D     | Mover la camara              |
-| Mouse       | Voltear la camara            |
+| W A S D     | Con la camara libre, moverla. Con la del avatar, caminar con Kirby (W y S avanzan y retroceden, A y D giran) |
+| Mouse       | Voltear la camara libre      |
+| Espacio / Ctrl | Subir y bajar la camara libre |
+| Shift       | Ir al doble de rapido (camara libre o Kirby) |
+| 1 2 3 4 5   | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento y estacion |
+| Q / E       | Nave anterior o siguiente en la camara 3 (y vista anterior o siguiente en la 5) |
+| Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
+| X / C / V   | Ir a Xen, al planeta 2 o a Verdania; si ya se esta ahi, regresar al punto de llegada |
+| F           | Prender o apagar la animacion basica de la escena (headcrab en Xen, plantas en Verdania) |
+| P           | Pausar o continuar todas las animaciones |
 | Y / U       | Mover el cubo en X           |
-| Z / X / C   | Ir a la superficie de Xen / ir a la del planeta 2 / regresar al espacio |
-| H           | Prender o apagar la caminata del headcrab (en Xen) |
 | ESC         | Cerrar                       |
+
+La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y de la 3 a la 5 solo en el
+espacio (desde un planeta llevan al espacio). La 4 y la 5 se comportan como la libre mientras no
+existan la nave entre planetas, el cohete y la estacion. Al regresar a la libre, aparece donde estaba
+la camara anterior.
 
 ---
 
@@ -117,7 +128,9 @@ los dos constructores y teclas en `ManejaTeclado`). **Cada quien escribe solo de
 su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y Git no marca conflictos.
 
 - En el `while`, la seccion de camaras va antes de dibujar: ahi se puede cambiar la matriz `view`
-  (con la camara libre es la de `Camera`).
+  (con la camara libre es la de `Camera`). `mainWindow.getmodoCamara()` dice que camara se esta usando,
+  y `posVista` y `dirVista` tienen la posicion y la direccion de esa camara; usarlas en lugar de
+  `camera.getCameraPosition()`, que solo es la de la camara libre.
 - La seccion de iluminacion del `while` va antes de mandar las luces al shader: ahi se cambian
   cada frame (ciclo dia/noche, prender/apagar).
 - Las luces se crean solo en la seccion de iluminacion. Si otra actividad necesita una, se le pide
@@ -136,22 +149,29 @@ su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y G
 Para que dos personas no usen la misma tecla. Si alguien necesita otra, la pide en el grupo y se
 agrega a esta tabla.
 
-| Teclas | Actividad | Uso propuesto |
+| Teclas | Actividad | Uso |
 |---|---|---|
-| W A S D, mouse | base (camara libre) | moverse y voltear |
-| ESC | base | cerrar |
-| Y / U | base | mover el cubo de prueba |
-| 1 2 3 4 5 | camaras y recorridos | 1 libre, 2 avatar en el planeta, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento/estacion |
-| N M | camaras y recorridos | viaje rapido: N a la nave nodriza, M a la pista de carreras |
-| flechas | avatar | caminar en 3a persona |
-| Z X C | planetas | X va al siguiente planeta y Z al anterior (Xen, planeta 2 y Verdania), C regresa al espacio |
-| P | pista de carreras | iniciar/pausar la carrera |
-| R T | plataforma de lanzamiento | lanzar el cohete, reiniciar |
-| E Q | estacion espacial | abrir/cerrar compuerta, otra animacion |
-| L K J | iluminacion | prender/apagar spotlights |
-| G F B H | personajes | animacion basica de cada personaje (Gordon, Falcon, Kirby, headcrab) |
-| V | planeta 3: Verdania | prender/apagar las animaciones de las plantas |
-| I O | libres | se piden en el grupo |
+| W A S D, mouse, Espacio, Ctrl, Shift | base y avatar | moverse con la camara libre o caminar con el avatar |
+| ESC, Y / U | base | cerrar, mover el cubo de prueba |
+| P | base | pausar o continuar todas las animaciones |
+| 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave o la vista que se sigue |
+| Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
+| F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, plantas en Verdania y cohete en el espacio |
+| K L | iluminacion | L la linterna, K los spotlights del escenario |
+| G H J B N M R T I O | libres | se piden en el grupo |
+
+- La **F** es la tecla de las animaciones basicas (las que se inician con teclado). Cada actividad
+  revisa en `ManejaTeclado` que se este en su zona (0 espacio, 1 Xen, 2 planeta 2, 3 Verdania),
+  como el headcrab:
+  ```cpp
+  if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 1)
+  {
+      theWindow->caminaHeadcrab = !theWindow->caminaHeadcrab;
+  }
+  ```
+  Las animaciones continuas (las de ciclo con funciones) no llevan tecla, se mueven desde el inicio.
+- La **P** pausa todo poniendo `deltaTime` en 0, asi que cada animacion tiene que avanzar con
+  `deltaTime` (por ejemplo `anguloIslas += anguloIslasOffset * deltaTime;`) para que tambien se pause.
 
 ### Reglas importantes
 
@@ -276,7 +296,7 @@ Se hace igual que la variable `muevex` (teclas Y/U):
 2. `Window.cpp`: darle valor inicial en **los dos** constructores.
 3. `Window.cpp`, en `ManejaTeclado`:
    ```cpp
-   if (key == GLFW_KEY_P && action == GLFW_PRESS)
+   if (key == GLFW_KEY_R && action == GLFW_PRESS)
    {
        theWindow->rotaPuerta += 10.0f;
    }
@@ -284,7 +304,8 @@ Se hace igual que la variable `muevex` (teclas Y/U):
    (`action == GLFW_PRESS` = una vez por pulsacion, `action != GLFW_RELEASE` = mientras se mantenga)
 4. En `main.cpp` usarla: `mainWindow.getrotaPuerta()`.
 
-Usar solo las teclas de su actividad (ver "Teclas por actividad"). W, A, S, D son de la camara y ESC cierra.
+Usar solo las teclas de su actividad (ver "Teclas por actividad"). W, A, S, D son de la camara libre y
+del avatar, P pausa y ESC cierra.
 
 ### Cambiar el skybox
 

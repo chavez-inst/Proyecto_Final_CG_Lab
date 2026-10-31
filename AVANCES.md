@@ -30,14 +30,14 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Satelites y cuerpos espaciales | 10 | Dylan | en proceso | lunas, asteroides, satelites |
 | Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | planeta 1: Xen (Half-Life); planeta 2: Dream Land (Kirby). Falta su cadena de evolucion |
 | Texturizado de todo | 20 | todos | en proceso | |
-| Avatar jerarquico **no humanoide** | 10 | por definir | por definir | propuesta: Kirby (Gordon y Falcon son humanos, tal vez revisar) |
-| Avatar con textura y material | 10 | por definir | pendiente | |
-| Avatar con caminata animada | 10 | por definir | pendiente | |
-| Recorrido 1: 3a persona en cada planeta (plano XZ) | 10 | por definir | pendiente | |
-| Recorrido 2: 3a persona como nave de la carrera | 10 | por definir | pendiente | la rubrica pide 3a persona, no 1a |
+| Avatar jerarquico **no humanoide** | 10 | Alejandro | en proceso | Kirby por piezas, uno solo para todos los planetas |
+| Avatar con textura y material | 10 | Alejandro | en proceso | su textura y `Material_avatar` |
+| Avatar con caminata animada | 10 | Alejandro | en proceso | pies y manos se balancean al caminar |
+| Recorrido 1: 3a persona en cada planeta (plano XZ) | 10 | Alejandro | en proceso | camara 2 |
+| Recorrido 2: 3a persona como nave de la carrera | 10 | Alejandro | en proceso | camara 3, Q y E cambian de nave |
 | Recorrido 3: 3a persona de nave volando entre planetas | 10 | por definir | pendiente | |
 | Recorrido 4: lanzamiento, estacion y objetos celestes | 10 | por definir | pendiente | |
-| Cambio correcto de camaras | 10 | por definir | pendiente | |
+| Cambio correcto de camaras | 10 | Alejandro | en proceso | teclas 1 a 5 |
 | Luz direccional con ciclo dia/noche | 10 | por definir | pendiente | |
 | Luces puntuales que se prenden/apagan con el ciclo (max 2 min) | 10 | por definir | pendiente | |
 | Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio, uno para Xen y uno para Dream Land (cambian con Z, X y C) |
@@ -76,7 +76,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 |---|---|---|
 | `main` | todos | version que compila y junta lo de todos |
 | `alejandro-planetas` | Alejandro | planetas: Xen y Dream Land (terminada e integrada) |
-| `alejandro-avatar-camara` | Alejandro | avatar y camara en 3a persona en los planetas |
+| `alejandro-avatar-camara` | Alejandro | avatar, camaras 1 a 3 y teclas nuevas (F por escena, P pausa) |
 | `abraham-npcs` | Abraham | NPCs |
 | `dylan-pista-y-cuerpos-espaciales` | Dylan | pista de carreras y cuerpos espaciales |
 
