@@ -210,6 +210,8 @@ glm::vec3 posXen = glm::vec3(3000.0f, 0.0f, 0.0f);
 glm::vec3 posPlaneta2 = glm::vec3(-3000.0f, 0.0f, 0.0f);
 //zona donde esta el usuario, 0 en el espacio, 1 en Xen, 2 en el planeta 2 y 3 en Verdania; se compara con la de Window para saber cuando cambio
 int zonaActual = 0;
+//se compara con el contador de Window para saber cuando se presiono la tecla del planeta donde ya se estaba
+int reinicioPlanetaActual = 0;
 Skybox skyboxXen;
 Skybox skyboxPlaneta2;
 Texture planeta2SueloTexture;
@@ -379,7 +381,7 @@ Texture verdaniaPastoTexture;
 //otro con el indice de la pieza de la que cuelga cada una (la raiz lleva -1 y el padre siempre va antes que sus hijos),
 //otro con el pivote, que es el punto de la articulacion donde gira la pieza, y otro con los grados que gira
 //en x, y, z, que se cambian en el while para animarlas
-//anguloVerdania marca el tiempo de todas las animaciones de Verdania y avanza cada frame mientras la tecla V
+//anguloVerdania marca el tiempo de todas las animaciones de Verdania y avanza cada frame mientras la tecla F
 //las tenga prendidas, igual que el angulo de las islas de Xen; cada planta usa el seno de ese angulo
 float anguloVerdania = 0.0f;
 float anguloVerdaniaOffset = 2.0f;
@@ -406,7 +408,7 @@ glm::vec3 pivotesPeashooter[NUM_PIEZAS_PEASHOOTER] = {
 	glm::vec3(-0.0622f, 0.2206f, 0.1582f)       //hoja_tras_der
 };
 glm::vec3 rotPeashooter[NUM_PIEZAS_PEASHOOTER];
-//el peashooter camina en circulo como el headcrab; se prende y se apaga con V junto con las demas plantas
+//el peashooter camina en circulo como el headcrab; se prende y se apaga con F junto con las demas plantas
 glm::vec3 centroPeashooter = glm::vec3(0.0f, 0.0f, -2.0f); //el centro del circulo se mide desde posVerdania
 float radioPeashooter = 2.5f;
 float anguloPeashooter = 0.0f;
@@ -497,7 +499,7 @@ glm::vec3 pivotesGatlingPea[NUM_PIEZAS_GATLINGPEA] = {
 	glm::vec3(0.0000f, 0.5212f, -0.0783f)       //hoja_atras
 };
 glm::vec3 rotGatlingPea[NUM_PIEZAS_GATLINGPEA];
-//angulo de los canones de la gatling pea; avanza mientras V este prendida
+//angulo de los canones de la gatling pea; avanza mientras F tenga prendidas las animaciones de Verdania
 float giroCanones = 0.0f;
 float giroCanonesOffset = 8.0f;
 
@@ -1167,11 +1169,54 @@ Model sateliteRace;
 //--- estacion espacial y naves ---
 
 //--- avatar ---
+//el avatar es Kirby; usa las mismas piezas y padres que el de la seccion de personajes, pero con sus propios pivotes y rotaciones
+//los pies giran desde la cadera, mas arriba que en el otro Kirby, para que se balanceen hacia adelante y hacia atras al caminar,
+//y las manos giran en Y alrededor del centro del cuerpo para que se muevan pegadas a el
+glm::vec3 pivotesAvatar[NUM_PIEZAS_KIRBY] = {
+	glm::vec3(0.0f, 0.4158f, 0.0f),  //cuerpo
+	glm::vec3(0.0f, 0.34f, 0.02f),   //mano_der
+	glm::vec3(0.0f, 0.34f, 0.02f),   //mano_izq
+	glm::vec3(-0.2f, 0.35f, 0.04f),  //pie_der
+	glm::vec3(0.2f, 0.35f, 0.04f)    //pie_izq
+};
+glm::vec3 rotAvatar[NUM_PIEZAS_KIRBY];
+Material Material_avatar;
+
+//lugar del avatar medido desde el centro del piso del planeta donde esta, y hacia donde mira en grados alrededor de Y
+//con rumbo 0 ve hacia Z positivo y con 180 hacia Z negativo, que es hacia donde estan las cosas de cada planeta
+glm::vec3 posLlegadaAvatar = glm::vec3(0.0f, 0.0f, 6.0f);
+glm::vec3 posAvatar = posLlegadaAvatar;
+float rumboAvatar = 180.0f;
+float escalaAvatar = 1.5f;
+float velocidadAvatar = 0.08f;
+float giroAvatarOffset = 2.5f;
+//como el piso mide 200 por 200 y llega a 100, el avatar se detiene un poco antes de la orilla
+float limitePisoAvatar = 95.0f;
+//mientras camina, los pies y las manos van y vienen entre -limitePasoAvatar y limitePasoAvatar, como las patas del headcrab
+float pasoAvatar = 0.0f;
+float pasoAvatarOffset = 3.0f;
+float limitePasoAvatar = 25.0f;
+bool pasoAdelanteAvatar = true;
+//se comparan con la zona y el reinicio de Window para regresar al avatar al punto de llegada cuando cambian
+int zonaAvatar = 0;
+int reinicioAvatar = 0;
 
 //--- camaras y recorridos ---
-//viaje rapido: se comparan con los contadores de Window para saber cuando se presiono N o M
-int viajeNodrizaActual = 0;
-int viajePistaActual = 0;
+//camara que se uso en el frame anterior; se compara con la de Window para saber cuando cambio
+int modoCamaraActual = 1;
+//se compara con el contador de Window para saber cuando se presiono la Z estando en el espacio
+int puntoEspacioActual = 0;
+//posicion y direccion de la camara que se esta usando, sea cual sea; las usan la luz especular, la linterna y las plantas de luz de Xen
+glm::vec3 posVista = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 dirVista = glm::vec3(0.0f, 0.0f, -1.0f);
+//camara 2, que va detras y arriba del avatar y mira un poco arriba de sus pies
+float distanciaCamaraAvatar = 4.0f;
+float alturaCamaraAvatar = 2.2f;
+float alturaMiraAvatar = 0.8f;
+//camara 3, que va detras de una nave de la carrera; los dos puntos se miden desde la nave, que ve hacia Z negativo,
+//asi que la camara va hacia Z positivo, que es atras de la nave, y mira hacia enfrente de ella
+glm::vec3 camaraNaveAtras = glm::vec3(0.0f, 3.5f, 10.0f);
+glm::vec3 camaraNaveMira = glm::vec3(0.0f, 1.5f, -8.0f);
 
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
@@ -1720,6 +1765,9 @@ int main()
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
+	//las piezas de Kirby ya se cargaron en la seccion de personajes y traen su textura
+	//el material le da un brillo suave, como de plastico, para que se le noten los reflejos de las luces
+	Material_avatar = Material(1.0f, 32);
 
 	//--- camaras y recorridos ---
 
@@ -1785,35 +1833,163 @@ int main()
 
 		//eventos de teclado y mouse
 		glfwPollEvents();
-		camera.keyControl(mainWindow.getsKeys(), deltaTime);
-		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		//la camara libre solo se mueve cuando es la que se esta usando; la 4 y la 5 la usan mientras no existan sus recorridos
+		//con las demas camaras el mouse se lee igual y no se usa, para que la libre no brinque al regresar a ella
+		if (mainWindow.getmodoCamara() == 1 || mainWindow.getmodoCamara() == 4 || mainWindow.getmodoCamara() == 5)
+		{
+			camera.keyControl(mainWindow.getsKeys(), deltaTime);
+			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		}
+		else
+		{
+			mainWindow.getXChange();
+			mainWindow.getYChange();
+		}
 
 		//matriz de vista de la camara libre; con otras camaras se cambia en su seccion
 		glm::mat4 view = camera.calculateViewMatrix();
 
+		//con P se pausan todas las animaciones; como todas avanzan con deltaTime, basta con ponerlo en 0
+		//deltaReal guarda el tiempo del frame sin pausa para el avatar, que se tiene que poder mover aunque todo lo demas este quieto
+		GLfloat deltaReal = deltaTime;
+		if (mainWindow.getpausaAnimaciones())
+			deltaTime = 0.0f;
+
 		//--- camaras y recorridos ---
-		//viaje rapido con N y M; la camara se vuelve a crear en el lugar nuevo, igual que al cambiar de planeta
-		//zonaActual se pone en 0 para que la seccion de planetas no regrese la camara al origen en este mismo frame
-		if (mainWindow.getviajeNodriza() != viajeNodrizaActual)
+		//al regresar a la camara libre desde la del avatar o la de la nave, la libre aparece donde estaba la otra y viendo hacia lo mismo
+		//el yaw y el pitch salen de la direccion con atan2 y asin, al reves de como Camera::update saca la direccion a partir de ellos
+		if (mainWindow.getmodoCamara() != modoCamaraActual)
 		{
-			viajeNodrizaActual = mainWindow.getviajeNodriza();
-			zonaActual = 0;
-			//a un lado de la nave nodriza, a su altura y viendo hacia X negativo
-			camera = Camera(glm::vec3(500.0f, -130.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 0.3f, 0.5f);
+			if (mainWindow.getmodoCamara() == 1 && (modoCamaraActual == 2 || modoCamaraActual == 3))
+			{
+				float yaw = atan2(dirVista.z, dirVista.x) / toRadians;
+				float pitch = asin(dirVista.y) / toRadians;
+				camera = Camera(posVista, glm::vec3(0.0f, 1.0f, 0.0f), yaw, pitch, 0.3f, 0.5f);
+				view = camera.calculateViewMatrix();
+			}
+			modoCamaraActual = mainWindow.getmodoCamara();
 		}
-		if (mainWindow.getviajePista() != viajePistaActual)
+
+		//la vista empieza siendo la de la camara libre y mas abajo se cambia si se usa la del avatar o la de la nave
+		posVista = camera.getCameraPosition();
+		dirVista = camera.getCameraDirection();
+
+		//estando en el espacio, la Z lleva al siguiente punto de interes, que son el inicio, la nave nodriza y la pista, y despues regresa al inicio
+		//la camara se vuelve a crear en el lugar nuevo, igual que al cambiar de planeta
+		if (mainWindow.getpuntoEspacio() != puntoEspacioActual)
 		{
-			viajePistaActual = mainWindow.getviajePista();
-			zonaActual = 0;
-			//atras de la meta y un poco arriba, viendo hacia Z negativo, que es hacia donde salen las naves
-			camera = Camera(posPista + glm::vec3(0.0f, 40.0f, 120.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -15.0f, 0.3f, 0.5f);
+			puntoEspacioActual = mainWindow.getpuntoEspacio();
+			int punto = puntoEspacioActual % 3;
+			if (punto == 1)
+			{
+				//a un lado de la nave nodriza, a su altura y viendo hacia X negativo
+				camera = Camera(glm::vec3(500.0f, -130.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 0.3f, 0.5f);
+			}
+			else if (punto == 2)
+			{
+				//atras de la meta y un poco arriba, viendo hacia Z negativo, que es hacia donde salen las naves
+				camera = Camera(posPista + glm::vec3(0.0f, 40.0f, 120.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -15.0f, 0.3f, 0.5f);
+			}
+			else
+			{
+				//el mismo lugar donde empieza el programa
+				camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
+			}
+			view = camera.calculateViewMatrix();
+			posVista = camera.getCameraPosition();
+			dirVista = camera.getCameraDirection();
+		}
+
+		//el avatar se mueve aqui y no en su seccion para que la camara 2 ya use el lugar donde queda en este frame
+		//si cambia de planeta o se vuelve a presionar la tecla del planeta donde esta, regresa al punto de llegada
+		if (mainWindow.getzonaPlaneta() != zonaAvatar || mainWindow.getreinicioPlaneta() != reinicioAvatar)
+		{
+			zonaAvatar = mainWindow.getzonaPlaneta();
+			reinicioAvatar = mainWindow.getreinicioPlaneta();
+			posAvatar = posLlegadaAvatar;
+			rumboAvatar = 180.0f;
+		}
+		//el piso del planeta donde esta el avatar; en el espacio no se dibuja, asi que ahi no importa
+		glm::vec3 centroAvatar = posXen;
+		if (zonaAvatar == 2)
+			centroAvatar = posPlaneta2;
+		else if (zonaAvatar == 3)
+			centroAvatar = posVerdania;
+
+		//con la camara 2, W y S lo mueven hacia enfrente y hacia atras, y A y D lo giran; Shift lo hace ir al doble de rapido
+		//su frente sale del seno y el coseno del rumbo, y como nunca cambia su altura, siempre camina sobre el piso
+		bool avatarCamina = false;
+		if (mainWindow.getmodoCamara() == 2)
+		{
+			bool* teclas = mainWindow.getsKeys();
+			float velocidad = velocidadAvatar * deltaReal;
+			if (teclas[GLFW_KEY_LEFT_SHIFT])
+				velocidad = velocidad * 2.0f;
+
+			if (teclas[GLFW_KEY_A])
+				rumboAvatar += giroAvatarOffset * deltaReal;
+			if (teclas[GLFW_KEY_D])
+				rumboAvatar -= giroAvatarOffset * deltaReal;
+			glm::vec3 frenteAvatar = glm::vec3(sin(rumboAvatar * toRadians), 0.0f, cos(rumboAvatar * toRadians));
+
+			if (teclas[GLFW_KEY_W])
+			{
+				posAvatar += frenteAvatar * velocidad;
+				avatarCamina = true;
+			}
+			if (teclas[GLFW_KEY_S])
+			{
+				posAvatar -= frenteAvatar * velocidad;
+				avatarCamina = true;
+			}
+
+			//no puede salirse del piso
+			if (posAvatar.x > limitePisoAvatar)
+				posAvatar.x = limitePisoAvatar;
+			if (posAvatar.x < -limitePisoAvatar)
+				posAvatar.x = -limitePisoAvatar;
+			if (posAvatar.z > limitePisoAvatar)
+				posAvatar.z = limitePisoAvatar;
+			if (posAvatar.z < -limitePisoAvatar)
+				posAvatar.z = -limitePisoAvatar;
+
+			//camara 2: atras del avatar y a una altura fija, asi que se mueve en un plano paralelo al piso
+			glm::vec3 posAvatarMundo = centroAvatar + posAvatar;
+			glm::vec3 puntoMira = posAvatarMundo + glm::vec3(0.0f, alturaMiraAvatar, 0.0f);
+			posVista = posAvatarMundo - frenteAvatar * distanciaCamaraAvatar + glm::vec3(0.0f, alturaCamaraAvatar, 0.0f);
+			dirVista = glm::normalize(puntoMira - posVista);
+			view = glm::lookAt(posVista, puntoMira, glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+
+		//camara 3: detras de una de las naves de la carrera, y Q y E cambian de nave
+		//la nave se coloca con la misma funcion y el mismo carril y distancia que usa la seccion de la pista
+		//como esa seccion mueve la carrera mas abajo, aqui se le suma lo que va a avanzar en este frame para que la camara no se quede atras
+		if (mainWindow.getmodoCamara() == 3)
+		{
+			//el resto de dividir entre el numero de naves sale negativo si objetivoCamara es negativo, por eso se le suma una vuelta
+			int naveSeguida = mainWindow.getobjetivoCamara() % NUM_NAVES_FZERO;
+			if (naveSeguida < 0)
+				naveSeguida += NUM_NAVES_FZERO;
+			float carrilX = 2.15f;
+			if (naveSeguida % 2 == 0)
+				carrilX = -5.15f;
+			float desfaseAtras = -10.0f * (naveSeguida + 1);
+			glm::mat4 matrizNave = modelauxNaves * ObtenerMatrizNavePista(avanceCarrera + velocidadCarrera * deltaTime + desfaseAtras, carrilX, 1.0f);
+
+			//los puntos de la camara se pasan de las coordenadas de la nave a las del mundo multiplicandolos por su matriz
+			//la segunda columna de la matriz es el eje Y de la nave, que se usa como arriba para que la camara se incline con la pista
+			posVista = glm::vec3(matrizNave * glm::vec4(camaraNaveAtras, 1.0f));
+			glm::vec3 puntoMira = glm::vec3(matrizNave * glm::vec4(camaraNaveMira, 1.0f));
+			glm::vec3 arribaNave = glm::normalize(glm::vec3(matrizNave[1]));
+			dirVista = glm::normalize(puntoMira - posVista);
+			view = glm::lookAt(posVista, puntoMira, arribaNave);
 		}
 
 		//limpiar la pantalla
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//el skybox va primero, antes que todo lo demas, y cada planeta tiene el suyo segun zonaActual, que cambia con Z, X y C
+		//el skybox va primero, antes que todo lo demas, y cada planeta tiene el suyo segun zonaActual, que cambia con Z, X, C y V
 		//solo el del espacio gira; los de los planetas se quedan quietos para que el horizonte no se incline
 		if (zonaActual == 1)
 			skyboxXen.DrawSkybox(view, projection, deltaTime, false);
@@ -1837,13 +2013,14 @@ int main()
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
-		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+		//posVista es la posicion de la camara que se este usando, que puede no ser la libre
+		glUniform3f(uniformEyePosition, posVista.x, posVista.y, posVista.z);
 
-		//linterna pegada a la camara, un poco abajo de los ojos
+		//linterna pegada a la camara que se este usando, un poco abajo de los ojos
 		//aqui en el while es donde se pueden cambiar cosas de las luces mientras corre el programa
-		glm::vec3 lowerLight = camera.getCameraPosition();
+		glm::vec3 lowerLight = posVista;
 		lowerLight.y -= 0.3f;
-		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+		spotLights[0].SetFlash(lowerLight, dirVista);
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 		//aqui se cambian las luces cada frame, antes de mandarlas al shader
@@ -1918,7 +2095,7 @@ int main()
 		model = glm::translate(model, glm::vec3(0.5f, -1.0f, -3.0f));
 		DibujaJerarquia(Kirby_M, padresKirby, pivotesKirby, rotKirby, NUM_PIEZAS_KIRBY, model, uniformModel);
 
-		//el headcrab camina en circulo en la superficie de Xen mientras su caminata este prendida con la tecla H
+		//el headcrab camina en circulo en la superficie de Xen mientras su caminata este prendida con la tecla F
 		if (mainWindow.getcaminaHeadcrab())
 		{
 			anguloHeadcrab += anguloHeadcrabOffset * deltaTime;
@@ -1957,9 +2134,11 @@ int main()
 
 		//--- planetas: Xen y planeta 2 ---
 		//cuando una tecla cambia zonaPlaneta en Window, la camara se vuelve a crear en la otra zona
-		if (mainWindow.getzonaPlaneta() != zonaActual)
+		//tambien cuando se vuelve a presionar la tecla del planeta donde ya se esta, para regresar al punto de llegada
+		if (mainWindow.getzonaPlaneta() != zonaActual || mainWindow.getreinicioPlaneta() != reinicioPlanetaActual)
 		{
 			zonaActual = mainWindow.getzonaPlaneta();
+			reinicioPlanetaActual = mainWindow.getreinicioPlaneta();
 			if (zonaActual == 1)
 				camera = Camera(posXen + glm::vec3(0.0f, 1.5f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.3f, 0.5f);
 			else if (zonaActual == 2)
@@ -2041,10 +2220,14 @@ int main()
 		XenCristal_M.RenderModel();
 
 		//en las plantas de luz el foco cuelga del tallo, por eso modelaux guarda la matriz antes de escalar el tallo
+		//se esconden cuando se les acerca la camara, o el avatar si se esta usando su camara
+		glm::vec3 posCercaPlantas = posVista;
+		if (mainWindow.getmodoCamara() == 2)
+			posCercaPlantas = centroAvatar + posAvatar;
 		for (int i = 0; i < NUM_PLANTAS; i++)
 		{
 			glm::vec3 pos = posXen + posPlantas[i];
-			if (glm::distance(camera.getCameraPosition(), pos) < 4.0f)
+			if (glm::distance(posCercaPlantas, pos) < 4.0f)
 			{
 				if (alturaPlantas[i] > 0.1f)
 					alturaPlantas[i] -= 0.05f * deltaTime;
@@ -2211,7 +2394,7 @@ int main()
 		//y cuando el angulo regresa a 0 la pieza sigue su movimiento sin brincar
 		//entre mas grande es ese numero mas rapido se mueve, y si se suman grados dentro del seno, como 120 o 240,
 		//las plantas iguales quedan desfasadas y no se mueven todas al mismo tiempo
-		//las animaciones solo avanzan mientras esten prendidas con la tecla V, igual que la caminata del headcrab con H;
+		//las animaciones solo avanzan mientras esten prendidas con la tecla F, igual que la caminata del headcrab en Xen;
 		//si se apagan, los angulos y posiciones ya no cambian y las plantas se quedan quietas en su ultima pose
 		if (mainWindow.getanimaVerdania())
 		{
@@ -2756,6 +2939,61 @@ int main()
 		//--- estacion espacial y naves ---
 
 		//--- avatar ---
+		//mientras el avatar camina, pasoAvatar va y viene entre sus limites como las patas del headcrab
+		//usa deltaReal para que siga caminando aunque las demas animaciones esten en pausa
+		if (avatarCamina)
+		{
+			if (pasoAdelanteAvatar)
+			{
+				pasoAvatar += pasoAvatarOffset * deltaReal;
+				if (pasoAvatar > limitePasoAvatar)
+					pasoAdelanteAvatar = false;
+			}
+			else
+			{
+				pasoAvatar -= pasoAvatarOffset * deltaReal;
+				if (pasoAvatar < -limitePasoAvatar)
+					pasoAdelanteAvatar = true;
+			}
+		}
+		else
+		{
+			//cuando se detiene, los pies y las manos regresan poco a poco a su lugar
+			if (pasoAvatar > 0.0f)
+			{
+				pasoAvatar -= pasoAvatarOffset * deltaReal;
+				if (pasoAvatar < 0.0f)
+					pasoAvatar = 0.0f;
+			}
+			else if (pasoAvatar < 0.0f)
+			{
+				pasoAvatar += pasoAvatarOffset * deltaReal;
+				if (pasoAvatar > 0.0f)
+					pasoAvatar = 0.0f;
+			}
+		}
+		//los pies se balancean en X desde la cadera, cada uno al reves del otro
+		rotAvatar[3].x = pasoAvatar;
+		rotAvatar[4].x = -pasoAvatar;
+		//las manos giran en Y con el mismo angulo; como estan en lados opuestos del cuerpo, una va hacia adelante
+		//mientras la otra va hacia atras, y cada una va al reves del pie de su lado
+		rotAvatar[1].y = pasoAvatar * 1.2f;
+		rotAvatar[2].y = pasoAvatar * 1.2f;
+		//Kirby da un pequeno salto en cada paso, mas alto mientras mas separados van los pies
+		float saltoAvatar = 0.03f * fabs(pasoAvatar) / limitePasoAvatar;
+
+		//Kirby solo esta en los planetas y se queda donde se dejo aunque se cambie a la camara libre
+		if (zonaActual != 0)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, centroAvatar + posAvatar + glm::vec3(0.0f, saltoAvatar, 0.0f));
+			model = glm::rotate(model, rumboAvatar * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaAvatar, escalaAvatar, escalaAvatar));
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			Material_avatar.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			DibujaJerarquia(Kirby_M, padresKirby, pivotesAvatar, rotAvatar, NUM_PIEZAS_KIRBY, model, uniformModel);
+		}
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 		//postes o lamparas de las luminarias
