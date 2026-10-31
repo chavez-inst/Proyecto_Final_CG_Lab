@@ -213,6 +213,11 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 	{
 		theWindow->pausaAnimaciones = !theWindow->pausaAnimaciones;
+		//se avisa en la consola para saber en que estado quedaron las animaciones
+		if (theWindow->pausaAnimaciones)
+			printf("animaciones en pausa\n");
+		else
+			printf("animaciones corriendo\n");
 	}
 
 	//teclas de cada actividad (la tabla de que tecla es de quien esta en README.md)
@@ -221,6 +226,10 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 1)
 	{
 		theWindow->caminaHeadcrab = !theWindow->caminaHeadcrab;
+		if (theWindow->caminaHeadcrab)
+			printf("headcrab caminando\n");
+		else
+			printf("headcrab detenido\n");
 	}
 
 	//--- planetas: Xen y planeta 2 ---
@@ -258,6 +267,10 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 3)
 	{
 		theWindow->animaVerdania = !theWindow->animaVerdania;
+		if (theWindow->animaVerdania)
+			printf("animaciones de Verdania prendidas\n");
+		else
+			printf("animaciones de Verdania apagadas\n");
 	}
 
 	//--- pista de carreras y naves ---
