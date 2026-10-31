@@ -299,7 +299,7 @@ float escalaIslas[3] = { 3.0f, 4.0f, 6.0f };
 float anguloIslas = 0.0f;
 float anguloIslasOffset = 0.6f;
 
-//las plantas de luz se esconden en el piso si la camara se acerca, como en Half-Life
+//las plantas de luz se esconden en el piso y vuelven a salir cada cierto tiempo, como en Half-Life
 //alturaPlantas escala el tallo en Y, vale 1 cuando la planta esta parada y 0.1 cuando esta escondida
 const int NUM_PLANTAS = 3;
 glm::vec3 posPlantas[NUM_PLANTAS] = {
@@ -308,6 +308,12 @@ glm::vec3 posPlantas[NUM_PLANTAS] = {
 	glm::vec3(2.0f, 0.0f, -15.0f) };
 float alturaPlantas[NUM_PLANTAS] = { 1.0f, 1.0f, 1.0f };
 float altoTallo = 1.62f; //altura de la punta del tallo, ahi va el foco
+//tiempoPlantas cuenta cuanto lleva el estado actual; deltaTime suma 60 en un segundo
+//asi que las plantas duran 5 segundos paradas y 3 escondidas
+float tiempoPlantas = 0.0f;
+bool plantasEscondidas = false;
+float tiempoParadas = 300.0f;
+float tiempoEscondidas = 180.0f;
 
 //--- nave de Among Us y crewmates ---
 //nave de Among Us con la puerta abierta y 6 crewmates que se salieron y van flotando en el espacio
@@ -2220,14 +2226,23 @@ int main()
 		XenCristal_M.RenderModel();
 
 		//en las plantas de luz el foco cuelga del tallo, por eso modelaux guarda la matriz antes de escalar el tallo
-		//se esconden cuando se les acerca la camara, o el avatar si se esta usando su camara
-		glm::vec3 posCercaPlantas = posVista;
-		if (mainWindow.getmodoCamara() == 2)
-			posCercaPlantas = centroAvatar + posAvatar;
+		//cuando se acaba el tiempo del estado actual, las plantas cambian y el contador vuelve a 0
+		tiempoPlantas += deltaTime;
+		if (plantasEscondidas && tiempoPlantas > tiempoEscondidas)
+		{
+			plantasEscondidas = false;
+			tiempoPlantas = 0.0f;
+		}
+		else if (!plantasEscondidas && tiempoPlantas > tiempoParadas)
+		{
+			plantasEscondidas = true;
+			tiempoPlantas = 0.0f;
+		}
+		//al esconderse bajan rapido y al salir suben mas despacio
 		for (int i = 0; i < NUM_PLANTAS; i++)
 		{
 			glm::vec3 pos = posXen + posPlantas[i];
-			if (glm::distance(posCercaPlantas, pos) < 4.0f)
+			if (plantasEscondidas)
 			{
 				if (alturaPlantas[i] > 0.1f)
 					alturaPlantas[i] -= 0.05f * deltaTime;
