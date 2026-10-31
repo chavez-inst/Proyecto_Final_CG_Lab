@@ -81,7 +81,8 @@ Skybox::Skybox(std::vector<std::string> faceLocations)
 }
 
 //se dibuja antes que el resto de la escena
-//gira dice si el skybox da vueltas solo; el del espacio si gira, pero el de un planeta no, porque se inclinaria el horizonte
+//gira dice si el skybox da vueltas en los tres ejes, como el del espacio, que no tiene horizonte
+//si es false solo gira sobre Y, que es lo que usan los planetas para que el horizonte nunca se incline
 void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime, bool gira)
 {
 	//se le quita la traslacion a la vista para que el skybox gire con la camara pero no se mueva con ella
@@ -103,6 +104,10 @@ void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloa
 		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));
 		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleX), glm::vec3(1.0f, 0.0f, 0.0f));
 		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleZ), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	else
+	{
+		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	glDepthMask(false);

@@ -44,6 +44,9 @@ public:
 	int getpuntoEspacio() { return puntoEspacio; }
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	bool getlinterna() { return linterna; }
+	bool getlucesEscenario() { return lucesEscenario; }
+	int getsaltoDiaNoche() { return saltoDiaNoche; }
 
 	bool getShouldClose() {
 		return  glfwWindowShouldClose(mainWindow);}
@@ -94,6 +97,9 @@ private:
 	int puntoEspacio; //cuantas veces se ha presionado la Z estando en el espacio, para ir al siguiente punto de interes
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	bool linterna; //L prende o apaga la linterna de la camara, empieza apagada
+	bool lucesEscenario; //K prende o apaga los spotlights de la zona donde se esta
+	int saltoDiaNoche; //cuantas veces se ha presionado la N en un planeta; main.cpp salta a la manana o a la noche cuando cambia
 
 	bool mouseFirstMoved;
 	static void ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode);
