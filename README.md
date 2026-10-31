@@ -41,7 +41,10 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 | Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
 | X / C / V   | Ir a Xen, al planeta 2 o a Verdania; si ya se esta ahi, regresar al punto de llegada |
 | F           | Prender o apagar la animacion basica de la escena (headcrab en Xen, plantas en Verdania) |
-| P           | Pausar o continuar todas las animaciones |
+| P           | Pausar o continuar todas las animaciones (tambien el ciclo de dia y noche) |
+| L           | Prender o apagar la linterna (empieza apagada) |
+| K           | Prender o apagar los spotlights de la zona donde se esta |
+| N           | En un planeta, saltar a la manana o a la noche (el ciclo sigue desde ahi) |
 | Y / U       | Mover el cubo en X           |
 | ESC         | Cerrar                       |
 
@@ -49,6 +52,10 @@ La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y de la
 espacio (desde un planeta llevan al espacio). La 4 y la 5 se comportan como la libre mientras no
 existan la nave entre planetas, el cohete y la estacion. Al regresar a la libre, aparece donde estaba
 la camara anterior.
+
+En los planetas el sol da una vuelta cada 2 minutos: de dia se ve el sol y el skybox de dia, y de noche
+la luna, el skybox de noche y las luminarias prendidas. En el espacio el sol esta fijo y no hay noche.
+La consola avisa cuando se prende o apaga algo con P, F, L, K y N.
 
 ---
 
@@ -134,7 +141,8 @@ su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y G
 - La seccion de iluminacion del `while` va antes de mandar las luces al shader: ahi se cambian
   cada frame (ciclo dia/noche, prender/apagar).
 - Las luces se crean solo en la seccion de iluminacion. Si otra actividad necesita una, se le pide
-  a quien lleva esa seccion (los arreglos son de maximo 3 puntuales y 4 spotlights).
+  a quien lleva esa seccion. Cada frame solo se mandan al shader las luces de la zona donde se esta,
+  asi que el limite (3 puntuales y 4 spotlights) es por zona y no para toda la escena.
 - Si una actividad agrega geometria hecha a mano, su funcion va en el bloque 2 (en su seccion) y se
   llama en la carga de recursos (en su seccion). Como el indice en `meshListModel` depende del
   orden, se guarda en una variable global antes del `push_back`:
@@ -157,8 +165,8 @@ agrega a esta tabla.
 | 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave o la vista que se sigue |
 | Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
 | F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, plantas en Verdania y cohete en el espacio |
-| K L | iluminacion | L la linterna, K los spotlights del escenario |
-| G H J B N M R T I O | libres | se piden en el grupo |
+| K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |
+| G H J B M R T I O | libres | se piden en el grupo |
 
 - La **F** es la tecla de las animaciones basicas (las que se inician con teclado). Cada actividad
   revisa en `ManejaTeclado` que se este en su zona (0 espacio, 1 Xen, 2 planeta 2, 3 Verdania),
@@ -263,29 +271,40 @@ Si sale muy grande o muy chico, ajustar con `glm::scale`.
 
 ```cpp
 Material Material_metal;                    //variables globales
-Material_metal = Material(2.0f, 128);       //carga de recursos: (intensidad especular, shininess)
+Material_metal = Material(2.0f, 64);        //carga de recursos: (intensidad especular, shininess)
 Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);  //antes de dibujar
 ```
 
+Ya existen `Material_opaco` (casi sin brillo, lo de la mayoria), `Material_brillante` (reflejo chico y
+fuerte, como el visor de los crewmates), `Material_metal` (naves de la carrera) y `Material_avatar`
+(Kirby). Despues de usar uno distinto, se regresa `Material_opaco` para lo que sigue.
+
 ### Una luz
 
-Las luces se crean en la carga de recursos, en el siguiente lugar libre del arreglo, y se
-suma 1 al contador:
+Cada luz es una variable global de la seccion de iluminacion (por ejemplo `luminariaVerdania`), se
+crea en la carga de recursos y en el `while` se copia a los arreglos solo si esta prendida y es de la
+zona donde se esta:
 
 ```cpp
-pointLights[1] = PointLight(1.0f, 0.5f, 0.0f,    //color r g b
-    0.0f, 1.0f,                                   //intensidad ambiental, difusa
-    -3.0f, 2.0f, 0.0f,                            //posicion
-    1.0f, 0.09f, 0.032f);                         //atenuacion: constante, lineal, exponente
-pointLightCount++;
+//carga de recursos
+luminariaVerdania = PointLight(1.0f, 0.85f, 0.6f,   //color r g b
+    0.1f, 3.0f,                                      //intensidad ambiental, difusa
+    x, y, z,                                         //posicion
+    1.0f, 0.05f, 0.01f);                             //atenuacion: constante, lineal, exponente
+
+//while, seccion de iluminacion
+if (zonaLuces == 3 && esDeNoche)
+{
+    pointLights[pointLightCount] = luminariaVerdania;
+    pointLightCount++;
+}
 ```
 
-- Maximo 3 puntuales y 4 spotlights (`CommonValues.h`).
-- `spotLights[0]` es la linterna de la camara.
-- Para mover una luz mientras corre el programa, dentro del `while`:
-  `spotLights[1].SetPos(nuevaPos);` o `spotLights[1].SetFlash(pos, dir);`
-- Para prender/apagar luces se puede cambiar el contador que se manda en
-  `SetPointLights(pointLights, pointLightCount)`.
+- Maximo 3 puntuales y 4 spotlights por zona (`CommonValues.h`); la linterna cuenta como un spotlight.
+- Las luminarias (puntuales) se prenden de noche y los spotlights con la K.
+- Para mover una luz mientras corre el programa: `spot.SetPos(nuevaPos);` o `spot.SetFlash(pos, dir);`
+  antes de copiarla al arreglo.
+- Para un objeto que brille aunque no le llegue luz (como el sol), se le pone un color arriba de 1.
 
 ### Una tecla nueva / mover algo con el teclado
 
@@ -311,6 +330,9 @@ del avatar, P pausa y ESC cierra.
 
 Poner las 6 imagenes en `Textures/Skybox/` y cambiar las rutas en `main.cpp`.
 El orden tiene que ser: **rt, lf, dn, up, bk, ft** (derecha, izquierda, abajo, arriba, atras, enfrente).
+Cada planeta tiene un skybox de dia y uno de noche (`xen_dia_*`, `planeta2_dia_*`, `verdania_noche_*`
+y los originales). El ultimo parametro de `DrawSkybox` en `true` lo hace girar en los tres ejes (espacio)
+y en `false` solo sobre Y (planetas, para que no se incline el horizonte).
 
 ### Objetos con transparencia
 

@@ -41,6 +41,9 @@ Window::Window()
 	puntoEspacio = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	linterna = false;
+	lucesEscenario = true;
+	saltoDiaNoche = 0;
 
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
@@ -89,6 +92,9 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	puntoEspacio = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	linterna = false;
+	lucesEscenario = true;
+	saltoDiaNoche = 0;
 
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
@@ -317,7 +323,31 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
-
+	//L prende o apaga la linterna y K los spotlights de la zona; en main.cpp solo se mandan al shader si estan prendidos
+	if (key == GLFW_KEY_L && action == GLFW_PRESS)
+	{
+		theWindow->linterna = !theWindow->linterna;
+		if (theWindow->linterna)
+			printf("linterna prendida\n");
+		else
+			printf("linterna apagada\n");
+	}
+	if (key == GLFW_KEY_K && action == GLFW_PRESS)
+	{
+		theWindow->lucesEscenario = !theWindow->lucesEscenario;
+		if (theWindow->lucesEscenario)
+			printf("spotlights de la zona prendidos\n");
+		else
+			printf("spotlights de la zona apagados\n");
+	}
+	//N cambia entre dia y noche, pero solo en los planetas porque en el espacio el sol esta fijo
+	if (key == GLFW_KEY_N && action == GLFW_PRESS)
+	{
+		if (theWindow->zonaPlaneta != 0)
+			theWindow->saltoDiaNoche += 1;
+		else
+			printf("en el espacio el sol esta fijo, la N solo cambia el dia y la noche en los planetas\n");
+	}
 
 	//guarda que teclas estan presionadas, la camara libre y el avatar lo leen con getsKeys()
 	//las teclas WASD ya las usan la camara libre y el avatar

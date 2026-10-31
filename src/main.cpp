@@ -1225,6 +1225,55 @@ glm::vec3 camaraNaveAtras = glm::vec3(0.0f, 3.5f, 10.0f);
 glm::vec3 camaraNaveMira = glm::vec3(0.0f, 1.5f, -8.0f);
 
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+//en los planetas el sol da una vuelta completa cada 2 minutos; deltaTime suma 60 en un segundo,
+//asi que una vuelta son 7200 y el angulo avanza 360 / 7200 = 0.05 por cada unidad de deltaTime
+float anguloSol = 60.0f;
+float anguloSolOffset = 0.05f;
+bool esDeNoche = false;
+//en el espacio el sol no se mueve; esta 45 grados arriba del centro, viendo hacia Z negativo
+glm::vec3 haciaSolEspacio = glm::vec3(0.0f, 0.707f, -0.707f);
+//direccion de donde viene el sol en la zona actual y su posicion para dibujarlo lejos de la camara
+glm::vec3 haciaSol = haciaSolEspacio;
+glm::vec3 posSol = glm::vec3(0.0f, 0.0f, 0.0f);
+float distanciaSol = 800.0f; //menos que el far de la proyeccion (1000), si no, no se ve
+//la N salta a la manana si es de noche o a la noche si es de dia; el ciclo sigue corriendo desde ahi
+int saltoDiaNocheActual = 0;
+float anguloManana = 45.0f;
+float anguloNoche = 225.0f;
+
+//skyboxes que faltaban para tener dia y noche en cada planeta (los de Xen y el planeta 2 que ya habia son de noche
+//y el de Verdania es de dia); se hicieron con Blender/skybox_dia_noche.py
+Skybox skyboxXenDia;
+Skybox skyboxPlaneta2Dia;
+Skybox skyboxVerdaniaNoche;
+
+//el sol y la luna son la misma esfera con distinta textura; se dibujan lejos para que parezca que de ahi sale la luz
+Model Sol_M;
+Model Luna_M;
+float tamanoSol = 45.0f;
+float tamanoLuna = 25.0f;
+
+//material para lo metalico, como las naves de la carrera; brilla mas que el opaco y con un reflejo mas grande que el brillante
+Material Material_metal;
+
+//la linterna se guarda aparte y solo se copia al arreglo de spotlights cuando esta prendida
+SpotLight linternaLuz;
+
+//luces de cada zona; en el while solo se mandan al shader las de la zona donde se esta,
+//asi ninguna zona pasa de MAX_POINT_LIGHTS ni de MAX_SPOT_LIGHTS aunque entre todas haya mas
+//las luminarias de los planetas se prenden de noche; las del espacio siempre estan prendidas porque ahi no hay ciclo
+const int NUM_LUMINARIAS_ESPACIO = 3;
+PointLight luminariasEspacio[NUM_LUMINARIAS_ESPACIO];
+const int NUM_LUMINARIAS_XEN = 3;
+PointLight luminariasXen[NUM_LUMINARIAS_XEN];
+PointLight luminariaPlaneta2;
+PointLight luminariaVerdania;
+//spotlights de cada zona, se prenden y apagan con la K
+const int NUM_SPOTS_ESPACIO = 2;
+SpotLight spotsEspacio[NUM_SPOTS_ESPACIO];
+SpotLight spotXen;
+SpotLight spotPlaneta2;
+SpotLight spotVerdania;
 
 
 // ================== 2. GEOMETRIA HECHA A MANO ==================
@@ -1772,8 +1821,8 @@ int main()
 
 	//--- avatar ---
 	//las piezas de Kirby ya se cargaron en la seccion de personajes y traen su textura
-	//el material le da un brillo suave, como de plastico, para que se le noten los reflejos de las luces
-	Material_avatar = Material(1.0f, 32);
+	//el material le da un brillo debil y extendido, como de goma, para que reaccione a las luces sin verse metalico
+	Material_avatar = Material(0.4f, 8);
 
 	//--- camaras y recorridos ---
 
@@ -1789,38 +1838,117 @@ int main()
 		0.2f, 0.4f,
 		0.0f, -1.0f, -1.0f);
 
-	//contador de luces puntuales, no puede pasar de MAX_POINT_LIGHTS
+	//contadores de luces, no pueden pasar de MAX_POINT_LIGHTS ni de MAX_SPOT_LIGHTS
+	//en el while se vuelven a 0 y se llenan los arreglos con las luces de la zona donde se esta
 	unsigned int pointLightCount = 0;
-	//luz puntual blanca
-	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,
-		0.0f, 0.6f,
-		2.0f, 1.5f, -3.0f,
-		1.0f, 0.05f, 0.005f);
-	pointLightCount++;
-
-	//contador de spotlights, no puede pasar de MAX_SPOT_LIGHTS
 	unsigned int spotLightCount = 0;
+
+	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	//las luces de la escena van aqui; si otra actividad necesita una luz, se pide a quien lleva esta seccion
+	Material_metal = Material(2.0f, 64);
+
+	//skyboxes de dia y de noche que faltaban; las caras van en el orden rt, lf, dn, up, bk, ft como en los demas
+	std::string carasSkybox[6] = { "rt", "lf", "dn", "up", "bk", "ft" };
+	std::vector<std::string> carasXenDia;
+	std::vector<std::string> carasPlaneta2Dia;
+	std::vector<std::string> carasVerdaniaNoche;
+	for (int i = 0; i < 6; i++)
+	{
+		carasXenDia.push_back("Textures/Skybox/xen_dia_" + carasSkybox[i] + ".png");
+		carasPlaneta2Dia.push_back("Textures/Skybox/planeta2_dia_" + carasSkybox[i] + ".png");
+		carasVerdaniaNoche.push_back("Textures/Skybox/verdania_noche_" + carasSkybox[i] + ".png");
+	}
+	skyboxXenDia = Skybox(carasXenDia);
+	skyboxPlaneta2Dia = Skybox(carasPlaneta2Dia);
+	skyboxVerdaniaNoche = Skybox(carasVerdaniaNoche);
+
+	Sol_M = Model();
+	Sol_M.LoadModel("Models/Sol/sol.obj");
+	Luna_M = Model();
+	Luna_M.LoadModel("Models/Sol/luna.obj");
+
 	//la posicion y la direccion de la linterna se actualizan en el while con la camara
-	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
+	linternaLuz = SpotLight(1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f,
 		0.0f, 0.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
 		10.0f);
-	spotLightCount++;
 
-	//spotlight azul fija apuntando hacia abajo
-	spotLights[1] = SpotLight(0.2f, 0.4f, 1.0f,
+	//espacio: dos faros rojos a los lados de la entrada de la meta y una luz azul arriba de la nave de Among Us
+	//la cubierta de la meta llega hasta 52 en Z, asi que los faros van un poco antes, del lado de donde llegan las naves
+	luminariasEspacio[0] = PointLight(1.0f, 0.15f, 0.1f,
+		0.1f, 2.5f,
+		posPista.x - 12.0f, posPista.y + 8.0f, posPista.z + 58.0f,
+		1.0f, 0.02f, 0.002f);
+	luminariasEspacio[1] = PointLight(1.0f, 0.15f, 0.1f,
+		0.1f, 2.5f,
+		posPista.x + 12.0f, posPista.y + 8.0f, posPista.z + 58.0f,
+		1.0f, 0.02f, 0.002f);
+	luminariasEspacio[2] = PointLight(0.4f, 0.7f, 1.0f,
+		0.1f, 1.5f,
+		posNaveAmongUs.x, posNaveAmongUs.y + 5.0f, posNaveAmongUs.z,
+		1.0f, 0.05f, 0.01f);
+
+	//Xen: cada planta de luz alumbra desde su foco, que esta en la punta del tallo
+	for (int i = 0; i < NUM_LUMINARIAS_XEN; i++)
+	{
+		glm::vec3 pos = posXen + posPlantas[i] + glm::vec3(0.0f, altoTallo, 0.0f);
+		luminariasXen[i] = PointLight(1.0f, 0.85f, 0.4f,
+			0.1f, 2.5f,
+			pos.x, pos.y, pos.z,
+			1.0f, 0.1f, 0.02f);
+	}
+
+	//planeta 2: la warp star brilla amarillo
+	luminariaPlaneta2 = PointLight(1.0f, 0.9f, 0.3f,
+		0.1f, 1.5f,
+		posPlaneta2.x + posWarpStar.x, posPlaneta2.y + posWarpStar.y + 1.5f, posPlaneta2.z + posWarpStar.z,
+		1.0f, 0.1f, 0.02f);
+
+	//Verdania: el foco del farol, que cuelga del brazo del poste hacia X negativo
+	luminariaVerdania = PointLight(1.0f, 0.85f, 0.6f,
+		0.1f, 3.0f,
+		posVerdania.x + posCalleX[0] - 6.3f, posVerdania.y + 4.2f, posVerdania.z + posCalleZ - 4.0f,
+		1.0f, 0.05f, 0.01f);
+
+	//spotlights del espacio: dos luces blancas que apuntan hacia abajo a la pista, antes de la entrada de la meta
+	spotsEspacio[0] = SpotLight(1.0f, 1.0f, 0.9f,
+		0.0f, 3.0f,
+		posPista.x - 5.0f, posPista.y + 20.0f, posPista.z + 75.0f,
+		0.0f, -1.0f, 0.0f,
+		1.0f, 0.01f, 0.001f,
+		30.0f);
+	spotsEspacio[1] = SpotLight(1.0f, 1.0f, 0.9f,
+		0.0f, 3.0f,
+		posPista.x + 5.0f, posPista.y + 20.0f, posPista.z + 75.0f,
+		0.0f, -1.0f, 0.0f,
+		1.0f, 0.01f, 0.001f,
+		30.0f);
+
+	//spotlight morado sobre el cristal mas grande de Xen
+	spotXen = SpotLight(0.7f, 0.3f, 1.0f,
 		0.0f, 2.0f,
-		3.0f, 4.0f, -7.0f,
+		posXen.x - 10.0f, posXen.y + 8.0f, posXen.z - 3.0f,
 		0.0f, -1.0f, 0.0f,
 		1.0f, 0.05f, 0.005f,
-		20.0f);
-	spotLightCount++;
-	//para agregar otra luz se pone en el siguiente lugar libre del arreglo y se le suma 1 al contador
+		25.0f);
 
-	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
-	//las luces de la escena van aqui; si otra actividad necesita una luz, se pide a quien lleva esta seccion
+	//spotlight rosa que alumbra la warp star desde arriba
+	spotPlaneta2 = SpotLight(1.0f, 0.5f, 0.8f,
+		0.0f, 2.0f,
+		posPlaneta2.x + posWarpStar.x, posPlaneta2.y + 8.0f, posPlaneta2.z + posWarpStar.z,
+		0.0f, -1.0f, 0.0f,
+		1.0f, 0.05f, 0.005f,
+		25.0f);
+
+	//spotlight que alumbra desde arriba el centro del jardin, donde estan las plantas
+	spotVerdania = SpotLight(1.0f, 0.9f, 0.7f,
+		0.0f, 3.0f,
+		posVerdania.x, posVerdania.y + 12.0f, posVerdania.z - 8.0f,
+		0.0f, -1.0f, 0.0f,
+		1.0f, 0.02f, 0.002f,
+		35.0f);
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
@@ -1996,11 +2124,18 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//el skybox va primero, antes que todo lo demas, y cada planeta tiene el suyo segun zonaActual, que cambia con Z, X, C y V
-		//solo el del espacio gira; los de los planetas se quedan quietos para que el horizonte no se incline
-		if (zonaActual == 1)
+		//el del espacio gira en los tres ejes; los de los planetas solo sobre Y para que el horizonte no se incline
+		//cada planeta tiene uno de dia y uno de noche, y se escoge con esDeNoche, que se calcula en la seccion de iluminacion
+		if (zonaActual == 1 && esDeNoche)
 			skyboxXen.DrawSkybox(view, projection, deltaTime, false);
-		else if (zonaActual == 2)
+		else if (zonaActual == 1)
+			skyboxXenDia.DrawSkybox(view, projection, deltaTime, false);
+		else if (zonaActual == 2 && esDeNoche)
 			skyboxPlaneta2.DrawSkybox(view, projection, deltaTime, false);
+		else if (zonaActual == 2)
+			skyboxPlaneta2Dia.DrawSkybox(view, projection, deltaTime, false);
+		else if (zonaActual == 3 && esDeNoche)
+			skyboxVerdaniaNoche.DrawSkybox(view, projection, deltaTime, false);
 		else if (zonaActual == 3)
 			skyboxVerdania.DrawSkybox(view, projection, deltaTime, false);
 		else
@@ -2026,10 +2161,129 @@ int main()
 		//aqui en el while es donde se pueden cambiar cosas de las luces mientras corre el programa
 		glm::vec3 lowerLight = posVista;
 		lowerLight.y -= 0.3f;
-		spotLights[0].SetFlash(lowerLight, dirVista);
+		linternaLuz.SetFlash(lowerLight, dirVista);
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 		//aqui se cambian las luces cada frame, antes de mandarlas al shader
+		int zonaLuces = mainWindow.getzonaPlaneta();
+		if (zonaLuces == 0)
+		{
+			//en el espacio el sol esta fijo y alumbra igual todo el tiempo
+			haciaSol = haciaSolEspacio;
+			esDeNoche = false;
+			mainLight = DirectionalLight(1.0f, 0.95f, 0.85f,
+				0.3f, 0.7f,
+				-haciaSol.x, -haciaSol.y, -haciaSol.z);
+		}
+		else
+		{
+			//si se presiono la N, el sol salta a la manana o a la noche y desde ahi sigue el ciclo
+			if (mainWindow.getsaltoDiaNoche() != saltoDiaNocheActual)
+			{
+				saltoDiaNocheActual = mainWindow.getsaltoDiaNoche();
+				if (esDeNoche)
+				{
+					anguloSol = anguloManana;
+					printf("ahora es de dia\n");
+				}
+				else
+				{
+					anguloSol = anguloNoche;
+					printf("ahora es de noche\n");
+				}
+			}
+			//en los planetas el sol sale por X positivo, sube y se mete por X negativo; con la P tambien se pausa
+			anguloSol += anguloSolOffset * deltaTime;
+			if (anguloSol > 360.0f)
+				anguloSol -= 360.0f;
+			float alturaSol = sin(anguloSol * toRadians);
+			haciaSol = glm::normalize(glm::vec3(cos(anguloSol * toRadians), alturaSol, -0.3f));
+			esDeNoche = alturaSol < 0.0f;
+			if (!esDeNoche)
+			{
+				//de dia la luz baja del sol; entre mas alto esta, mas fuerte alumbra
+				//cerca del horizonte se ve naranja porque el verde y el azul dependen de la altura
+				mainLight = DirectionalLight(1.0f, 0.6f + 0.4f * alturaSol, 0.4f + 0.5f * alturaSol,
+					0.25f + 0.15f * alturaSol, 0.2f + 0.6f * alturaSol,
+					-haciaSol.x, -haciaSol.y, -haciaSol.z);
+			}
+			else
+			{
+				//de noche alumbra la luna, que esta del lado contrario al sol, con poca luz y azulada
+				mainLight = DirectionalLight(0.65f, 0.75f, 1.0f,
+					0.15f, 0.2f,
+					haciaSol.x, haciaSol.y, haciaSol.z);
+			}
+		}
+		//el sol se dibuja lejos en la direccion de donde viene la luz y se mueve con la camara para que parezca que esta en el infinito
+		posSol = posVista + haciaSol * distanciaSol;
+
+		//se llenan los arreglos desde 0 con lo que esta prendido en la zona actual
+		pointLightCount = 0;
+		spotLightCount = 0;
+		if (mainWindow.getlinterna())
+		{
+			spotLights[spotLightCount] = linternaLuz;
+			spotLightCount++;
+		}
+		if (zonaLuces == 0)
+		{
+			for (int i = 0; i < NUM_LUMINARIAS_ESPACIO; i++)
+			{
+				pointLights[pointLightCount] = luminariasEspacio[i];
+				pointLightCount++;
+			}
+			if (mainWindow.getlucesEscenario())
+			{
+				for (int i = 0; i < NUM_SPOTS_ESPACIO; i++)
+				{
+					spotLights[spotLightCount] = spotsEspacio[i];
+					spotLightCount++;
+				}
+			}
+		}
+		else if (zonaLuces == 1)
+		{
+			if (esDeNoche)
+			{
+				for (int i = 0; i < NUM_LUMINARIAS_XEN; i++)
+				{
+					pointLights[pointLightCount] = luminariasXen[i];
+					pointLightCount++;
+				}
+			}
+			if (mainWindow.getlucesEscenario())
+			{
+				spotLights[spotLightCount] = spotXen;
+				spotLightCount++;
+			}
+		}
+		else if (zonaLuces == 2)
+		{
+			if (esDeNoche)
+			{
+				pointLights[pointLightCount] = luminariaPlaneta2;
+				pointLightCount++;
+			}
+			if (mainWindow.getlucesEscenario())
+			{
+				spotLights[spotLightCount] = spotPlaneta2;
+				spotLightCount++;
+			}
+		}
+		else if (zonaLuces == 3)
+		{
+			if (esDeNoche)
+			{
+				pointLights[pointLightCount] = luminariaVerdania;
+				pointLightCount++;
+			}
+			if (mainWindow.getlucesEscenario())
+			{
+				spotLights[spotLightCount] = spotVerdania;
+				spotLightCount++;
+			}
+		}
 
 		//mandar todas las luces al shader
 		shaderList[0].SetDirectionalLight(&mainLight);
@@ -2359,8 +2613,7 @@ int main()
 
 		//cada crewmate va y viene en Z, alejandose y acercandose a la puerta de atras, y se ladea un poco con el mismo seno
 		//se ladea desde la mitad del cuerpo y no desde los pies, por eso se sube 0.5 antes de girar y se baja despues
-		//cada uno se dibuja dos veces, el cuerpo con su color y el visor con blanco
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		//cada uno se dibuja dos veces, el cuerpo con su color y material opaco, y el visor con blanco y material brillante porque es de vidrio
 		for (int i = 0; i < NUM_CREWMATES_NAVE; i++)
 		{
 			float onda = sin((anguloAmongUs + i * 60.0f) * toRadians);
@@ -2373,9 +2626,11 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			color = colorCrewmates[i];
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 			CrewmateCuerpo_M.RenderModel();
 			color = glm::vec3(1.0f, 1.0f, 1.0f);
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 			CrewmateVisor_M.RenderModel();
 		}
 
@@ -2393,9 +2648,11 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			color = colorEscondidos[i];
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 			CrewmateCuerpo_M.RenderModel();
 			color = glm::vec3(1.0f, 1.0f, 1.0f);
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 			CrewmateVisor_M.RenderModel();
 		}
 		//se regresa el material opaco, que es el que traen las secciones de abajo
@@ -2800,6 +3057,8 @@ int main()
 			avanceCarrera -= longitudTotalPista;
 
 		//naves de F-Zero corriendo en la pista
+		//son de metal, por eso usan Material_metal y al terminar se regresa el opaco para los edificios
+		Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		for (int i = 0; i < NUM_NAVES_FZERO; i++)
 		{
 			//las naves pares van en el carril izquierdo y las impares en el derecho
@@ -2820,6 +3079,7 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			navesFZero[i].RenderModel();
 		}
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		//puesto de observacion 1, son los edificios del centro
 		model = modelauxPista;
@@ -3012,6 +3272,30 @@ int main()
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 		//postes o lamparas de las luminarias
+		//el sol se dibuja en posSol en el espacio y en los planetas de dia; de noche sale la luna del lado contrario,
+		//que es de donde viene la luz azulada; el color va arriba de 1 para que brillen aunque la luz les pegue por atras
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		model = glm::mat4(1.0);
+		if (mainWindow.getzonaPlaneta() == 0 || !esDeNoche)
+		{
+			model = glm::translate(model, posSol);
+			model = glm::scale(model, glm::vec3(tamanoSol, tamanoSol, tamanoSol));
+			color = glm::vec3(3.0f, 3.0f, 3.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Sol_M.RenderModel();
+		}
+		else
+		{
+			model = glm::translate(model, posVista - haciaSol * distanciaSol);
+			model = glm::scale(model, glm::vec3(tamanoLuna, tamanoLuna, tamanoLuna));
+			color = glm::vec3(5.0f, 5.0f, 5.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Luna_M.RenderModel();
+		}
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 
 		// ---------- objetos con transparencia ----------
 		//van al final, despues de todos los opacos, si no se ven mal

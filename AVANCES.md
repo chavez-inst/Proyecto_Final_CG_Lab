@@ -38,10 +38,10 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Recorrido 3: 3a persona de nave volando entre planetas | 10 | por definir | pendiente | |
 | Recorrido 4: lanzamiento, estacion y objetos celestes | 10 | por definir | pendiente | |
 | Cambio correcto de camaras | 10 | Alejandro | en proceso | teclas 1 a 5 |
-| Luz direccional con ciclo dia/noche | 10 | por definir | pendiente | |
-| Luces puntuales que se prenden/apagan con el ciclo (max 2 min) | 10 | por definir | pendiente | |
-| Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio, uno para Xen y uno para Dream Land (cambian con Z, X y C) |
-| Spotlights que se prenden/apagan con teclado | 10 | por definir | pendiente | ya hay 2 spotlights, falta la tecla |
+| Luz direccional con ciclo dia/noche | 10 | Alejandro | hecho | en los planetas el sol da una vuelta cada 2 minutos (con sol y luna); la N salta a dia o noche; en el espacio el sol esta fijo |
+| Luces puntuales que se prenden/apagan con el ciclo (max 2 min) | 10 | Alejandro | hecho | de noche: plantas de luz en Xen, warp star en el planeta 2 y farol en Verdania; en el espacio, faros de la meta |
+| Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio y uno de dia y otro de noche para cada planeta (Xen, planeta 2 y Verdania) |
+| Spotlights que se prenden/apagan con teclado | 10 | Alejandro | hecho | K prende o apaga los de la zona y L la linterna (empieza apagada) |
 | 3 animaciones basicas (se inician con teclado) | 30 | por definir | pendiente | ej. cohete, compuerta, criatura |
 | 3 animaciones complejas (ciclo continuo con funciones) | 30 | por definir | pendiente | ej. naves en la pista, lunas en orbita, naves de la estacion |
 | Estilo visual | 30 | todos | pendiente | |
@@ -76,7 +76,10 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 |---|---|---|
 | `main` | todos | version que compila y junta lo de todos |
 | `alejandro-planetas` | Alejandro | planetas: Xen y Dream Land (terminada e integrada) |
-| `alejandro-avatar-camara` | Alejandro | avatar, camaras 1 a 3 y teclas nuevas (F por escena, P pausa) |
+| `alejandro-creatividad1` | Alejandro | nave de Among Us y crewmates escondidos (terminada e integrada) |
+| `alejandro-avatar-camara` | Alejandro | avatar, camaras 1 a 3 y teclas nuevas (F por escena, P pausa) (integrada) |
+| `alejandro-correcciones` | Alejandro | texturas faltantes de las naves, aviso de pausa y plantas de Xen (integrada) |
+| `alejandro-iluminacion` | Alejandro | ciclo de dia y noche, luces por zona, sol y luna, skyboxes de dia y noche, materiales |
 | `abraham-npcs` | Abraham | NPCs |
 | `dylan-pista-y-cuerpos-espaciales` | Dylan | pista de carreras y cuerpos espaciales |
 
