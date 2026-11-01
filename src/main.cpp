@@ -46,6 +46,8 @@ Window mainWindow;
 std::vector<MeshModel*> meshListModel; //mallas hechas a mano, cada vertice lleva x y z de la posicion, u v de la textura y nx ny nz de la normal
 std::vector<Shader> shaderList;
 
+glm::mat4 modelauxEstacion(1.0);
+
 Camera camera;
 
 //texturas, sus archivos van en la carpeta Textures
@@ -222,13 +224,13 @@ Texture xenSueloTexture;
 //las X salen de 700 por el seno de 120 grados, que da 606, y las Z de 700 por el coseno, que da 350
 //el planeta Xen que se ve desde el espacio es una esfera que gira sobre su eje
 Model XenPlaneta_M;
-glm::vec3 posPlanetaXen = glm::vec3(0.0f, 80.0f, -700.0f);
+glm::vec3 posPlanetaXen = glm::vec3(0.0f, 80.0f, -600.0f);
 float giroPlanetaXen = 0.0f;
 float giroPlanetaXenOffset = 0.05f;
 
 //el planeta 2 es Pop Star, el planeta de Kirby, que tiene forma de estrella; se ve de frente y gira como rehilete
 Model Planeta2Espacio_M;
-glm::vec3 posPlaneta2Espacio = glm::vec3(-606.0f, 80.0f, 350.0f);
+glm::vec3 posPlaneta2Espacio = glm::vec3(-706.0f, 140.0f, -250.0f);
 float giroPlaneta2 = 0.0f;
 float giroPlaneta2Offset = 0.04f;
 
@@ -326,7 +328,7 @@ Model CrewmateCuerpo_M;
 Model CrewmateVisor_M;
 
 //el grupo esta enfrente de donde empieza la camara y se gira para que la puerta quede viendo hacia ella
-glm::vec3 posNaveAmongUs = glm::vec3(10.0f, -2.0f, -48.0f);
+glm::vec3 posNaveAmongUs = glm::vec3(-620.0f, 38.6f, 300.0f);
 float giroNaveAmongUs = 160.0f;
 
 //la nave y los crewmates van hacia adelante y hacia atras con el seno de anguloAmongUs, que avanza cada frame
@@ -460,7 +462,7 @@ float rumboDaveOffset = 6.0f;
 //desde el espacio Verdania se ve como la cabeza del peashooter en grande, lisa y con textura de planeta
 //peashooter_planeta.obj es la cabeza sin cuello, sin cejas y redonda por abajo; su textura es la de Verdania
 Model PlanetaVerdania_M;
-glm::vec3 posPlanetaVerdania = glm::vec3(606.0f, 80.0f, 350.0f); //en el circulo de los planetas, ver posPlanetaXen
+glm::vec3 posPlanetaVerdania = glm::vec3(606.0f, 200.0f, 600.0f); //en el circulo de los planetas, ver posPlanetaXen
 //centro de la cabeza en las coordenadas del modelo; ahi se gira y se escala para que no gire alrededor de los pies
 glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
 float giroPlanetaVerdania = 0.0f;
@@ -1172,6 +1174,12 @@ Model sateliteRace;
 
 //--- plataforma de lanzamiento y cohete ---
 
+Model estacionEspacial;
+Model landingPad;
+Model naveDorada;
+Model naveBlanca;
+Model naveCaza;
+
 //--- estacion espacial y naves ---
 
 //--- avatar ---
@@ -1816,6 +1824,17 @@ int main()
 	sateliteRace.LoadModel("Models/sateliteRace/sateliteRace.obj");
 
 	//--- plataforma de lanzamiento y cohete ---
+
+	estacionEspacial = Model();
+	estacionEspacial.LoadModel("Models/estacionEspacial/estacionEspacial.obj");
+	landingPad = Model();
+	landingPad.LoadModel("Models/landingPad/landingPad.obj");
+	naveDorada = Model();
+	naveDorada.LoadModel("Models/naveDorada/naveDorada.obj");
+	naveBlanca = Model();
+	naveBlanca.LoadModel("Models/naveBlanca/naveBlanca.obj");
+	naveCaza = Model();
+	naveCaza.LoadModel("Models/naveCaza/naveCaza.obj");
 
 	//--- estacion espacial y naves ---
 
@@ -2540,8 +2559,10 @@ int main()
 			giroPlaneta2 -= 360.0f;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posPlaneta2Espacio);
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, giroPlaneta2 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(40.0f, 40.0f, 40.0f));
+		//model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(200.0f, 200.0f, 200.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Planeta2Espacio_M.RenderModel();
 
@@ -3155,12 +3176,11 @@ int main()
 		puestoObservacion4.RenderModel();
 
 		//barco espacial, que es la nave nodriza en el centro de la escena
-		//ya no cuelga de la pista; se gira 265 grados y se escala 0.315 para que quede igual que cuando estaba sobre ella
-		//mide como 200 de alto, por eso se baja a -230 y la camara, que empieza en el origen, queda arriba de la nave
+		
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, -230.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 230.0f, 200.0f));
 		model = glm::rotate(model, 265.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.315f, 0.315f, 0.315f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -3212,6 +3232,148 @@ int main()
 		//--- plataforma de lanzamiento y cohete ---
 
 		//--- estacion espacial y naves ---
+
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-400.0f, 0.0f, 300.0f));
+		modelauxEstacion = model;
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		estacionEspacial.RenderModel();
+
+		//LANDING PADS
+
+		model = modelauxEstacion;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-150.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, 0.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		landingPad.RenderModel();
+
+		model = modelauxEstacion;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(150.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		landingPad.RenderModel();
+
+		model = modelauxEstacion;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 150.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		landingPad.RenderModel();
+
+		model = modelauxEstacion;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -150.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		landingPad.RenderModel();
+
+		//NAVES
+
+		//landing Pad 1 naves
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 35.60f, -207.2f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, -180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveDorada.RenderModel();
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 13.70f, -197.5f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, -180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveBlanca.RenderModel();
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, -8.05f, -197.5f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, -180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveCaza.RenderModel();
+
+		//landing Pad 2 naves
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 35.60f, 207.2f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveCaza.RenderModel();
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, 13.70f, 197.5f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveDorada.RenderModel();
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(0.0f, -8.05f, 197.5f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveBlanca.RenderModel();
+
+		//landing Pad 3 naves
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(207.2f, 35.60f, 0.0f));
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveBlanca.RenderModel();
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(197.5f, 13.70f, 0.0f));
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveCaza.RenderModel();
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(197.5f, -8.05f, 0.0f));
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveDorada.RenderModel();
+
+		//landing Pad 4 naves
+
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-197.5f, 13.70f, 0.0f));
+		model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveCaza.RenderModel();
+
+		model = modelauxEstacion;
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, glm::vec3(-197.5f, -8.05f, 0.0f));
+		model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		naveBlanca.RenderModel();
 
 		//--- avatar ---
 		//mientras el avatar camina, pasoAvatar va y viene entre sus limites como las patas del headcrab
