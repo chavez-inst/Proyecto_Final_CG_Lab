@@ -81,7 +81,9 @@ Skybox::Skybox(std::vector<std::string> faceLocations)
 }
 
 //se dibuja antes que el resto de la escena
-void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime)
+//gira dice si el skybox da vueltas en los tres ejes, como el del espacio, que no tiene horizonte
+//si es false solo gira sobre Y, que es lo que usan los planetas para que el horizonte nunca se incline
+void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime, bool gira)
 {
 	//se le quita la traslacion a la vista para que el skybox gire con la camara pero no se mueva con ella
 	viewMatrix = glm::mat4(glm::mat3(viewMatrix));
@@ -97,9 +99,16 @@ void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloa
 	angleZ += 0.01f * deltaTime;  //giro muy lento sobre el eje Z
 
 	//se aplican las rotaciones a la matriz de vista del skybox
-	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));
-	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleX), glm::vec3(1.0f, 0.0f, 0.0f));
-	viewMatrix = glm::rotate(viewMatrix, glm::radians(angleZ), glm::vec3(0.0f, 0.0f, 1.0f));
+	if (gira)
+	{
+		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));
+		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleX), glm::vec3(1.0f, 0.0f, 0.0f));
+		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleZ), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	else
+	{
+		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));
+	}
 
 	glDepthMask(false);
 	skyShader->UseShader();

@@ -32,12 +32,30 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 
 | Tecla       | Que hace                     |
 |-------------|------------------------------|
-| W A S D     | Mover la camara              |
-| Mouse       | Voltear la camara            |
+| W A S D     | Con la camara libre, moverla. Con la del avatar, caminar con Kirby (W y S avanzan y retroceden, A y D giran) |
+| Mouse       | Voltear la camara libre      |
+| Espacio / Ctrl | Subir y bajar la camara libre |
+| Shift       | Ir al doble de rapido (camara libre o Kirby) |
+| 1 2 3 4 5   | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento y estacion |
+| Q / E       | Nave anterior o siguiente en la camara 3 (y vista anterior o siguiente en la 5) |
+| Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
+| X / C / V   | Ir a Xen, al planeta 2 o a Verdania; si ya se esta ahi, regresar al punto de llegada |
+| F           | Prender o apagar la animacion basica de la escena (headcrab en Xen, plantas en Verdania) |
+| P           | Pausar o continuar todas las animaciones (tambien el ciclo de dia y noche) |
+| L           | Prender o apagar la linterna (empieza apagada) |
+| K           | Prender o apagar los spotlights de la zona donde se esta |
+| N           | En un planeta, saltar a la manana o a la noche (el ciclo sigue desde ahi) |
 | Y / U       | Mover el cubo en X           |
-| Z / X / C   | Ir a la superficie de Xen / ir a la del planeta 2 / regresar al espacio |
-| H           | Prender o apagar la caminata del headcrab (en Xen) |
 | ESC         | Cerrar                       |
+
+La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y de la 3 a la 5 solo en el
+espacio (desde un planeta llevan al espacio). La 4 y la 5 se comportan como la libre mientras no
+existan la nave entre planetas, el cohete y la estacion. Al regresar a la libre, aparece donde estaba
+la camara anterior.
+
+En los planetas el sol da una vuelta cada 2 minutos: de dia se ve el sol y el skybox de dia, y de noche
+la luna, el skybox de noche y las luminarias prendidas. En el espacio el sol esta fijo y no hay noche.
+La consola avisa cuando se prende o apaga algo con P, F, L, K y N.
 
 ---
 
@@ -101,6 +119,8 @@ Despues viene una seccion por actividad, siempre en el mismo orden:
 ```
 //--- personajes ---
 //--- planetas: Xen y planeta 2 ---
+//--- nave de Among Us y crewmates ---
+//--- planeta 3: Verdania ---
 //--- pista de carreras y naves ---
 //--- satelites y cuerpos espaciales ---
 //--- plataforma de lanzamiento y cohete ---
@@ -115,11 +135,14 @@ los dos constructores y teclas en `ManejaTeclado`). **Cada quien escribe solo de
 su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y Git no marca conflictos.
 
 - En el `while`, la seccion de camaras va antes de dibujar: ahi se puede cambiar la matriz `view`
-  (con la camara libre es la de `Camera`).
+  (con la camara libre es la de `Camera`). `mainWindow.getmodoCamara()` dice que camara se esta usando,
+  y `posVista` y `dirVista` tienen la posicion y la direccion de esa camara; usarlas en lugar de
+  `camera.getCameraPosition()`, que solo es la de la camara libre.
 - La seccion de iluminacion del `while` va antes de mandar las luces al shader: ahi se cambian
   cada frame (ciclo dia/noche, prender/apagar).
 - Las luces se crean solo en la seccion de iluminacion. Si otra actividad necesita una, se le pide
-  a quien lleva esa seccion (los arreglos son de maximo 3 puntuales y 4 spotlights).
+  a quien lleva esa seccion. Cada frame solo se mandan al shader las luces de la zona donde se esta,
+  asi que el limite (3 puntuales y 4 spotlights) es por zona y no para toda la escena.
 - Si una actividad agrega geometria hecha a mano, su funcion va en el bloque 2 (en su seccion) y se
   llama en la carga de recursos (en su seccion). Como el indice en `meshListModel` depende del
   orden, se guarda en una variable global antes del `push_back`:
@@ -134,20 +157,29 @@ su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y G
 Para que dos personas no usen la misma tecla. Si alguien necesita otra, la pide en el grupo y se
 agrega a esta tabla.
 
-| Teclas | Actividad | Uso propuesto |
+| Teclas | Actividad | Uso |
 |---|---|---|
-| W A S D, mouse | base (camara libre) | moverse y voltear |
-| ESC | base | cerrar |
-| Y / U | base | mover el cubo de prueba |
-| 1 2 3 4 5 | camaras y recorridos | 1 libre, 2 avatar en el planeta, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento/estacion |
-| flechas | avatar | caminar en 3a persona |
-| Z X C | planetas | ir a Xen, ir al planeta 2, regresar al espacio |
-| P | pista de carreras | iniciar/pausar la carrera |
-| R T | plataforma de lanzamiento | lanzar el cohete, reiniciar |
-| E Q | estacion espacial | abrir/cerrar compuerta, otra animacion |
-| L K J | iluminacion | prender/apagar spotlights |
-| G F V B H | personajes | animacion basica de cada personaje (Gordon, Falcon, carnivora, Kirby, headcrab) |
-| I O M N | libres | se piden en el grupo |
+| W A S D, mouse, Espacio, Ctrl, Shift | base y avatar | moverse con la camara libre o caminar con el avatar |
+| ESC, Y / U | base | cerrar, mover el cubo de prueba |
+| P | base | pausar o continuar todas las animaciones |
+| 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave o la vista que se sigue |
+| Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
+| F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, plantas en Verdania y cohete en el espacio |
+| K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |
+| G H J B M R T I O | libres | se piden en el grupo |
+
+- La **F** es la tecla de las animaciones basicas (las que se inician con teclado). Cada actividad
+  revisa en `ManejaTeclado` que se este en su zona (0 espacio, 1 Xen, 2 planeta 2, 3 Verdania),
+  como el headcrab:
+  ```cpp
+  if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 1)
+  {
+      theWindow->caminaHeadcrab = !theWindow->caminaHeadcrab;
+  }
+  ```
+  Las animaciones continuas (las de ciclo con funciones) no llevan tecla, se mueven desde el inicio.
+- La **P** pausa todo poniendo `deltaTime` en 0, asi que cada animacion tiene que avanzar con
+  `deltaTime` (por ejemplo `anguloIslas += anguloIslasOffset * deltaTime;`) para que tambien se pause.
 
 ### Reglas importantes
 
@@ -239,29 +271,40 @@ Si sale muy grande o muy chico, ajustar con `glm::scale`.
 
 ```cpp
 Material Material_metal;                    //variables globales
-Material_metal = Material(2.0f, 128);       //carga de recursos: (intensidad especular, shininess)
+Material_metal = Material(2.0f, 64);        //carga de recursos: (intensidad especular, shininess)
 Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);  //antes de dibujar
 ```
 
+Ya existen `Material_opaco` (casi sin brillo, lo de la mayoria), `Material_brillante` (reflejo chico y
+fuerte, como el visor de los crewmates), `Material_metal` (naves de la carrera) y `Material_avatar`
+(Kirby). Despues de usar uno distinto, se regresa `Material_opaco` para lo que sigue.
+
 ### Una luz
 
-Las luces se crean en la carga de recursos, en el siguiente lugar libre del arreglo, y se
-suma 1 al contador:
+Cada luz es una variable global de la seccion de iluminacion (por ejemplo `luminariaVerdania`), se
+crea en la carga de recursos y en el `while` se copia a los arreglos solo si esta prendida y es de la
+zona donde se esta:
 
 ```cpp
-pointLights[1] = PointLight(1.0f, 0.5f, 0.0f,    //color r g b
-    0.0f, 1.0f,                                   //intensidad ambiental, difusa
-    -3.0f, 2.0f, 0.0f,                            //posicion
-    1.0f, 0.09f, 0.032f);                         //atenuacion: constante, lineal, exponente
-pointLightCount++;
+//carga de recursos
+luminariaVerdania = PointLight(1.0f, 0.85f, 0.6f,   //color r g b
+    0.1f, 3.0f,                                      //intensidad ambiental, difusa
+    x, y, z,                                         //posicion
+    1.0f, 0.05f, 0.01f);                             //atenuacion: constante, lineal, exponente
+
+//while, seccion de iluminacion
+if (zonaLuces == 3 && esDeNoche)
+{
+    pointLights[pointLightCount] = luminariaVerdania;
+    pointLightCount++;
+}
 ```
 
-- Maximo 3 puntuales y 4 spotlights (`CommonValues.h`).
-- `spotLights[0]` es la linterna de la camara.
-- Para mover una luz mientras corre el programa, dentro del `while`:
-  `spotLights[1].SetPos(nuevaPos);` o `spotLights[1].SetFlash(pos, dir);`
-- Para prender/apagar luces se puede cambiar el contador que se manda en
-  `SetPointLights(pointLights, pointLightCount)`.
+- Maximo 3 puntuales y 4 spotlights por zona (`CommonValues.h`); la linterna cuenta como un spotlight.
+- Las luminarias (puntuales) se prenden de noche y los spotlights con la K.
+- Para mover una luz mientras corre el programa: `spot.SetPos(nuevaPos);` o `spot.SetFlash(pos, dir);`
+  antes de copiarla al arreglo.
+- Para un objeto que brille aunque no le llegue luz (como el sol), se le pone un color arriba de 1.
 
 ### Una tecla nueva / mover algo con el teclado
 
@@ -272,7 +315,7 @@ Se hace igual que la variable `muevex` (teclas Y/U):
 2. `Window.cpp`: darle valor inicial en **los dos** constructores.
 3. `Window.cpp`, en `ManejaTeclado`:
    ```cpp
-   if (key == GLFW_KEY_P && action == GLFW_PRESS)
+   if (key == GLFW_KEY_R && action == GLFW_PRESS)
    {
        theWindow->rotaPuerta += 10.0f;
    }
@@ -280,12 +323,16 @@ Se hace igual que la variable `muevex` (teclas Y/U):
    (`action == GLFW_PRESS` = una vez por pulsacion, `action != GLFW_RELEASE` = mientras se mantenga)
 4. En `main.cpp` usarla: `mainWindow.getrotaPuerta()`.
 
-Usar solo las teclas de su actividad (ver "Teclas por actividad"). W, A, S, D son de la camara y ESC cierra.
+Usar solo las teclas de su actividad (ver "Teclas por actividad"). W, A, S, D son de la camara libre y
+del avatar, P pausa y ESC cierra.
 
 ### Cambiar el skybox
 
 Poner las 6 imagenes en `Textures/Skybox/` y cambiar las rutas en `main.cpp`.
 El orden tiene que ser: **rt, lf, dn, up, bk, ft** (derecha, izquierda, abajo, arriba, atras, enfrente).
+Cada planeta tiene un skybox de dia y uno de noche (`xen_dia_*`, `planeta2_dia_*`, `verdania_noche_*`
+y los originales). El ultimo parametro de `DrawSkybox` en `true` lo hace girar en los tres ejes (espacio)
+y en `false` solo sobre Y (planetas, para que no se incline el horizonte).
 
 ### Objetos con transparencia
 
@@ -303,15 +350,26 @@ Agregar > Elemento existente. Si se usa "Agregar > Clase", cambiar la ubicacion 
 
 ## Trabajo en equipo con Git
 
-Se pide **una rama por alumno** y que las ramas se queden en el repo hasta el final
-(sirven para ver rapido que hizo cada quien). Por eso:
+Se piden **varias ramas por alumno**, una por cada avance, y que todas se queden en el repo hasta
+el final (sirven para ver como fue avanzando cada quien). Por eso:
 
-- Cada quien trabaja **solo en su rama** (`nombre-tema`, por ejemplo `alejandro-planetas`).
-  Nadie hace commit ni push directo a `main`.
+- Cada quien trabaja **solo en sus ramas** (`nombre-tema`, por ejemplo `alejandro-planetas` o
+  `alejandro-avatar-camara`). Nadie hace commit ni push directo a `main`.
+- **Cada avance nuevo va en una rama nueva**, que sale de `main` ya actualizado. La rama anterior
+  se deja como quedo, ya no se sigue usando:
+  ```
+  git checkout main
+  git pull
+  git checkout -b nombre-tema
+  git push -u origin nombre-tema
+  ```
+  En GitHub Desktop: cambiarse a `main`, Fetch origin y Pull, luego Branch > New branch, escribir el
+  nombre y Publish branch.
+  Al crearla, agregarla a la tabla de ramas de `AVANCES.md`.
 - **Nunca borrar ramas**, ni la propia ni las de otros (tampoco con el boton "Delete branch" de
   GitHub despues de un Pull Request).
-- **Antes de empezar a trabajar:** cambiarse a su rama y hacer Pull. Al terminar: commit y push
-  a su rama.
+- **Antes de empezar a trabajar:** cambiarse a la rama del avance en el que se esta trabajando y
+  hacer Pull. Al terminar: commit y push a esa rama.
 - **Cuando algo ya esta listo** (compila y funciona), avisar en el grupo (o abrir un
   Pull Request de su rama hacia `main`). Se revisan los cambios y se ajustan si hace falta y los integra a `main`.
 - **Despues de cada integracion**, cada quien trae `main` a su rama antes de seguir, para trabajar

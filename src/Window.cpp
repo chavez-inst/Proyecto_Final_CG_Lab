@@ -12,6 +12,7 @@ Window::Window()
 	xChange = 0.0f;
 	yChange = 0.0f;
 	muevex = 2.0f;
+	pausaAnimaciones = false;
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
 	//--- personajes ---
@@ -19,8 +20,9 @@ Window::Window()
 
 	//--- planetas: Xen y planeta 2 ---
 	zonaPlaneta = 0;
+	reinicioPlaneta = 0;
 
-	//--- planeta 3: Verdania (Abraham) ---
+	//--- planeta 3: Verdania ---
 	animaVerdania = false;
 
 	//--- pista de carreras y naves ---
@@ -34,8 +36,14 @@ Window::Window()
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	modoCamara = 1;
+	objetivoCamara = 0;
+	puntoEspacio = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	linterna = false;
+	lucesEscenario = true;
+	saltoDiaNoche = 0;
 
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
@@ -55,6 +63,7 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	xChange = 0.0f;
 	yChange = 0.0f;
 	muevex = 2.0f;
+	pausaAnimaciones = false;
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
 	//--- personajes ---
@@ -62,8 +71,9 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 
 	//--- planetas: Xen y planeta 2 ---
 	zonaPlaneta = 0;
+	reinicioPlaneta = 0;
 
-	//--- planeta 3: Verdania (Abraham) ---
+	//--- planeta 3: Verdania ---
 	animaVerdania = false;
 
 	//--- pista de carreras y naves ---
@@ -77,8 +87,14 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	modoCamara = 1;
+	objetivoCamara = 0;
+	puntoEspacio = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	linterna = false;
+	lucesEscenario = true;
+	saltoDiaNoche = 0;
 
 	mouseFirstMoved = true;
 	for (size_t i = 0; i < 1024; i++)
@@ -161,6 +177,25 @@ GLfloat Window::getYChange()
 	return theChange;
 }
 
+//--- planetas: Xen y planeta 2 ---
+//lo usan las teclas X, C y V; si ya se esta en ese planeta, se regresa al punto de llegada
+//la camara del avatar se queda si ya se estaba usando y cualquier otra cambia a la libre, porque las de las naves solo sirven en el espacio
+void Window::IrAPlaneta(int planeta)
+{
+	if (zonaPlaneta == planeta)
+	{
+		reinicioPlaneta += 1;
+	}
+	else
+	{
+		zonaPlaneta = planeta;
+	}
+	if (modoCamara != 2)
+	{
+		modoCamara = 1;
+	}
+}
+
 //se llama una vez por cada evento de teclado, ya sea al presionar, mantener o soltar una tecla
 //aqui se agregan las teclas nuevas
 void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode)
@@ -180,38 +215,68 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		theWindow->muevex -= 1.0;
 	}
+	//P pausa o continua todas las animaciones; en main.cpp se pone deltaTime en 0 mientras dure la pausa
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
+		theWindow->pausaAnimaciones = !theWindow->pausaAnimaciones;
+		//se avisa en la consola para saber en que estado quedaron las animaciones
+		if (theWindow->pausaAnimaciones)
+			printf("animaciones en pausa\n");
+		else
+			printf("animaciones corriendo\n");
+	}
 
 	//teclas de cada actividad (la tabla de que tecla es de quien esta en README.md)
+	//la F prende o apaga la animacion basica de la escena donde se esta, por eso cada actividad revisa su zona
 	//--- personajes ---
-	if (key == GLFW_KEY_H && action == GLFW_PRESS)
+	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 1)
 	{
 		theWindow->caminaHeadcrab = !theWindow->caminaHeadcrab;
+		if (theWindow->caminaHeadcrab)
+			printf("headcrab caminando\n");
+		else
+			printf("headcrab detenido\n");
 	}
 
-	//Z y X rotan entre los planetas: X va al siguiente y Z al anterior (1 Xen, 2 planeta 2, 3 Verdania)
-	//al pasar del ultimo se regresa al primero y al reves; C regresa al espacio
-	if (key == GLFW_KEY_X && action == GLFW_PRESS)
-	{
-		theWindow->zonaPlaneta += 1;
-		if (theWindow->zonaPlaneta > 3)
-			theWindow->zonaPlaneta = 1;
-	}
+	//--- planetas: Xen y planeta 2 ---
+	//Z va al espacio, X a Xen, C al planeta 2 y V a Verdania
+	//estando en el espacio, la Z lleva al siguiente punto de interes; el contador se reinicia al llegar desde un planeta
+	//la camara del avatar solo sirve en los planetas, por eso al ir al espacio se cambia a la camara libre
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
-		theWindow->zonaPlaneta -= 1;
-		if (theWindow->zonaPlaneta < 1)
-			theWindow->zonaPlaneta = 3;
+		if (theWindow->zonaPlaneta == 0)
+		{
+			theWindow->puntoEspacio += 1;
+		}
+		else
+		{
+			theWindow->zonaPlaneta = 0;
+			theWindow->puntoEspacio = 0;
+		}
+		theWindow->modoCamara = 1;
+	}
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	{
+		theWindow->IrAPlaneta(1);
 	}
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
-		theWindow->zonaPlaneta = 0;
+		theWindow->IrAPlaneta(2);
 	}
-
-	//--- planeta 3: Verdania (Abraham) ---
-	//V prende o apaga las animaciones de las plantas de Verdania, como la H con el headcrab
 	if (key == GLFW_KEY_V && action == GLFW_PRESS)
 	{
+		theWindow->IrAPlaneta(3);
+	}
+
+	//--- planeta 3: Verdania ---
+	//F prende o apaga las animaciones de las plantas cuando se esta en Verdania, igual que con el headcrab en Xen
+	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 3)
+	{
 		theWindow->animaVerdania = !theWindow->animaVerdania;
+		if (theWindow->animaVerdania)
+			printf("animaciones de Verdania prendidas\n");
+		else
+			printf("animaciones de Verdania apagadas\n");
 	}
 
 	//--- pista de carreras y naves ---
@@ -225,12 +290,67 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- avatar ---
 
 	//--- camaras y recorridos ---
+	//1 es la camara libre, 2 la del avatar, 3 la de una nave de la carrera, 4 la de la nave que viaja entre planetas
+	//y 5 la del lanzamiento y la estacion; los codigos de las teclas 1 a 5 van seguidos, asi que al restarles
+	//el de la 1 y sumar 1 sale el numero de la camara
+	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y de la 3 a la 5 solo sirven en el espacio
+	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5 && action == GLFW_PRESS)
+	{
+		int modo = key - GLFW_KEY_1 + 1;
+		if (modo != theWindow->modoCamara)
+		{
+			theWindow->objetivoCamara = 0;
+		}
+		theWindow->modoCamara = modo;
+		if (modo == 2 && theWindow->zonaPlaneta == 0)
+		{
+			theWindow->zonaPlaneta = 1;
+		}
+		if (modo >= 3 && theWindow->zonaPlaneta != 0)
+		{
+			theWindow->zonaPlaneta = 0;
+			theWindow->puntoEspacio = 0;
+		}
+	}
+	//Q y E cambian a la nave anterior o a la siguiente en la camara 3, y a la vista anterior o a la siguiente en la 5
+	if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+	{
+		theWindow->objetivoCamara -= 1;
+	}
+	if (key == GLFW_KEY_E && action == GLFW_PRESS)
+	{
+		theWindow->objetivoCamara += 1;
+	}
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+	//L prende o apaga la linterna y K los spotlights de la zona; en main.cpp solo se mandan al shader si estan prendidos
+	if (key == GLFW_KEY_L && action == GLFW_PRESS)
+	{
+		theWindow->linterna = !theWindow->linterna;
+		if (theWindow->linterna)
+			printf("linterna prendida\n");
+		else
+			printf("linterna apagada\n");
+	}
+	if (key == GLFW_KEY_K && action == GLFW_PRESS)
+	{
+		theWindow->lucesEscenario = !theWindow->lucesEscenario;
+		if (theWindow->lucesEscenario)
+			printf("spotlights de la zona prendidos\n");
+		else
+			printf("spotlights de la zona apagados\n");
+	}
+	//N cambia entre dia y noche, pero solo en los planetas porque en el espacio el sol esta fijo
+	if (key == GLFW_KEY_N && action == GLFW_PRESS)
+	{
+		if (theWindow->zonaPlaneta != 0)
+			theWindow->saltoDiaNoche += 1;
+		else
+			printf("en el espacio el sol esta fijo, la N solo cambia el dia y la noche en los planetas\n");
+	}
 
-
-	//guarda que teclas estan presionadas, la camara lo lee con getsKeys()
-	//las teclas WASD ya las usa la camara
+	//guarda que teclas estan presionadas, la camara libre y el avatar lo leen con getsKeys()
+	//las teclas WASD ya las usan la camara libre y el avatar
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)

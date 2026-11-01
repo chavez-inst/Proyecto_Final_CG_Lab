@@ -1,0 +1,13 @@
+Model Information:
+* title:	Among US [Red]
+* source:	https://sketchfab.com/3d-models/among-us-red-a4a45370aeed4ec7ade18b4c9343a3d3
+* author:	YourBoy (https://sketchfab.com/Player1234565)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Among US [Red]" (https://sketchfab.com/3d-models/among-us-red-a4a45370aeed4ec7ade18b4c9343a3d3) by YourBoy (https://sketchfab.com/Player1234565) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+La nave (amongus_nave) no es descargada: se hizo en Blender con Blender/amongus_nave.py.
