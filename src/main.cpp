@@ -1203,6 +1203,9 @@ float pasoAvatar = 0.0f;
 float pasoAvatarOffset = 3.0f;
 float limitePasoAvatar = 25.0f;
 bool pasoAdelanteAvatar = true;
+//la carnivora tambien puede ser el avatar (la T cambia de personaje); usa las mismas piezas, padres y pivotes
+//que la de la seccion de personajes, pero sus propias rotaciones para no mover a la otra carnivora al caminar
+glm::vec3 rotAvatarCarnivora[NUM_PIEZAS_CARNIVORA];
 //se comparan con la zona y el reinicio de Window para regresar al avatar al punto de llegada cuando cambian
 int zonaAvatar = 0;
 int reinicioAvatar = 0;
@@ -2758,15 +2761,15 @@ int main()
 		model = glm::rotate(model, rumboDave * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(CrazyDave_M, padresCrazyDave, pivotesCrazyDave, rotCrazyDave, NUM_PIEZAS_CRAZYDAVE, model, uniformModel);
 
-		//los tres peas en maceta (NPCs) vigilan: solo voltean la cabeza de un lado a otro hasta 35 grados (en Y);
-		//cada uno lleva un desfase distinto (0, 120 y 240) para que no volteen todos al mismo tiempo
+		//ice pea y fire pea (NPCs en maceta) vigilan: solo voltean la cabeza de un lado a otro hasta 35 grados (en Y);
+		//cada uno lleva un desfase distinto (0 y 240) para que no volteen al mismo tiempo
 		rotIcePea[2].y = 35.0f * sin(anguloVerdania * toRadians);       //cabeza
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-6.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(IcePea_M, padresIcePea, pivotesIcePea, rotIcePea, NUM_PIEZAS_ICEPEA, model, uniformModel);
 
-		rotGatlingPea[2].y = 35.0f * sin((anguloVerdania + 120.0f) * toRadians);       //cabeza
+		//gatling pea (NPC en maceta): la cabeza se queda quieta y solo giran los canones
 		//los canones giran sobre su propio eje, que es el eje Z del modelo; como son hijos de la boca, siguen a la cabeza
 		rotGatlingPea[4].z = giroCanones;
 		model = glm::mat4(1.0);
@@ -2821,7 +2824,8 @@ int main()
 		model = glm::rotate(model, -50.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(HypnoShroom_M, padresHypnoShroom, pivotesHypnoShroom, rotHypnoShroom, NUM_PIEZAS_HYPNOSHROOM, model, uniformModel);
 
-		//laser bean (adorno): solo el cuerpo se balancea dentro de su maceta (el pelo es hijo del cuerpo y lo sigue)
+		//laser bean (adorno): solo el cuerpo se balancea dentro de su maceta; la antena (pieza pelo) ya no tiene
+		//movimiento propio, solo acompana al cuerpo porque es su hija
 		rotLaserBean[1].z = 8.0f * sin(anguloVerdania * toRadians);         //cuerpo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(5.0f, 0.0f, 3.0f));
@@ -3233,6 +3237,12 @@ int main()
 		//mientras la otra va hacia atras, y cada una va al reves del pie de su lado
 		rotAvatar[1].y = pasoAvatar * 1.2f;
 		rotAvatar[2].y = pasoAvatar * 1.2f;
+		//si el avatar es la carnivora, sus hojas-pata usan el mismo pasoAvatar y se mueven cruzadas como las del peashooter:
+		//la delantera izquierda junto con la trasera derecha, y la delantera derecha junto con la trasera izquierda
+		rotAvatarCarnivora[8].x = pasoAvatar;   //hoja_del_izq
+		rotAvatarCarnivora[9].x = pasoAvatar;   //hoja_tras_der
+		rotAvatarCarnivora[7].x = -pasoAvatar;  //hoja_del_der
+		rotAvatarCarnivora[10].x = -pasoAvatar; //hoja_tras_izq
 		//Kirby da un pequeno salto en cada paso, mas alto mientras mas separados van los pies
 		float saltoAvatar = 0.03f * fabs(pasoAvatar) / limitePasoAvatar;
 
@@ -3246,7 +3256,11 @@ int main()
 			color = glm::vec3(1.0f, 1.0f, 1.0f);
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 			Material_avatar.UseMaterial(uniformSpecularIntensity, uniformShininess);
-			DibujaJerarquia(Kirby_M, padresKirby, pivotesAvatar, rotAvatar, NUM_PIEZAS_KIRBY, model, uniformModel);
+			//los dos personajes se colocan, giran y escalan igual; la T solo cambia cual modelo se dibuja
+			if (mainWindow.getpersonajeAvatar() == 0)
+				DibujaJerarquia(Kirby_M, padresKirby, pivotesAvatar, rotAvatar, NUM_PIEZAS_KIRBY, model, uniformModel);
+			else
+				DibujaJerarquia(Carnivora_M, padresCarnivora, pivotesCarnivora, rotAvatarCarnivora, NUM_PIEZAS_CARNIVORA, model, uniformModel);
 		}
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---

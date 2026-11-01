@@ -37,6 +37,7 @@ public:
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
+	int getpersonajeAvatar() { return personajeAvatar; }
 
 	//--- camaras y recorridos ---
 	int getmodoCamara() { return modoCamara; }
@@ -90,6 +91,7 @@ private:
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
+	int personajeAvatar; //personaje que se controla con la camara 2, vale 0 si es Kirby y 1 si es la carnivora, y lo cambia la T
 
 	//--- camaras y recorridos ---
 	int modoCamara; //camara que se esta usando, de la 1 a la 5, y se cambia con las teclas 1 a 5
