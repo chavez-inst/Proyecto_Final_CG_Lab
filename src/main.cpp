@@ -18,6 +18,8 @@ las suyas para que casi no haya conflictos al juntar las ramas. Las teclas de ca
 
 #include <glew.h>
 #include <glfw3.h>
+#include <cstdlib>
+#include <ctime>
 
 #include <glm.hpp>
 #include <gtc\matrix_transform.hpp>
@@ -230,7 +232,7 @@ float giroPlanetaXenOffset = 0.05f;
 
 //el planeta 2 es Pop Star, el planeta de Kirby, que tiene forma de estrella; se ve de frente y gira como rehilete
 Model Planeta2Espacio_M;
-glm::vec3 posPlaneta2Espacio = glm::vec3(-706.0f, 140.0f, -250.0f);
+glm::vec3 posPlaneta2Espacio = glm::vec3(-306.0f, 140.0f, 350.0f);
 float giroPlaneta2 = 0.0f;
 float giroPlaneta2Offset = 0.04f;
 
@@ -328,7 +330,7 @@ Model CrewmateCuerpo_M;
 Model CrewmateVisor_M;
 
 //el grupo esta enfrente de donde empieza la camara y se gira para que la puerta quede viendo hacia ella
-glm::vec3 posNaveAmongUs = glm::vec3(-620.0f, 38.6f, 300.0f);
+glm::vec3 posNaveAmongUs = glm::vec3(350.0f, 50.6f, -60.0f);
 float giroNaveAmongUs = 160.0f;
 
 //la nave y los crewmates van hacia adelante y hacia atras con el seno de anguloAmongUs, que avanza cada frame
@@ -1182,6 +1184,84 @@ Model naveCaza;
 
 //--- estacion espacial y naves ---
 
+
+const float ALTURA_ELEVACION_NAVE = 7.5f;    
+const float DISTANCIA_FRENADO_LLEGADA = 50.0f;   
+const float DISTANCIA_DESAPARICION = 1800.0f;
+
+// Velocidades (escalados con deltaTime)
+const float VEL_ELEVACION_Y = 0.08f;  
+const float VEL_GIRO_SALIDA = 2.0f;    
+const float VEL_HIPERVELOCIDAD = 25.0f;   
+const float VEL_APROXIMACION_LENTA = 0.30f;   
+
+// Intervalos de tiempo
+const float TIEMPO_MIN_ESTACIONADA = 10.0f;   
+const float TIEMPO_MAX_ESTACIONADA = 30.0f;
+const float TIEMPO_MIN_FUERA = 15.0f;
+const float TIEMPO_MAX_FUERA = 40.0f;
+
+struct NaveEstacion {
+	glm::vec3 posBase;      // Posición original en el landing pad respecto a modelauxEstacion
+	glm::vec3 dirSalida;    // Vector unitario hacia afuera (plano YZ o plano XY)
+	float rotBaseY;         // Rotación inicial mirando al centro de la estación
+	int tipoModelo;         // 0 = naveDorada, 1 = naveBlanca, 2 = naveCaza
+
+	int estado;             // estados d ela maquina de 0 a 7
+	float offsetY;          // Elevación actual sobre el eje Y 
+	float offsetAvance;     // Distancia recorrida sobre el eje de salida (0.0 a 1800.0)
+	float giroExtraY;       // Rotación adicional para salir 
+	float tiempoRestante;   // Temporizador en segundos para estados 0 y 4
+	bool visible;           // Controla si se llama a RenderModel()
+};
+
+const int NUM_NAVES_ESTACION = 12;
+NaveEstacion navesEstacion[NUM_NAVES_ESTACION];
+
+// Genera un flotante aleatorio entre minVal y maxVal
+float RandomRangoNaves(float minVal, float maxVal)
+{
+	float r = (float)rand() / (float)RAND_MAX;
+	return minVal + r * (maxVal - minVal);
+}
+
+void InicializarNavesEstacion()
+{
+	srand((unsigned int)time(NULL));
+
+	// Configuración de las 12 naves en las 4 torres (3 niveles por torre)
+	NaveEstacion configInicial[NUM_NAVES_ESTACION] = {
+		// Landing Pad 1 (Alineadas en plano YZ, X = 0, salen hacia -Z)
+		{ glm::vec3(0.0f, 35.60f, -207.2f), glm::vec3(0.0f, 0.0f, -1.0f), -180.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(0.0f, 13.70f, -197.5f), glm::vec3(0.0f, 0.0f, -1.0f), -180.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(0.0f, -8.05f, -197.5f), glm::vec3(0.0f, 0.0f, -1.0f), -180.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+
+		// Landing Pad 2 (Alineadas en plano YZ, X = 0, salen hacia +Z)
+		{ glm::vec3(0.0f, 35.60f,  207.2f), glm::vec3(0.0f, 0.0f,  1.0f),    0.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(0.0f, 13.70f,  197.5f), glm::vec3(0.0f, 0.0f,  1.0f),    0.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(0.0f, -8.05f,  197.5f), glm::vec3(0.0f, 0.0f,  1.0f),    0.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+
+		// Landing Pad 3 (Alineadas en plano XY, Z = 0, salen hacia +X)
+		{ glm::vec3(207.2f, 35.60f, 0.0f),  glm::vec3(1.0f, 0.0f,  0.0f),   90.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(197.5f, 13.70f, 0.0f),  glm::vec3(1.0f, 0.0f,  0.0f),   90.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(197.5f, -8.05f, 0.0f),  glm::vec3(1.0f, 0.0f,  0.0f),   90.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+
+		// Landing Pad 4 (Alineadas en plano XY, Z = 0, salen hacia -X)
+		{ glm::vec3(-207.2f, 35.60f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),  -90.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(-197.5f, 13.70f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),  -90.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		//{ glm::vec3(-197.5f, -8.05f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),  -90.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true }
+	};
+
+	for (int i = 0; i < NUM_NAVES_ESTACION; i++)
+	{
+		navesEstacion[i] = configInicial[i];
+		// Todas inician estacionadas con un tiempo de espera aleatorio entre 10 y 30 s
+		navesEstacion[i].tiempoRestante = RandomRangoNaves(TIEMPO_MIN_ESTACIONADA, TIEMPO_MAX_ESTACIONADA);
+	}
+}
+
+
+
 //--- avatar ---
 //el avatar es Kirby; usa las mismas piezas y padres que el de la seccion de personajes, pero con sus propios pivotes y rotaciones
 //los pies giran desde la cadera, mas arriba que en el otro Kirby, para que se balanceen hacia adelante y hacia atras al caminar,
@@ -1282,6 +1362,35 @@ SpotLight spotsEspacio[NUM_SPOTS_ESPACIO];
 SpotLight spotXen;
 SpotLight spotPlaneta2;
 SpotLight spotVerdania;
+
+
+//LUCES PISTA EXTRAS
+
+//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
+// ============ PARÁMETROS AJUSTABLES DE LUCES DE LA PISTA ============
+// 1. PointLights Rojas (Edificios circulares - puestoObservacion1)
+// La marca en Blender está a 71.6378 m; subimos a 76.0f para librar la esfera opaca
+const float ALTURA_LOCAL_POINT_CIRCULAR = 76.0f;
+const float INTENSIDAD_DIFUSA_ROJA = 4.0f;
+const float ATEN_LIN_ROJA = 0.008f;
+const float ATEN_EXP_ROJA = 0.0002f;
+
+// 2. SpotLights Blancas (Edificios de 3 torres - puestoObservacion4)
+// La marca en Blender está a 366.209 m; subimos a 374.0f y adelantamos un poco
+// para salir de la esfera roja sin excedernos
+const glm::vec3 OFFSET_LOCAL_SPOT_TORRE = glm::vec3(0.0f, 374.0f, 8.0f);
+const float INTENSIDAD_DIFUSA_SPOT = 6.0f;
+const float ANGULO_CONO_SPOT = 28.0f;  
+const float ATEN_LIN_SPOT = 0.003f; 
+const float ATEN_EXP_SPOT = 0.00005f;
+
+// Direcciones hacia donde apuntan las SpotLights (se normalizan automáticamente)
+// Torre 1 (0, 20, -600): apunta hacia abajo (-Y) y hacia el tramo recto de la meta (-Z)
+const glm::vec3 DIR_SPOT_TORRE_1 = glm::vec3(0.10f, -0.65f, -0.75f);
+// Torre 2 (300, 100, -600): apunta hacia abajo (-Y), un poco a la izquierda (-X) y hacia la recta alta (-Z)
+const glm::vec3 DIR_SPOT_TORRE_2 = glm::vec3(-0.18f, -0.60f, -0.78f);
+// ====================================================================
 
 
 // ================== 2. GEOMETRIA HECHA A MANO ==================
@@ -1825,6 +1934,9 @@ int main()
 
 	//--- plataforma de lanzamiento y cohete ---
 
+
+	//--- estacion espacial y naves ---
+
 	estacionEspacial = Model();
 	estacionEspacial.LoadModel("Models/estacionEspacial/estacionEspacial.obj");
 	landingPad = Model();
@@ -1836,7 +1948,7 @@ int main()
 	naveCaza = Model();
 	naveCaza.LoadModel("Models/naveCaza/naveCaza.obj");
 
-	//--- estacion espacial y naves ---
+	InicializarNavesEstacion();
 
 	//--- avatar ---
 	//las piezas de Kirby ya se cargaron en la seccion de personajes y traen su textura
@@ -1968,6 +2080,72 @@ int main()
 		0.0f, -1.0f, 0.0f,
 		1.0f, 0.02f, 0.002f,
 		35.0f);
+
+
+
+	//iluminación para pista
+
+	// Matriz base idéntica a modelauxPista para convertir coordenadas de los edificios al mundo
+	glm::mat4 matrizBasePista = glm::mat4(1.0f);
+	matrizBasePista = glm::translate(matrizBasePista, posPista);
+	matrizBasePista = glm::scale(matrizBasePista, glm::vec3(0.45f, 0.45f, 0.45f));
+	matrizBasePista = glm::scale(matrizBasePista, glm::vec3(-1.0f, 1.0f, -1.0f));
+
+	// =========================================================================
+	// 1. DOS POINT LIGHTS ROJAS (Edificios circulares: puestoObservacion1)
+	// =========================================================================
+	// Edificio circular 1: translate(175.0f, 80.00f, 500.0f), rotate(-45.0f, Y)
+	glm::mat4 mCirc1 = glm::translate(matrizBasePista, glm::vec3(175.0f, 80.00f, 500.0f));
+	mCirc1 = glm::rotate(mCirc1, -45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 posPointCirc1 = glm::vec3(mCirc1 * glm::vec4(0.0f, ALTURA_LOCAL_POINT_CIRCULAR, 0.0f, 1.0f));
+
+	// Edificio circular 2: translate(175.0f, 80.00f, -375.0f), rotate(-115.0f, Y)
+	glm::mat4 mCirc2 = glm::translate(matrizBasePista, glm::vec3(175.0f, 80.00f, -375.0f));
+	mCirc2 = glm::rotate(mCirc2, -115.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 posPointCirc2 = glm::vec3(mCirc2 * glm::vec4(0.0f, ALTURA_LOCAL_POINT_CIRCULAR, 0.0f, 1.0f));
+
+	// Asignación de las 2 PointLights rojas (en [0] y [1], o en [3] y [4] si aumentaste NUM_LUMINARIAS_ESPACIO a 5)
+	luminariasEspacio[0] = PointLight(1.0f, 0.12f, 0.08f, // Color rojo intenso
+		0.15f, INTENSIDAD_DIFUSA_ROJA,
+		posPointCirc1.x, posPointCirc1.y, posPointCirc1.z,
+		1.0f, ATEN_LIN_ROJA, ATEN_EXP_ROJA);
+
+	luminariasEspacio[1] = PointLight(1.0f, 0.12f, 0.08f, // Color rojo intenso
+		0.15f, INTENSIDAD_DIFUSA_ROJA,
+		posPointCirc2.x, posPointCirc2.y, posPointCirc2.z,
+		1.0f, ATEN_LIN_ROJA, ATEN_EXP_ROJA);
+
+	// =========================================================================
+	// 2. DOS SPOTLIGHTS BLANCAS (Edificios de 3 torres: puestoObservacion4)
+	// =========================================================================
+	// Torre 1: translate(0.0f, 20.00f, -600.0f), rotate(35.0f, Y), scale(0.5f)
+	glm::mat4 mTorre1 = glm::translate(matrizBasePista, glm::vec3(0.0f, 20.00f, -600.0f));
+	mTorre1 = glm::rotate(mTorre1, 35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	mTorre1 = glm::scale(mTorre1, glm::vec3(0.5f, 0.5f, 0.5f));
+	glm::vec3 posSpotTorre1 = glm::vec3(mTorre1 * glm::vec4(OFFSET_LOCAL_SPOT_TORRE, 1.0f));
+	glm::vec3 dirSpot1 = glm::normalize(DIR_SPOT_TORRE_1);
+
+	// Torre 2: translate(300.0f, 100.00f, -600.0f), rotate(-35.0f, Y), scale(0.5f)
+	glm::mat4 mTorre2 = glm::translate(matrizBasePista, glm::vec3(300.0f, 100.00f, -600.0f));
+	mTorre2 = glm::rotate(mTorre2, -35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	mTorre2 = glm::scale(mTorre2, glm::vec3(0.5f, 0.5f, 0.5f));
+	glm::vec3 posSpotTorre2 = glm::vec3(mTorre2 * glm::vec4(OFFSET_LOCAL_SPOT_TORRE, 1.0f));
+	glm::vec3 dirSpot2 = glm::normalize(DIR_SPOT_TORRE_2);
+
+	// Asignación de las 2 SpotLights blancas (se prenden y apagan con la tecla K)
+	spotsEspacio[0] = SpotLight(1.0f, 1.0f, 0.95f, // Blanco cálido
+		0.0f, INTENSIDAD_DIFUSA_SPOT,
+		posSpotTorre1.x, posSpotTorre1.y, posSpotTorre1.z,
+		dirSpot1.x, dirSpot1.y, dirSpot1.z,
+		1.0f, ATEN_LIN_SPOT, ATEN_EXP_SPOT,
+		ANGULO_CONO_SPOT);
+
+	spotsEspacio[1] = SpotLight(1.0f, 1.0f, 0.95f, // Blanco cálido
+		0.0f, INTENSIDAD_DIFUSA_SPOT,
+		posSpotTorre2.x, posSpotTorre2.y, posSpotTorre2.z,
+		dirSpot2.x, dirSpot2.y, dirSpot2.z,
+		1.0f, ATEN_LIN_SPOT, ATEN_EXP_SPOT,
+		ANGULO_CONO_SPOT);
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
@@ -3180,22 +3358,22 @@ int main()
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, 230.0f, 200.0f));
+		model = glm::translate(model, glm::vec3(200.0f, 30.0f, -40.0f));
 		model = glm::rotate(model, 265.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.315f, 0.315f, 0.315f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		barcoEspacial.RenderModel();
-
+		
 		//almacen del puerto
 		model = modelauxPista;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(200.f, -150.00f, 50.0f));
+		model = glm::translate(model, glm::vec3(700.f, -350.00f, 50.0f));
 		model = glm::rotate(model, 60.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		warehousePort.RenderModel();
-
+		
 		//nave 1 de la pista
 		model = modelauxPista;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -3223,20 +3401,20 @@ int main()
 		model = modelauxPista;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(-250.0f, 50.0f, -550.0f));
+		model = glm::translate(model, glm::vec3(-125.0f, 50.0f, -750.0f));
 		model = glm::rotate(model, 240.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		sateliteRace.RenderModel();
 
 		//--- plataforma de lanzamiento y cohete ---
-
+		//413,-254
 		//--- estacion espacial y naves ---
 
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(-400.0f, 0.0f, 300.0f));
+		model = glm::translate(model, glm::vec3(613.0f, -5.0f, -350.0f));
 		modelauxEstacion = model;
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -3284,96 +3462,114 @@ int main()
 
 		//landing Pad 1 naves
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, 35.60f, -207.2f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		model = glm::rotate(model, -180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveDorada.RenderModel();
+		//NAVES (Animación por estados en los 4 Landing Pads)
+		float dtSegundos = deltaTime / 60.0f;
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, 13.70f, -197.5f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		model = glm::rotate(model, -180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveBlanca.RenderModel();
+		for (int i = 0; i < NUM_NAVES_ESTACION; i++)
+		{
+			NaveEstacion& n = navesEstacion[i];
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, -8.05f, -197.5f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		model = glm::rotate(model, -180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveCaza.RenderModel();
+			switch (n.estado)
+			{
+			case 0: // 1. En reposo sobre el landing pad
+				n.tiempoRestante -= dtSegundos;
+				if (n.tiempoRestante <= 0.0f)
+				{
+					n.estado = 1;
+				}
+				break;
 
-		//landing Pad 2 naves
+			case 1: // 2. Se eleva sobre el eje Y 
+				n.offsetY += VEL_ELEVACION_Y * deltaTime;
+				if (n.offsetY >= ALTURA_ELEVACION_NAVE)
+				{
+					n.offsetY = ALTURA_ELEVACION_NAVE;
+					n.estado = 2;
+				}
+				break;
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, 35.60f, 207.2f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveCaza.RenderModel();
+			case 2: // 3. Giro 180 grados sobre su eje Y para alinearse hacia afuera
+				n.giroExtraY += VEL_GIRO_SALIDA * deltaTime;
+				if (n.giroExtraY >= 180.0f)
+				{
+					n.giroExtraY = 180.0f;
+					n.estado = 3;
+				}
+				break;
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, 13.70f, 197.5f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveDorada.RenderModel();
+			case 3: // 4. Sale disparada a hipervelocidad
+				n.offsetAvance += VEL_HIPERVELOCIDAD * deltaTime;
+				if (n.offsetAvance >= DISTANCIA_DESAPARICION)
+				{
+					n.offsetAvance = DISTANCIA_DESAPARICION;
+					n.visible = false; // Se deja de renderizar para ahorrar recursos
+					n.tiempoRestante = RandomRangoNaves(TIEMPO_MIN_FUERA, TIEMPO_MAX_FUERA);
+					n.estado = 4;
+				}
+				break;
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(0.0f, -8.05f, 197.5f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveBlanca.RenderModel();
+			case 4: // 5. Fuera de escena sin renderizarse
+				n.tiempoRestante -= dtSegundos;
+				if (n.tiempoRestante <= 0.0f)
+				{
+					// Prepara el regreso en el mismo plano
+					n.giroExtraY = 0.0f;
+					n.offsetY = ALTURA_ELEVACION_NAVE;
+					n.offsetAvance = DISTANCIA_DESAPARICION;
+					n.visible = true; // Vuelve a renderizarse
+					n.estado = 5;
+				}
+				break;
 
-		//landing Pad 3 naves
+			case 5: // 6. Llega a hipervelocidad y frena a 50 unidades
+				n.offsetAvance -= VEL_HIPERVELOCIDAD * deltaTime;
+				if (n.offsetAvance <= DISTANCIA_FRENADO_LLEGADA)
+				{
+					n.offsetAvance = DISTANCIA_FRENADO_LLEGADA;
+					n.estado = 6;
+				}
+				break;
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(207.2f, 35.60f, 0.0f));
-		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveBlanca.RenderModel();
+			case 6: // 7. Se acerca lentamente hacia el pad
+				n.offsetAvance -= VEL_APROXIMACION_LENTA * deltaTime;
+				if (n.offsetAvance <= 0.0f)
+				{
+					n.offsetAvance = 0.0f;
+					n.estado = 7;
+				}
+				break;
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(197.5f, 13.70f, 0.0f));
-		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveCaza.RenderModel();
+			case 7: 
+				n.offsetY -= VEL_ELEVACION_Y * deltaTime;
+				if (n.offsetY <= 0.0f)
+				{
+					n.offsetY = 0.0f;
+					n.tiempoRestante = RandomRangoNaves(TIEMPO_MIN_ESTACIONADA, TIEMPO_MAX_ESTACIONADA);
+					n.estado = 0;
+				}
+				break;
+			}
 
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(197.5f, -8.05f, 0.0f));
-		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveDorada.RenderModel();
+			// Solo enviamos la matriz y dibujamos si la nave está dentro de la escena
+			if (n.visible)
+			{
+				glm::vec3 posActual = n.posBase + glm::vec3(0.0f, n.offsetY, 0.0f) + (n.dirSalida * n.offsetAvance);
+				float rotActualY = n.rotBaseY + n.giroExtraY;
 
-		//landing Pad 4 naves
+				model = modelauxEstacion;
+				glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+				model = glm::translate(model, posActual);
+				model = glm::rotate(model, rotActualY * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(-197.5f, 13.70f, 0.0f));
-		model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveCaza.RenderModel();
-
-		model = modelauxEstacion;
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(-197.5f, -8.05f, 0.0f));
-		model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		naveBlanca.RenderModel();
+				if (n.tipoModelo == 0)
+					naveDorada.RenderModel();
+				else if (n.tipoModelo == 1)
+					naveBlanca.RenderModel();
+				else
+					naveCaza.RenderModel();
+			}
+		}
 
 		//--- avatar ---
 		//mientras el avatar camina, pasoAvatar va y viene entre sus limites como las patas del headcrab
