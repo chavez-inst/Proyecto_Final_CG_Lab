@@ -59,6 +59,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\DatosEscena.h">
+      <Filter>Escena</Filter>
+    </ClInclude>
     <ClInclude Include="src\Window.h">
       <Filter>Base</Filter>
     </ClInclude>
