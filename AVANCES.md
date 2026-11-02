@@ -1,6 +1,6 @@
 # Avances del proyecto final
 
-Grupo 13, 2027-1. Entrega final: **miercoles 11 de noviembre al mediodia** (Classroom).
+Grupo 13, 2027-1. Entrega final: **7 de noviembre** (Classroom).
 
 Este archivo es para que todos sepamos que esta hecho, quien lleva que y que falta.
 Cada quien actualiza sus filas cuando avance (y lo sube junto con su commit).

@@ -45,7 +45,6 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 | L           | Prender o apagar la linterna (empieza apagada) |
 | K           | Prender o apagar los spotlights de la zona donde se esta |
 | N           | En un planeta, saltar a la manana o a la noche (el ciclo sigue desde ahi) |
-| Y / U       | Mover el cubo en X           |
 | ESC         | Cerrar                       |
 
 La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y de la 3 a la 5 solo en el
@@ -69,6 +68,7 @@ Proyecto_Final_CG_Lab/
 |
 |-- src/                       <- todo el codigo C++
 |   |-- main.cpp               <- LA ESCENA: aqui se carga y se dibuja todo
+|   |-- DatosEscena.h          <- arreglos largos de la escena (piezas, puntos de la pista, lugares)
 |   |-- Window.h/.cpp          <- ventana, teclado y mouse (aqui se agregan teclas)
 |   |-- Camera.h/.cpp          <- camara en primera persona
 |   |-- Shader_light.h/.cpp    <- compila los shaders y les manda datos (luces, matrices)
@@ -102,25 +102,25 @@ Proyecto_Final_CG_Lab/
 ```
 
 En el Explorador de soluciones de VS los archivos estan agrupados en carpetas virtuales:
-**Escena** (main.cpp), **Base**, **Graficos**, **Iluminacion** y **Shaders**.
+**Escena** (main.cpp y DatosEscena.h), **Base**, **Graficos**, **Iluminacion** y **Shaders**.
 
 ### Como esta acomodado main.cpp
 
 Esta dividido en 4 bloques marcados con `// ==================`:
 
 1. **Variables globales**: aqui se declaran texturas, modelos, materiales y luces.
-2. **Geometria hecha a mano**: piso, plano de vegetacion y cubo (`CreateObjects` y `CrearCubo`).
+2. **Geometria hecha a mano**: piso y plano de vegetacion (`CreateObjects`) y `DibujaJerarquia`.
 3. **Carga de recursos** (dentro de `main`): se cargan texturas, modelos, skybox, materiales y luces.
 4. **Ciclo principal** (el `while`): se dibuja todo cada frame. Primero los objetos opacos y al final los transparentes.
 
-Al principio de cada bloque esta lo de la base del lab (piso, cubo, materiales, luces de prueba).
-Despues viene una seccion por actividad, siempre en el mismo orden:
+Al principio de cada bloque esta lo de la base del lab (ventana, camara, skybox del espacio, materiales,
+luces). Despues viene una seccion por actividad, siempre en el mismo orden:
 
 ```
 //--- personajes ---
 //--- planetas: Xen y planeta 2 ---
-//--- nave de Among Us y crewmates ---
 //--- planeta 3: Verdania ---
+//--- nave de Among Us y crewmates ---
 //--- pista de carreras y naves ---
 //--- satelites y cuerpos espaciales ---
 //--- plataforma de lanzamiento y cohete ---
@@ -129,6 +129,11 @@ Despues viene una seccion por actividad, siempre en el mismo orden:
 //--- camaras y recorridos ---
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 ```
+
+Dentro de cada seccion, todo lo de un mismo objeto va junto: su modelo, su textura y las variables de su
+animacion. Los arreglos largos que casi no cambian (piezas, padres y pivotes de los modelos con jerarquia,
+puntos de la pista, lugares de los objetos que se repiten y datos de las naves de la estacion) estan en
+`src/DatosEscena.h`, con las mismas secciones. Solo se incluye en `main.cpp`.
 
 Las mismas secciones estan en `Window.h` (getters y variables) y en `Window.cpp` (valores iniciales en
 los dos constructores y teclas en `ManejaTeclado`). **Cada quien escribe solo dentro de las secciones de
@@ -160,13 +165,13 @@ agrega a esta tabla.
 | Teclas | Actividad | Uso |
 |---|---|---|
 | W A S D, mouse, Espacio, Ctrl, Shift | base y avatar | moverse con la camara libre o caminar con el avatar |
-| ESC, Y / U | base | cerrar, mover el cubo de prueba |
+| ESC | base | cerrar |
 | P | base | pausar o continuar todas las animaciones |
 | 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave o la vista que se sigue |
 | Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
 | F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, plantas en Verdania y cohete en el espacio |
 | K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |
-| G H J B M R T I O | libres | se piden en el grupo |
+| G H J B M R T I O Y U | libres | se piden en el grupo (Y y U todavia cambian `muevex` en `Window.cpp`, que ya no se usa; quien las tome quita esas lineas) |
 
 - La **F** es la tecla de las animaciones basicas (las que se inician con teclado). Cada actividad
   revisa en `ManejaTeclado` que se este en su zona (0 espacio, 1 Xen, 2 planeta 2, 3 Verdania),
@@ -254,19 +259,19 @@ Si sale muy grande o muy chico, ajustar con `glm::scale`.
 
 ### Un objeto hecho a mano (geometria propia)
 
-1. Hacer una funcion como `CrearCubo()` con su arreglo de vertices e indices.
+1. Hacer una funcion como `CreateObjects()` con su arreglo de vertices e indices.
    Cada vertice lleva 8 valores: `x, y, z,  u, v,  nx, ny, nz`.
 2. Crear la malla y meterla a la lista:
    ```cpp
    MeshModel* obj = new MeshModel();
    obj->CreateMeshModel(vertices, indices, numFloats, numIndices);
-   meshListModel.push_back(obj); //meshListModel[3], [4], ...
+   meshListModel.push_back(obj); //meshListModel[2], [3], ...
    ```
    Ojo: el tercer parametro es la **cantidad de floats** del arreglo (vertices x 8),
    no la cantidad de vertices.
 3. Si no quieres escribir las normales a mano, se pueden calcular con `calcAverageNormals(...)`
    **antes** de `CreateMeshModel`.
-4. Llamar la funcion en `main()` junto a `CreateObjects()` y `CrearCubo()` y anotar que indice le toco.
+4. Llamar la funcion en la carga de recursos, en la seccion de su actividad, y guardar que indice le toco.
 
 ### Un material
 
@@ -331,15 +336,25 @@ del avatar, P pausa y ESC cierra.
 
 Poner las 6 imagenes en `Textures/Skybox/` y cambiar las rutas en `main.cpp`.
 El orden tiene que ser: **rt, lf, dn, up, bk, ft** (derecha, izquierda, abajo, arriba, atras, enfrente).
-Cada planeta tiene un skybox de dia y uno de noche (`xen_dia_*`, `planeta2_dia_*`, `verdania_noche_*`
-y los originales). El ultimo parametro de `DrawSkybox` en `true` lo hace girar en los tres ejes (espacio)
-y en `false` solo sobre Y (planetas, para que no se incline el horizonte).
+Cada planeta tiene un skybox de dia y uno de noche (por ejemplo `skyboxXenDia` y `skyboxXenNoche`); en la
+carga de recursos sus caras se arman con `carasSkybox` y el principio del nombre del archivo (`xen_dia_`, `xen_`).
+El ultimo parametro de `DrawSkybox` en `true` lo hace girar en los tres ejes (espacio) y en `false` solo
+sobre Y (planetas, para que no se incline el horizonte).
 
 ### Objetos con transparencia
 
 - La imagen debe ser .png con canal alfa y cargarse con `LoadTextureA()`.
-- Se dibujan al final del `while`, entre `glEnable(GL_BLEND)` y `glDisable(GL_BLEND)`
-  (ver el ejemplo de la vegetacion).
+- Se dibujan al final del `while`, en la parte de objetos con transparencia, entre `glEnable(GL_BLEND)`
+  y `glDisable(GL_BLEND)`. Para plantas o cosas planas sirve `meshListModel[1]`, que son dos planos cruzados:
+  ```cpp
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //aqui va la matriz model como en la plantilla
+  plantaTexture.UseTexture();
+  Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+  meshListModel[1]->RenderMeshModel();
+  glDisable(GL_BLEND);
+  ```
 
 ### Una clase o archivo .cpp nuevo
 
