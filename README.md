@@ -50,7 +50,7 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 
 La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y de la 3 a la 5 solo en el
 espacio (desde un planeta llevan al espacio). La 4 y la 5 se comportan como la libre mientras no
-existan la nave entre planetas, el cohete y la estacion. Al regresar a la libre, aparece donde estaba
+existan sus recorridos (la nave entre planetas, y el cohete y la estacion). Al regresar a la libre, aparece donde estaba
 la camara anterior.
 
 En los planetas el sol da una vuelta cada 2 minutos: de dia se ve el sol y el skybox de dia, y de noche
@@ -87,8 +87,8 @@ Proyecto_Final_CG_Lab/
 |   |-- shader_light.vert/.frag<- shader de todos los objetos (Phong con texturas)
 |   `-- skybox.vert/.frag      <- shader del skybox
 |
-|-- Models/                    <- modelos (.obj + .mtl)
-|-- Textures/                  <- TODAS las imagenes (tambien las texturas de los modelos)
+|-- Models/                    <- un modelo por carpeta (.obj + .mtl), con sus texturas en su carpeta Textures/
+|-- Textures/                  <- imagenes de los pisos, de los skybox y de los objetos hechos a mano
 |   |-- plain.png              <- textura blanca, se usa si un modelo no tiene textura (no borrar)
 |   `-- Skybox/                <- las 6 caras del skybox
 |
@@ -142,7 +142,7 @@ su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y G
   cada frame (ciclo dia/noche, prender/apagar).
 - Las luces se crean solo en la seccion de iluminacion. Si otra actividad necesita una, se le pide
   a quien lleva esa seccion. Cada frame solo se mandan al shader las luces de la zona donde se esta,
-  asi que el limite (3 puntuales y 4 spotlights) es por zona y no para toda la escena.
+  asi que el limite (5 puntuales y 5 spotlights) es por zona y no para toda la escena.
 - Si una actividad agrega geometria hecha a mano, su funcion va en el bloque 2 (en su seccion) y se
   llama en la carga de recursos (en su seccion). Como el indice en `meshListModel` depende del
   orden, se guarda en una variable global antes del `push_back`:
@@ -236,14 +236,15 @@ Primero se asigna la ruta y despues se carga, en ese orden.
 ### Un modelo nuevo (.obj)
 
 1. Exportar desde Blender / 3ds Max / Maya como `.obj` con su `.mtl`.
-2. Poner el `.obj` y el `.mtl` en `Models/` y **sus texturas en `Textures/`**.
+2. Poner el `.obj` y el `.mtl` en su propia carpeta dentro de `Models/` (ej. `Models/arbol/`) y
+   **sus texturas en la carpeta `Textures/` de esa carpeta** (ej. `Models/arbol/Textures/`).
 3. Revisar en el `.mtl` que la linea `map_Kd` tenga el nombre correcto de la textura
    (la ruta no importa, solo el nombre).
 4. En variables globales: `Model Arbol_M;`
 5. En la carga de recursos:
    ```cpp
    Arbol_M = Model();
-   Arbol_M.LoadModel("Models/arbol.obj");
+   Arbol_M.LoadModel("Models/arbol/arbol.obj");
    ```
 6. En el `while` usar la plantilla y al final `Arbol_M.RenderModel();` (sin `UseTexture`,
    el modelo usa sus propias texturas).
@@ -300,7 +301,7 @@ if (zonaLuces == 3 && esDeNoche)
 }
 ```
 
-- Maximo 3 puntuales y 4 spotlights por zona (`CommonValues.h`); la linterna cuenta como un spotlight.
+- Maximo 5 puntuales y 5 spotlights por zona (`CommonValues.h`); la linterna cuenta como un spotlight.
 - Las luminarias (puntuales) se prenden de noche y los spotlights con la K.
 - Para mover una luz mientras corre el programa: `spot.SetPos(nuevaPos);` o `spot.SetFlash(pos, dir);`
   antes de copiarla al arreglo.
@@ -397,9 +398,9 @@ el final (sirven para ver como fue avanzando cada quien). Por eso:
 | Problema | Solucion |
 |---|---|
 | `Falta la carpeta Librerias` al compilar | Extraer `Librerias.zip` como dice "Como empezar". |
-| `No se encontro la textura: ...` en la consola | Revisar nombre y extension exactos y que este en `Textures/`. |
+| `No se encontro la textura: ...` en la consola | Revisar nombre y extension exactos y que este en la carpeta `Textures/` del modelo o en `Textures/`. |
 | `Fallo al cargar el modelo: ...` | Revisar la ruta en `LoadModel` y que el .obj este en `Models/`. |
-| Modelo blanco | No encontro su textura: revisar `map_Kd` del .mtl y que la imagen este en `Textures/`. |
+| Modelo blanco | No encontro su textura: revisar `map_Kd` del .mtl y que la imagen este en la carpeta `Textures/` del modelo. |
 | Una cara se ve negra u oscura | Normal al reves (en este proyecto van hacia adentro) o no le llega ninguna luz. |
 | Transparencia con fondo negro/blanco | Usar `LoadTextureA()` y dibujarlo al final con blending. |
 | `Error al compilar el ... shader` | La consola dice la linea del error dentro del shader. |

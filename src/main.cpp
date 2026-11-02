@@ -15,11 +15,12 @@ las suyas para que casi no haya conflictos al juntar las ramas. Las teclas de ca
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <vector>
+//rand y srand, para el tiempo al azar de las naves de la estacion, y time, para que el azar cambie en cada corrida
+#include <cstdlib>
+#include <ctime>
 
 #include <glew.h>
 #include <glfw3.h>
-#include <cstdlib>
-#include <ctime>
 
 #include <glm.hpp>
 #include <gtc\matrix_transform.hpp>
@@ -47,8 +48,6 @@ const float toRadians = 3.14159265f / 180.0f;
 Window mainWindow;
 std::vector<MeshModel*> meshListModel; //mallas hechas a mano, cada vertice lleva x y z de la posicion, u v de la textura y nx ny nz de la normal
 std::vector<Shader> shaderList;
-
-glm::mat4 modelauxEstacion(1.0);
 
 Camera camera;
 
@@ -196,7 +195,7 @@ glm::vec3 pivotesHeadcrab[NUM_PIEZAS_HEADCRAB] = {
 };
 glm::vec3 rotHeadcrab[NUM_PIEZAS_HEADCRAB];
 
-//variables de la caminata del headcrab, que da vueltas en circulo en la superficie de Xen y empieza o se detiene con H
+//variables de la caminata del headcrab, que da vueltas en circulo en la superficie de Xen y empieza o se detiene con F
 glm::vec3 centroHeadcrab = glm::vec3(0.0f, 0.0f, 2.0f); //el centro del circulo se mide desde posXen
 float radioHeadcrab = 2.5f;
 float anguloHeadcrab = 0.0f;
@@ -208,10 +207,10 @@ float limitePaso = 20.0f;
 bool pasoAdelante = true;
 
 //--- planetas: Xen y planeta 2 ---
-//la superficie de cada planeta es un piso aparte y muy lejos del espacio, como el plano lejano
-//de la perspectiva esta en 1000 nunca se ven juntos
-glm::vec3 posXen = glm::vec3(3000.0f, 0.0f, 0.0f);
-glm::vec3 posPlaneta2 = glm::vec3(-3000.0f, 0.0f, 0.0f);
+//la superficie de cada planeta es un piso aparte y muy lejos del espacio; como el plano lejano
+//de la perspectiva esta en 3000, nunca se ven juntos
+glm::vec3 posXen = glm::vec3(6000.0f, 0.0f, 0.0f);
+glm::vec3 posPlaneta2 = glm::vec3(-6000.0f, 0.0f, 0.0f);
 //zona donde esta el usuario, 0 en el espacio, 1 en Xen, 2 en el planeta 2 y 3 en Verdania; se compara con la de Window para saber cuando cambio
 int zonaActual = 0;
 //se compara con el contador de Window para saber cuando se presiono la tecla del planeta donde ya se estaba
@@ -221,18 +220,22 @@ Skybox skyboxPlaneta2;
 Texture planeta2SueloTexture;
 Texture xenSueloTexture;
 
-//en el espacio los tres planetas estan en un circulo de radio 700 alrededor de la nave nodriza, separados 120 grados
-//Xen va hacia Z negativo, el planeta 2 abajo a la izquierda y Verdania abajo a la derecha, vistos desde arriba
-//las X salen de 700 por el seno de 120 grados, que da 606, y las Z de 700 por el coseno, que da 350
+//en el espacio los tres planetas estan lejos, en un circulo de radio 1400 alrededor del centro de la escena, que esta
+//como en 300, 0, -100, y separados 120 grados; vistos desde arriba, Xen va hacia Z negativo, el planeta 2 abajo
+//a la izquierda y Verdania abajo a la derecha
+//medidos desde el centro, el planeta 2 y Verdania van a 1212 en X, que es 1400 por el seno de 120 grados, y a 700 en Z,
+//que es la mitad de 1400
+//son grandes y cada uno va a distinta altura para que, aunque la camara se mueva, se sienta que estan muy lejos
 //el planeta Xen que se ve desde el espacio es una esfera que gira sobre su eje
 Model XenPlaneta_M;
-glm::vec3 posPlanetaXen = glm::vec3(0.0f, 80.0f, -600.0f);
+glm::vec3 posPlanetaXen = glm::vec3(300.0f, 250.0f, -1500.0f);
 float giroPlanetaXen = 0.0f;
 float giroPlanetaXenOffset = 0.05f;
 
-//el planeta 2 es Pop Star, el planeta de Kirby, que tiene forma de estrella; se ve de frente y gira como rehilete
+//el planeta 2 es Pop Star, el planeta de Kirby, que tiene forma de estrella; se gira para que su frente vea hacia
+//el centro de la escena y da vueltas sobre ese frente como rehilete
 Model Planeta2Espacio_M;
-glm::vec3 posPlaneta2Espacio = glm::vec3(-306.0f, 140.0f, 350.0f);
+glm::vec3 posPlaneta2Espacio = glm::vec3(-912.0f, -150.0f, 600.0f);
 float giroPlaneta2 = 0.0f;
 float giroPlaneta2Offset = 0.04f;
 
@@ -329,8 +332,9 @@ Model AmongUsNave_M;
 Model CrewmateCuerpo_M;
 Model CrewmateVisor_M;
 
-//el grupo esta enfrente de donde empieza la camara y se gira para que la puerta quede viendo hacia ella
-glm::vec3 posNaveAmongUs = glm::vec3(350.0f, 50.6f, -60.0f);
+//el grupo esta enfrente de donde empieza la camara, un poco a la izquierda, y se gira para que la puerta quede viendo
+//hacia ella
+glm::vec3 posNaveAmongUs = glm::vec3(9.0f, 2.0f, -36.0f);
 float giroNaveAmongUs = 160.0f;
 
 //la nave y los crewmates van hacia adelante y hacia atras con el seno de anguloAmongUs, que avanza cada frame
@@ -381,14 +385,14 @@ glm::vec3 colorEscondidos[NUM_CREWMATES_ESCONDIDOS] = {
 
 //--- planeta 3: Verdania ---
 //la superficie de Verdania es otro piso aparte y lejos, igual que Xen y el planeta 2, pero hacia Z positivo
-glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 3000.0f);
+glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 6000.0f);
 Skybox skyboxVerdania;
 Texture verdaniaPastoTexture;
 
 //todas las plantas de Verdania son modelos descargados y separados en piezas por sus huesos
 //los creditos estan en el LICENCIA.txt de cada una y los pivotes salen del piezas.txt de cada carpeta
 //cada planta por piezas tiene los mismos arreglos que la carnivora, uno con el nombre del .obj de cada pieza,
-//otro con el indice de la pieza de la que cuelga cada una (la raiz lleva -1 y el padre siempre va antes que sus hijos),
+//otro con el indice de la pieza de la que cuelga cada una, donde la raiz lleva -1 y el padre siempre va antes que sus hijos,
 //otro con el pivote, que es el punto de la articulacion donde gira la pieza, y otro con los grados que gira
 //en x, y, z, que se cambian en el while para animarlas
 //anguloVerdania marca el tiempo de todas las animaciones de Verdania y avanza cada frame mientras la tecla F
@@ -464,7 +468,7 @@ float rumboDaveOffset = 6.0f;
 //desde el espacio Verdania se ve como la cabeza del peashooter en grande, lisa y con textura de planeta
 //peashooter_planeta.obj es la cabeza sin cuello, sin cejas y redonda por abajo; su textura es la de Verdania
 Model PlanetaVerdania_M;
-glm::vec3 posPlanetaVerdania = glm::vec3(606.0f, 200.0f, 600.0f); //en el circulo de los planetas, ver posPlanetaXen
+glm::vec3 posPlanetaVerdania = glm::vec3(1512.0f, 100.0f, 600.0f); //en el circulo de los planetas, ver posPlanetaXen
 //centro de la cabeza en las coordenadas del modelo; ahi se gira y se escala para que no gire alrededor de los pies
 glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
 float giroPlanetaVerdania = 0.0f;
@@ -550,7 +554,7 @@ glm::vec3 pivotesCactus[NUM_PIEZAS_CACTUS] = {
 glm::vec3 rotCactus[NUM_PIEZAS_CACTUS];
 
 //plantas de adorno de Verdania, cada una con una animacion sencilla
-//girasol de Garden Warfare 1 (mide como 1.1 de alto)
+//girasol de Garden Warfare 1, mide como 1.1 de alto
 const int NUM_PIEZAS_SUNFLOWER = 12;
 Model Sunflower_M[NUM_PIEZAS_SUNFLOWER];
 const char* piezasSunflower[NUM_PIEZAS_SUNFLOWER] = {
@@ -573,7 +577,7 @@ glm::vec3 pivotesSunflower[NUM_PIEZAS_SUNFLOWER] = {
 };
 glm::vec3 rotSunflower[NUM_PIEZAS_SUNFLOWER];
 
-//girasol de Garden Warfare 2 (mide como 1.9 de alto)
+//girasol de Garden Warfare 2, mide como 1.9 de alto
 const int NUM_PIEZAS_SUNFLOWER2 = 12;
 Model Sunflower2_M[NUM_PIEZAS_SUNFLOWER2];
 const char* piezasSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
@@ -708,7 +712,7 @@ Model JardinHelecho_M;
 //los modelos de Kenney, que son la casa, la calle, las cercas y el farol, son muy chicos; una casa mide 1.2 de alto y con escala 6.5 queda de casi 8
 float escalaKenney = 6.5f;
 
-//la calle va en linea recta sobre X; cada tramo mide 1 por 1 (6.5 ya escalado) y el ultimo es el final de la calle
+//la calle va en linea recta sobre X; cada tramo mide 1 por 1, que con la escala queda de 6.5 por 6.5, y el ultimo es el final de la calle
 const int NUM_TRAMOS_CALLE = 4;
 float posCalleX[NUM_TRAMOS_CALLE] = { 19.5f, 26.0f, 32.5f, 39.0f };
 float posCalleZ = -27.0f;
@@ -720,7 +724,7 @@ glm::vec3 posCamino[NUM_PIEDRAS_CAMINO] = {
 	glm::vec3(6.5f, 0.0f, -23.4f), glm::vec3(5.5f, 0.0f, -21.8f), glm::vec3(5.2f, 0.0f, -20.0f),
 	glm::vec3(5.4f, 0.0f, -18.2f), glm::vec3(5.9f, 0.0f, -16.4f), glm::vec3(6.6f, 0.0f, -14.7f) };
 
-//la cerca separa el jardin de la casa; la pieza de en medio-derecha es la puerta, por donde pasa el camino
+//la cerca separa el jardin de la casa; la tercera pieza, que es la de en medio del lado derecho, es la puerta, por donde pasa el camino
 const int NUM_CERCAS_JARDIN = 4;
 float posCercaX[NUM_CERCAS_JARDIN] = { -15.6f, -5.2f, 5.2f, 15.6f };
 float posCercaZ = -22.0f;
@@ -728,7 +732,7 @@ int indicePuerta = 2;
 //la puerta mide 1.2 de ancho y las otras cercas 1.6, por eso la puerta se estira en X para que no queden huecos
 float estiraPuerta = 1.33f;
 
-//arboles, arbustos, flores y piedras: posicion, tamano y giro de cada uno; el mismo modelo se repite cambiando el giro
+//de los arboles, arbustos, flores y piedras se guarda la posicion, el tamano y el giro de cada uno; el mismo modelo se repite cambiando el giro
 //y el tamano para que no se vean todos iguales, como los arboles del planeta 2
 const int NUM_ARBOLES_JARDIN = 4;
 glm::vec3 posArbolesJardin[NUM_ARBOLES_JARDIN] = {
@@ -754,7 +758,7 @@ glm::vec3 posDetallesJardin[NUM_DETALLES_JARDIN] = {
 	glm::vec3(-4.0f, 0.0f, 2.0f), glm::vec3(4.0f, 0.0f, 1.0f), glm::vec3(-7.0f, 0.0f, -9.0f), glm::vec3(10.0f, 0.0f, -12.0f),
 	glm::vec3(1.0f, 0.0f, -10.0f), glm::vec3(-12.0f, 0.0f, 2.0f), glm::vec3(13.0f, 0.0f, -8.0f), glm::vec3(-6.0f, 0.0f, 11.0f) };
 //cada tipo de detalle viene de distinto tamano, el trebol mide 1.1, el helecho 9 de ancho y el hongo 0.45, por eso cada uno lleva su escala
-float escalaDetallesJardin[3] = { 0.6f, 0.25f, 2.0f }; //trebol, helecho, hongo
+float escalaDetallesJardin[3] = { 0.6f, 0.25f, 2.0f }; //en orden, trebol, helecho y hongo
 
 //--- pista de carreras y naves ---
 
@@ -1069,7 +1073,7 @@ float avanceCarrera = 0.0f; //distancia que lleva recorrida la primera nave
 float velocidadCarrera = 2.5f;
 const float ESCALA_INTERNA_PISTA = 0.45f; //los puntos se escalan igual que la pista, que lleva un segundo scale de 0.45
 
-//lugar de la pista en el espacio, entre Xen y Verdania; ahi queda la meta y con esto su centro queda como en 340, 0, -280
+//lugar de la pista en el espacio, cerca del centro de la escena; ahi queda la meta y con esto su centro queda como en 340, 0, -280
 glm::vec3 posPista = glm::vec3(413.0f, 0.0f, -254.0f);
 
 //matrices de la pista que se guardan en el while para poner encima la meta, los edificios y las naves
@@ -1176,91 +1180,97 @@ Model sateliteRace;
 
 //--- plataforma de lanzamiento y cohete ---
 
+//--- estacion espacial y naves ---
+//la estacion tiene cuatro landing pads alrededor, a 150 de su centro hacia X positivo, X negativo, Z positivo y Z negativo,
+//y en cada pad hay naves que salen y regresan solas; hay tres modelos de nave y cada lugar usa uno
+//modelauxEstacion guarda el lugar de la estacion, y desde ahi se ponen los pads y las naves
 Model estacionEspacial;
 Model landingPad;
 Model naveDorada;
 Model naveBlanca;
 Model naveCaza;
+glm::vec3 posEstacion = glm::vec3(613.0f, -5.0f, -350.0f);
+glm::mat4 modelauxEstacion(1.0);
 
-//--- estacion espacial y naves ---
+//cada nave pasa por 8 estados que se repiten; en el 0 espera estacionada, en el 1 se eleva, en el 2 gira 180 grados
+//para quedar viendo hacia afuera, en el 3 sale a hipervelocidad hasta perderse, en el 4 espera fuera de la escena
+//sin dibujarse, en el 5 regresa a hipervelocidad, en el 6 se acerca despacio a su pad y en el 7 baja hasta posarse
+float alturaNaveEstacion = 7.5f; //lo que sube sobre su pad antes de girar
+float distanciaFrenado = 50.0f;  //a esta distancia de su pad deja la hipervelocidad y se acerca despacio
+float distanciaSalida = 1800.0f; //a esta distancia de su pad ya no se alcanza a ver y deja de dibujarse
+//las velocidades se multiplican por deltaTime, como en las demas animaciones
+float velSubidaNave = 0.08f;
+float velGiroNave = 2.0f;
+float velHipervelocidad = 25.0f;
+float velAcercamiento = 0.3f;
+//los tiempos van en segundos; en cada espera se escoge uno al azar entre el minimo y el maximo
+float tiempoMinEstacionada = 10.0f;
+float tiempoMaxEstacionada = 30.0f;
+float tiempoMinFuera = 15.0f;
+float tiempoMaxFuera = 40.0f;
 
-
-const float ALTURA_ELEVACION_NAVE = 7.5f;    
-const float DISTANCIA_FRENADO_LLEGADA = 50.0f;   
-const float DISTANCIA_DESAPARICION = 1800.0f;
-
-// Velocidades (escalados con deltaTime)
-const float VEL_ELEVACION_Y = 0.08f;  
-const float VEL_GIRO_SALIDA = 2.0f;    
-const float VEL_HIPERVELOCIDAD = 25.0f;   
-const float VEL_APROXIMACION_LENTA = 0.30f;   
-
-// Intervalos de tiempo
-const float TIEMPO_MIN_ESTACIONADA = 10.0f;   
-const float TIEMPO_MAX_ESTACIONADA = 30.0f;
-const float TIEMPO_MIN_FUERA = 15.0f;
-const float TIEMPO_MAX_FUERA = 40.0f;
-
-struct NaveEstacion {
-	glm::vec3 posBase;      // Posición original en el landing pad respecto a modelauxEstacion
-	glm::vec3 dirSalida;    // Vector unitario hacia afuera (plano YZ o plano XY)
-	float rotBaseY;         // Rotación inicial mirando al centro de la estación
-	int tipoModelo;         // 0 = naveDorada, 1 = naveBlanca, 2 = naveCaza
-
-	int estado;             // estados d ela maquina de 0 a 7
-	float offsetY;          // Elevación actual sobre el eje Y 
-	float offsetAvance;     // Distancia recorrida sobre el eje de salida (0.0 a 1800.0)
-	float giroExtraY;       // Rotación adicional para salir 
-	float tiempoRestante;   // Temporizador en segundos para estados 0 y 4
-	bool visible;           // Controla si se llama a RenderModel()
+//datos de cada nave; los primeros cuatro no cambian y los demas se van cambiando en el while
+struct NaveEstacion
+{
+	glm::vec3 posBase;    //lugar donde se posa sobre su pad, medido desde el centro de la estacion
+	glm::vec3 dirSalida;  //hacia donde sale, siempre hacia afuera de la estacion
+	float rotBaseY;       //giro en Y con el que queda viendo hacia la estacion
+	int tipoModelo;       //0 para la nave dorada, 1 para la blanca y 2 para la caza
+	int estado;           //en que estado va, del 0 al 7
+	float offsetY;        //cuanto se ha elevado sobre su pad
+	float offsetAvance;   //cuanto se ha alejado de su pad hacia dirSalida
+	float giroExtraY;     //lo que ha girado para salir, de 0 a 180
+	float tiempoRestante; //segundos que le faltan para salir o para regresar
+	bool visible;         //vale false cuando ya salio de la escena, y asi no se dibuja
 };
 
-const int NUM_NAVES_ESTACION = 12;
+const int NUM_NAVES_ESTACION = 11;
 NaveEstacion navesEstacion[NUM_NAVES_ESTACION];
 
-// Genera un flotante aleatorio entre minVal y maxVal
-float RandomRangoNaves(float minVal, float maxVal)
+//regresa un numero al azar entre minimo y maximo; rand da un entero entre 0 y RAND_MAX
+float AzarEntre(float minimo, float maximo)
 {
 	float r = (float)rand() / (float)RAND_MAX;
-	return minVal + r * (maxVal - minVal);
+	return minimo + r * (maximo - minimo);
 }
 
+//pone cada nave en su pad; se llama una vez en la carga de recursos
 void InicializarNavesEstacion()
 {
+	//con la hora como semilla, rand da numeros distintos cada vez que se corre el programa
 	srand((unsigned int)time(NULL));
 
-	// Configuración de las 12 naves en las 4 torres (3 niveles por torre)
+	//las naves de un mismo pad estan en tres niveles, una arriba de otra, y el pad de X negativo solo tiene dos
+	//cada una lleva posBase, dirSalida, rotBaseY y tipoModelo; estado, offsetY, offsetAvance, giroExtraY y
+	//tiempoRestante empiezan en 0 y visible en true
 	NaveEstacion configInicial[NUM_NAVES_ESTACION] = {
-		// Landing Pad 1 (Alineadas en plano YZ, X = 0, salen hacia -Z)
+		//pad de Z negativo
 		{ glm::vec3(0.0f, 35.60f, -207.2f), glm::vec3(0.0f, 0.0f, -1.0f), -180.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
 		{ glm::vec3(0.0f, 13.70f, -197.5f), glm::vec3(0.0f, 0.0f, -1.0f), -180.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
 		{ glm::vec3(0.0f, -8.05f, -197.5f), glm::vec3(0.0f, 0.0f, -1.0f), -180.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
 
-		// Landing Pad 2 (Alineadas en plano YZ, X = 0, salen hacia +Z)
-		{ glm::vec3(0.0f, 35.60f,  207.2f), glm::vec3(0.0f, 0.0f,  1.0f),    0.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
-		{ glm::vec3(0.0f, 13.70f,  197.5f), glm::vec3(0.0f, 0.0f,  1.0f),    0.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
-		{ glm::vec3(0.0f, -8.05f,  197.5f), glm::vec3(0.0f, 0.0f,  1.0f),    0.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		//pad de Z positivo
+		{ glm::vec3(0.0f, 35.60f, 207.2f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(0.0f, 13.70f, 197.5f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(0.0f, -8.05f, 197.5f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
 
-		// Landing Pad 3 (Alineadas en plano XY, Z = 0, salen hacia +X)
-		{ glm::vec3(207.2f, 35.60f, 0.0f),  glm::vec3(1.0f, 0.0f,  0.0f),   90.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
-		{ glm::vec3(197.5f, 13.70f, 0.0f),  glm::vec3(1.0f, 0.0f,  0.0f),   90.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
-		{ glm::vec3(197.5f, -8.05f, 0.0f),  glm::vec3(1.0f, 0.0f,  0.0f),   90.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		//pad de X positivo
+		{ glm::vec3(207.2f, 35.60f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 90.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(197.5f, 13.70f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 90.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(197.5f, -8.05f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 90.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
 
-		// Landing Pad 4 (Alineadas en plano XY, Z = 0, salen hacia -X)
-		{ glm::vec3(-207.2f, 35.60f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),  -90.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
-		{ glm::vec3(-197.5f, 13.70f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),  -90.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
-		//{ glm::vec3(-197.5f, -8.05f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),  -90.0f, 1, 0, 0.0f, 0.0f, 0.0f, 0.0f, true }
+		//pad de X negativo
+		{ glm::vec3(-207.2f, 35.60f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), -90.0f, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, true },
+		{ glm::vec3(-197.5f, 13.70f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), -90.0f, 2, 0, 0.0f, 0.0f, 0.0f, 0.0f, true }
 	};
 
+	//todas empiezan estacionadas y esperan un tiempo al azar antes de salir, para que no salgan juntas
 	for (int i = 0; i < NUM_NAVES_ESTACION; i++)
 	{
 		navesEstacion[i] = configInicial[i];
-		// Todas inician estacionadas con un tiempo de espera aleatorio entre 10 y 30 s
-		navesEstacion[i].tiempoRestante = RandomRangoNaves(TIEMPO_MIN_ESTACIONADA, TIEMPO_MAX_ESTACIONADA);
+		navesEstacion[i].tiempoRestante = AzarEntre(tiempoMinEstacionada, tiempoMaxEstacionada);
 	}
 }
-
-
 
 //--- avatar ---
 //el avatar es Kirby; usa las mismas piezas y padres que el de la seccion de personajes, pero con sus propios pivotes y rotaciones
@@ -1300,7 +1310,7 @@ int reinicioAvatar = 0;
 int modoCamaraActual = 1;
 //se compara con el contador de Window para saber cuando se presiono la Z estando en el espacio
 int puntoEspacioActual = 0;
-//posicion y direccion de la camara que se esta usando, sea cual sea; las usan la luz especular, la linterna y las plantas de luz de Xen
+//posicion y direccion de la camara que se esta usando, sea cual sea; las usan la luz especular, la linterna y el sol, que se dibuja lejos de ella
 glm::vec3 posVista = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 dirVista = glm::vec3(0.0f, 0.0f, -1.0f);
 //camara 2, que va detras y arriba del avatar y mira un poco arriba de sus pies
@@ -1314,7 +1324,7 @@ glm::vec3 camaraNaveMira = glm::vec3(0.0f, 1.5f, -8.0f);
 
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 //en los planetas el sol da una vuelta completa cada 2 minutos; deltaTime suma 60 en un segundo,
-//asi que una vuelta son 7200 y el angulo avanza 360 / 7200 = 0.05 por cada unidad de deltaTime
+//asi que una vuelta son 7200 y el angulo avanza 360 entre 7200, que es 0.05, por cada unidad de deltaTime
 float anguloSol = 60.0f;
 float anguloSolOffset = 0.05f;
 bool esDeNoche = false;
@@ -1323,23 +1333,26 @@ glm::vec3 haciaSolEspacio = glm::vec3(0.0f, 0.707f, -0.707f);
 //direccion de donde viene el sol en la zona actual y su posicion para dibujarlo lejos de la camara
 glm::vec3 haciaSol = haciaSolEspacio;
 glm::vec3 posSol = glm::vec3(0.0f, 0.0f, 0.0f);
-float distanciaSol = 800.0f; //menos que el far de la proyeccion (1000), si no, no se ve
+//tiene que ser menor que el plano lejano de la proyeccion, que esta en 3000, si no, no se ve, y mayor que la distancia
+//a los planetas del espacio para que quede detras de ellos
+float distanciaSol = 2500.0f;
 //la N salta a la manana si es de noche o a la noche si es de dia; el ciclo sigue corriendo desde ahi
 int saltoDiaNocheActual = 0;
 float anguloManana = 45.0f;
 float anguloNoche = 225.0f;
 
-//skyboxes que faltaban para tener dia y noche en cada planeta (los de Xen y el planeta 2 que ya habia son de noche
-//y el de Verdania es de dia); se hicieron con Blender/skybox_dia_noche.py
+//skyboxes que faltaban para tener dia y noche en cada planeta; los de Xen y el planeta 2 que ya habia son de noche
+//y el de Verdania es de dia, asi que se hicieron en Blender los otros tres
 Skybox skyboxXenDia;
 Skybox skyboxPlaneta2Dia;
 Skybox skyboxVerdaniaNoche;
 
 //el sol y la luna son la misma esfera con distinta textura; se dibujan lejos para que parezca que de ahi sale la luz
+//como estan tan lejos, se escalan mucho para que se vean del tamano que se quiere
 Model Sol_M;
 Model Luna_M;
-float tamanoSol = 45.0f;
-float tamanoLuna = 25.0f;
+float tamanoSol = 140.0f;
+float tamanoLuna = 78.0f;
 
 //material para lo metalico, como las naves de la carrera; brilla mas que el opaco y con un reflejo mas grande que el brillante
 Material Material_metal;
@@ -1350,47 +1363,18 @@ SpotLight linternaLuz;
 //luces de cada zona; en el while solo se mandan al shader las de la zona donde se esta,
 //asi ninguna zona pasa de MAX_POINT_LIGHTS ni de MAX_SPOT_LIGHTS aunque entre todas haya mas
 //las luminarias de los planetas se prenden de noche; las del espacio siempre estan prendidas porque ahi no hay ciclo
-const int NUM_LUMINARIAS_ESPACIO = 3;
+const int NUM_LUMINARIAS_ESPACIO = 5;
 PointLight luminariasEspacio[NUM_LUMINARIAS_ESPACIO];
 const int NUM_LUMINARIAS_XEN = 3;
 PointLight luminariasXen[NUM_LUMINARIAS_XEN];
 PointLight luminariaPlaneta2;
 PointLight luminariaVerdania;
 //spotlights de cada zona, se prenden y apagan con la K
-const int NUM_SPOTS_ESPACIO = 2;
+const int NUM_SPOTS_ESPACIO = 4;
 SpotLight spotsEspacio[NUM_SPOTS_ESPACIO];
 SpotLight spotXen;
 SpotLight spotPlaneta2;
 SpotLight spotVerdania;
-
-
-//LUCES PISTA EXTRAS
-
-//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
-
-// ============ PARÁMETROS AJUSTABLES DE LUCES DE LA PISTA ============
-// 1. PointLights Rojas (Edificios circulares - puestoObservacion1)
-// La marca en Blender está a 71.6378 m; subimos a 76.0f para librar la esfera opaca
-const float ALTURA_LOCAL_POINT_CIRCULAR = 76.0f;
-const float INTENSIDAD_DIFUSA_ROJA = 4.0f;
-const float ATEN_LIN_ROJA = 0.008f;
-const float ATEN_EXP_ROJA = 0.0002f;
-
-// 2. SpotLights Blancas (Edificios de 3 torres - puestoObservacion4)
-// La marca en Blender está a 366.209 m; subimos a 374.0f y adelantamos un poco
-// para salir de la esfera roja sin excedernos
-const glm::vec3 OFFSET_LOCAL_SPOT_TORRE = glm::vec3(0.0f, 374.0f, 8.0f);
-const float INTENSIDAD_DIFUSA_SPOT = 6.0f;
-const float ANGULO_CONO_SPOT = 28.0f;  
-const float ATEN_LIN_SPOT = 0.003f; 
-const float ATEN_EXP_SPOT = 0.00005f;
-
-// Direcciones hacia donde apuntan las SpotLights (se normalizan automáticamente)
-// Torre 1 (0, 20, -600): apunta hacia abajo (-Y) y hacia el tramo recto de la meta (-Z)
-const glm::vec3 DIR_SPOT_TORRE_1 = glm::vec3(0.10f, -0.65f, -0.75f);
-// Torre 2 (300, 100, -600): apunta hacia abajo (-Y), un poco a la izquierda (-X) y hacia la recta alta (-Z)
-const glm::vec3 DIR_SPOT_TORRE_2 = glm::vec3(-0.18f, -0.60f, -0.78f);
-// ====================================================================
 
 
 // ================== 2. GEOMETRIA HECHA A MANO ==================
@@ -1934,9 +1918,7 @@ int main()
 
 	//--- plataforma de lanzamiento y cohete ---
 
-
 	//--- estacion espacial y naves ---
-
 	estacionEspacial = Model();
 	estacionEspacial.LoadModel("Models/estacionEspacial/estacionEspacial.obj");
 	landingPad = Model();
@@ -2006,7 +1988,7 @@ int main()
 		1.0f, 0.0f, 0.0f,
 		10.0f);
 
-	//espacio: dos faros rojos a los lados de la entrada de la meta y una luz azul arriba de la nave de Among Us
+	//en el espacio hay dos faros rojos a los lados de la entrada de la meta y una luz azul arriba de la nave de Among Us
 	//la cubierta de la meta llega hasta 52 en Z, asi que los faros van un poco antes, del lado de donde llegan las naves
 	luminariasEspacio[0] = PointLight(1.0f, 0.15f, 0.1f,
 		0.1f, 2.5f,
@@ -2021,7 +2003,7 @@ int main()
 		posNaveAmongUs.x, posNaveAmongUs.y + 5.0f, posNaveAmongUs.z,
 		1.0f, 0.05f, 0.01f);
 
-	//Xen: cada planta de luz alumbra desde su foco, que esta en la punta del tallo
+	//en Xen cada planta de luz alumbra desde su foco, que esta en la punta del tallo
 	for (int i = 0; i < NUM_LUMINARIAS_XEN; i++)
 	{
 		glm::vec3 pos = posXen + posPlantas[i] + glm::vec3(0.0f, altoTallo, 0.0f);
@@ -2031,19 +2013,19 @@ int main()
 			1.0f, 0.1f, 0.02f);
 	}
 
-	//planeta 2: la warp star brilla amarillo
+	//en el planeta 2 la warp star brilla amarillo
 	luminariaPlaneta2 = PointLight(1.0f, 0.9f, 0.3f,
 		0.1f, 1.5f,
 		posPlaneta2.x + posWarpStar.x, posPlaneta2.y + posWarpStar.y + 1.5f, posPlaneta2.z + posWarpStar.z,
 		1.0f, 0.1f, 0.02f);
 
-	//Verdania: el foco del farol, que cuelga del brazo del poste hacia X negativo
+	//en Verdania alumbra el foco del farol, que cuelga del brazo del poste hacia X negativo
 	luminariaVerdania = PointLight(1.0f, 0.85f, 0.6f,
 		0.1f, 3.0f,
 		posVerdania.x + posCalleX[0] - 6.3f, posVerdania.y + 4.2f, posVerdania.z + posCalleZ - 4.0f,
 		1.0f, 0.05f, 0.01f);
 
-	//spotlights del espacio: dos luces blancas que apuntan hacia abajo a la pista, antes de la entrada de la meta
+	//los spotlights del espacio son dos luces blancas que apuntan hacia abajo a la pista, antes de la entrada de la meta
 	spotsEspacio[0] = SpotLight(1.0f, 1.0f, 0.9f,
 		0.0f, 3.0f,
 		posPista.x - 5.0f, posPista.y + 20.0f, posPista.z + 75.0f,
@@ -2056,6 +2038,56 @@ int main()
 		0.0f, -1.0f, 0.0f,
 		1.0f, 0.01f, 0.001f,
 		30.0f);
+
+	//en el espacio tambien hay dos faros rojos arriba de los edificios redondos de la pista y dos spotlights blancos
+	//en las torres altas
+	//los edificios estan sobre la pista, asi que su lugar sale de la misma matriz que modelauxPista en el while y del
+	//translate y el rotate de cada edificio; al multiplicar esa matriz por un punto del edificio sale su lugar en el mundo
+	glm::mat4 matrizPista = glm::mat4(1.0f);
+	matrizPista = glm::translate(matrizPista, posPista);
+	matrizPista = glm::scale(matrizPista, glm::vec3(0.45f, 0.45f, 0.45f));
+	matrizPista = glm::scale(matrizPista, glm::vec3(-1.0f, 1.0f, -1.0f));
+
+	//el faro va a 76 de altura en el edificio redondo, un poco arriba de su esfera para que no quede tapado
+	glm::mat4 edificio = glm::translate(matrizPista, glm::vec3(175.0f, 80.0f, 500.0f));
+	edificio = glm::rotate(edificio, -45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 posLuz = glm::vec3(edificio * glm::vec4(0.0f, 76.0f, 0.0f, 1.0f));
+	luminariasEspacio[3] = PointLight(1.0f, 0.12f, 0.08f,
+		0.15f, 4.0f,
+		posLuz.x, posLuz.y, posLuz.z,
+		1.0f, 0.008f, 0.0002f);
+
+	edificio = glm::translate(matrizPista, glm::vec3(175.0f, 80.0f, -375.0f));
+	edificio = glm::rotate(edificio, -115.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	posLuz = glm::vec3(edificio * glm::vec4(0.0f, 76.0f, 0.0f, 1.0f));
+	luminariasEspacio[4] = PointLight(1.0f, 0.12f, 0.08f,
+		0.15f, 4.0f,
+		posLuz.x, posLuz.y, posLuz.z,
+		1.0f, 0.008f, 0.0002f);
+
+	//el spotlight va en la punta de la torre, a 374 de altura, y apunta hacia abajo y hacia la recta de la meta
+	//la direccion no tiene que medir 1 porque SpotLight la normaliza
+	edificio = glm::translate(matrizPista, glm::vec3(0.0f, 20.0f, -600.0f));
+	edificio = glm::rotate(edificio, 35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	edificio = glm::scale(edificio, glm::vec3(0.5f, 0.5f, 0.5f));
+	posLuz = glm::vec3(edificio * glm::vec4(0.0f, 374.0f, 8.0f, 1.0f));
+	spotsEspacio[2] = SpotLight(1.0f, 1.0f, 0.95f,
+		0.0f, 6.0f,
+		posLuz.x, posLuz.y, posLuz.z,
+		0.10f, -0.65f, -0.75f,
+		1.0f, 0.003f, 0.00005f,
+		28.0f);
+
+	edificio = glm::translate(matrizPista, glm::vec3(300.0f, 100.0f, -600.0f));
+	edificio = glm::rotate(edificio, -35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+	edificio = glm::scale(edificio, glm::vec3(0.5f, 0.5f, 0.5f));
+	posLuz = glm::vec3(edificio * glm::vec4(0.0f, 374.0f, 8.0f, 1.0f));
+	spotsEspacio[3] = SpotLight(1.0f, 1.0f, 0.95f,
+		0.0f, 6.0f,
+		posLuz.x, posLuz.y, posLuz.z,
+		-0.18f, -0.60f, -0.78f,
+		1.0f, 0.003f, 0.00005f,
+		28.0f);
 
 	//spotlight morado sobre el cristal mas grande de Xen
 	spotXen = SpotLight(0.7f, 0.3f, 1.0f,
@@ -2081,77 +2113,16 @@ int main()
 		1.0f, 0.02f, 0.002f,
 		35.0f);
 
-
-
-	//iluminación para pista
-
-	// Matriz base idéntica a modelauxPista para convertir coordenadas de los edificios al mundo
-	glm::mat4 matrizBasePista = glm::mat4(1.0f);
-	matrizBasePista = glm::translate(matrizBasePista, posPista);
-	matrizBasePista = glm::scale(matrizBasePista, glm::vec3(0.45f, 0.45f, 0.45f));
-	matrizBasePista = glm::scale(matrizBasePista, glm::vec3(-1.0f, 1.0f, -1.0f));
-
-	// =========================================================================
-	// 1. DOS POINT LIGHTS ROJAS (Edificios circulares: puestoObservacion1)
-	// =========================================================================
-	// Edificio circular 1: translate(175.0f, 80.00f, 500.0f), rotate(-45.0f, Y)
-	glm::mat4 mCirc1 = glm::translate(matrizBasePista, glm::vec3(175.0f, 80.00f, 500.0f));
-	mCirc1 = glm::rotate(mCirc1, -45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::vec3 posPointCirc1 = glm::vec3(mCirc1 * glm::vec4(0.0f, ALTURA_LOCAL_POINT_CIRCULAR, 0.0f, 1.0f));
-
-	// Edificio circular 2: translate(175.0f, 80.00f, -375.0f), rotate(-115.0f, Y)
-	glm::mat4 mCirc2 = glm::translate(matrizBasePista, glm::vec3(175.0f, 80.00f, -375.0f));
-	mCirc2 = glm::rotate(mCirc2, -115.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::vec3 posPointCirc2 = glm::vec3(mCirc2 * glm::vec4(0.0f, ALTURA_LOCAL_POINT_CIRCULAR, 0.0f, 1.0f));
-
-	// Asignación de las 2 PointLights rojas (en [0] y [1], o en [3] y [4] si aumentaste NUM_LUMINARIAS_ESPACIO a 5)
-	luminariasEspacio[0] = PointLight(1.0f, 0.12f, 0.08f, // Color rojo intenso
-		0.15f, INTENSIDAD_DIFUSA_ROJA,
-		posPointCirc1.x, posPointCirc1.y, posPointCirc1.z,
-		1.0f, ATEN_LIN_ROJA, ATEN_EXP_ROJA);
-
-	luminariasEspacio[1] = PointLight(1.0f, 0.12f, 0.08f, // Color rojo intenso
-		0.15f, INTENSIDAD_DIFUSA_ROJA,
-		posPointCirc2.x, posPointCirc2.y, posPointCirc2.z,
-		1.0f, ATEN_LIN_ROJA, ATEN_EXP_ROJA);
-
-	// =========================================================================
-	// 2. DOS SPOTLIGHTS BLANCAS (Edificios de 3 torres: puestoObservacion4)
-	// =========================================================================
-	// Torre 1: translate(0.0f, 20.00f, -600.0f), rotate(35.0f, Y), scale(0.5f)
-	glm::mat4 mTorre1 = glm::translate(matrizBasePista, glm::vec3(0.0f, 20.00f, -600.0f));
-	mTorre1 = glm::rotate(mTorre1, 35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-	mTorre1 = glm::scale(mTorre1, glm::vec3(0.5f, 0.5f, 0.5f));
-	glm::vec3 posSpotTorre1 = glm::vec3(mTorre1 * glm::vec4(OFFSET_LOCAL_SPOT_TORRE, 1.0f));
-	glm::vec3 dirSpot1 = glm::normalize(DIR_SPOT_TORRE_1);
-
-	// Torre 2: translate(300.0f, 100.00f, -600.0f), rotate(-35.0f, Y), scale(0.5f)
-	glm::mat4 mTorre2 = glm::translate(matrizBasePista, glm::vec3(300.0f, 100.00f, -600.0f));
-	mTorre2 = glm::rotate(mTorre2, -35.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-	mTorre2 = glm::scale(mTorre2, glm::vec3(0.5f, 0.5f, 0.5f));
-	glm::vec3 posSpotTorre2 = glm::vec3(mTorre2 * glm::vec4(OFFSET_LOCAL_SPOT_TORRE, 1.0f));
-	glm::vec3 dirSpot2 = glm::normalize(DIR_SPOT_TORRE_2);
-
-	// Asignación de las 2 SpotLights blancas (se prenden y apagan con la tecla K)
-	spotsEspacio[0] = SpotLight(1.0f, 1.0f, 0.95f, // Blanco cálido
-		0.0f, INTENSIDAD_DIFUSA_SPOT,
-		posSpotTorre1.x, posSpotTorre1.y, posSpotTorre1.z,
-		dirSpot1.x, dirSpot1.y, dirSpot1.z,
-		1.0f, ATEN_LIN_SPOT, ATEN_EXP_SPOT,
-		ANGULO_CONO_SPOT);
-
-	spotsEspacio[1] = SpotLight(1.0f, 1.0f, 0.95f, // Blanco cálido
-		0.0f, INTENSIDAD_DIFUSA_SPOT,
-		posSpotTorre2.x, posSpotTorre2.y, posSpotTorre2.z,
-		dirSpot2.x, dirSpot2.y, dirSpot2.z,
-		1.0f, ATEN_LIN_SPOT, ATEN_EXP_SPOT,
-		ANGULO_CONO_SPOT);
-
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	GLuint uniformColor = 0;
 	//glm::perspective usa radianes, asi que el 45.0f no son 45 grados, pero asi venia del lab y se ve bien
-	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
+	//el plano lejano esta en 3000 para que desde cualquier parte del espacio se vean los planetas, que estan lejos
+	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 3000.0f);
+
+	//la carga tarda varios segundos; si lastTime se quedara en 0, el primer frame tendria un deltaTime enorme
+	//y todas las animaciones darian un salto, por eso se toma la hora justo antes de empezar
+	lastTime = glfwGetTime();
 
 	// ================== 4. CICLO PRINCIPAL ==================
 	//todo lo que esta dentro del while se repite cada frame hasta que se cierra la ventana
@@ -2213,8 +2184,9 @@ int main()
 			int punto = puntoEspacioActual % 3;
 			if (punto == 1)
 			{
-				//a un lado de la nave nodriza, a su altura y viendo hacia X negativo
-				camera = Camera(glm::vec3(500.0f, -130.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 0.3f, 0.5f);
+				//del lado de la nave nodriza que da hacia X negativo, a la altura de su cubierta y viendo hacia X positivo,
+				//asi sale completa y atras de ella la estacion
+				camera = Camera(glm::vec3(-250.0f, 120.0f, -40.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, -5.0f, 0.3f, 0.5f);
 			}
 			else if (punto == 2)
 			{
@@ -2284,7 +2256,7 @@ int main()
 			if (posAvatar.z < -limitePisoAvatar)
 				posAvatar.z = -limitePisoAvatar;
 
-			//camara 2: atras del avatar y a una altura fija, asi que se mueve en un plano paralelo al piso
+			//la camara 2 va atras del avatar y a una altura fija, asi que se mueve en un plano paralelo al piso
 			glm::vec3 posAvatarMundo = centroAvatar + posAvatar;
 			glm::vec3 puntoMira = posAvatarMundo + glm::vec3(0.0f, alturaMiraAvatar, 0.0f);
 			posVista = posAvatarMundo - frenteAvatar * distanciaCamaraAvatar + glm::vec3(0.0f, alturaCamaraAvatar, 0.0f);
@@ -2292,7 +2264,7 @@ int main()
 			view = glm::lookAt(posVista, puntoMira, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
-		//camara 3: detras de una de las naves de la carrera, y Q y E cambian de nave
+		//la camara 3 va detras de una de las naves de la carrera, y Q y E cambian de nave
 		//la nave se coloca con la misma funcion y el mismo carril y distancia que usa la seccion de la pista
 		//como esa seccion mueve la carrera mas abajo, aqui se le suma lo que va a avanzar en este frame para que la camara no se quede atras
 		if (mainWindow.getmodoCamara() == 3)
@@ -2608,14 +2580,14 @@ int main()
 
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		//el planeta Xen en el espacio tiene radio 60 y gira despacio sobre Y
+		//el planeta Xen en el espacio es una esfera de radio 1, asi que con escala 220 queda de radio 220; gira despacio sobre Y
 		giroPlanetaXen += giroPlanetaXenOffset * deltaTime;
 		if (giroPlanetaXen > 360.0f)
 			giroPlanetaXen -= 360.0f;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posPlanetaXen);
 		model = glm::rotate(model, giroPlanetaXen * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(60.0f, 60.0f, 60.0f));
+		model = glm::scale(model, glm::vec3(220.0f, 220.0f, 220.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		XenPlaneta_M.RenderModel();
 
@@ -2702,6 +2674,12 @@ int main()
 			{
 				alturaPlantas[i] += 0.01f * deltaTime;
 			}
+			//se deja entre 0.1 y 1 aunque un frame tarde mucho; con una escala negativa el tallo se voltearia
+			//y la parte que esta bajo el piso saldria hacia arriba como un poste muy largo
+			if (alturaPlantas[i] < 0.1f)
+				alturaPlantas[i] = 0.1f;
+			if (alturaPlantas[i] > 1.0f)
+				alturaPlantas[i] = 1.0f;
 			model = glm::mat4(1.0);
 			model = glm::translate(model, pos);
 			glm::mat4 modelaux = model;
@@ -2730,17 +2708,17 @@ int main()
 			XenIsla_M.RenderModel();
 		}
 
-		//Pop Star mide como 1.8 de la punta al centro, asi que con escala 40 cada punta sale unas 70 unidades
-		//gira sobre Z porque la estrella esta parada viendo hacia Z positivo
+		//Pop Star mide como 1.8 de la punta al centro, asi que con escala 180 cada punta sale unas 320 unidades
+		//la estrella esta parada viendo hacia Z positivo; se gira 120 grados en Y para que vea hacia el centro de la escena
+		//y despues gira sobre su propio Z como rehilete
 		giroPlaneta2 += giroPlaneta2Offset * deltaTime;
 		if (giroPlaneta2 > 360.0f)
 			giroPlaneta2 -= 360.0f;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posPlaneta2Espacio);
-		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 120.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, giroPlaneta2 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		//model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(200.0f, 200.0f, 200.0f));
+		model = glm::scale(model, glm::vec3(180.0f, 180.0f, 180.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Planeta2Espacio_M.RenderModel();
 
@@ -2912,7 +2890,7 @@ int main()
 
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		//piso de pasto, del mismo tamano que el de Xen (200 por 200)
+		//piso de pasto, del mismo tamano que el de Xen, que mide 200 por 200
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania);
 		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
@@ -2925,8 +2903,8 @@ int main()
 		//dibuja cada pieza encima de su padre girando en su pivote
 
 		//peashooter, que es NPC y camina en circulo como el headcrab
-		//pasoPea va de -1 a 1; las hojas-pata se mueven cruzadas: la delantera izquierda junto con la trasera derecha
-		//y la delantera derecha junto con la trasera izquierda, como caminan los animales de cuatro patas
+		//pasoPea va de -1 a 1; las hojas de abajo le sirven de patas y se mueven cruzadas, la delantera izquierda junto con
+		//la trasera derecha y la delantera derecha junto con la trasera izquierda, como caminan los animales de cuatro patas
 		float pasoPea = sin(anguloVerdania * 3.0f * toRadians);
 		rotPeashooter[8].x = 25.0f * pasoPea;   //hoja_del_izq
 		rotPeashooter[11].x = 25.0f * pasoPea;  //hoja_tras_der
@@ -3207,14 +3185,14 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinRoca_M.RenderModel();
 
-		//planeta Verdania en el espacio, gira despacio sobre Y como Xen; mide como 0.73 de alto y con escala 130 queda de unas 95 unidades
+		//planeta Verdania en el espacio, gira despacio sobre Y como Xen; mide como 0.73 de alto y con escala 450 queda de unas 330 unidades
 		giroPlanetaVerdania += giroPlanetaVerdaniaOffset * deltaTime;
 		if (giroPlanetaVerdania > 360.0f)
 			giroPlanetaVerdania -= 360.0f;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posPlanetaVerdania);
 		model = glm::rotate(model, giroPlanetaVerdania * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(130.0f, 130.0f, 130.0f));
+		model = glm::scale(model, glm::vec3(450.0f, 450.0f, 450.0f));
 		model = glm::translate(model, -centroCabezaPea);
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PlanetaVerdania_M.RenderModel();
@@ -3353,8 +3331,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		puestoObservacion4.RenderModel();
 
-		//barco espacial, que es la nave nodriza en el centro de la escena
-		
+		//barco espacial, que es la nave nodriza; con su escala mide como 540 de largo y 200 de alto, y queda adelante
+		//a la derecha de donde empieza la camara
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -3363,7 +3341,7 @@ int main()
 		model = glm::scale(model, glm::vec3(0.315f, 0.315f, 0.315f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		barcoEspacial.RenderModel();
-		
+
 		//almacen del puerto
 		model = modelauxPista;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -3373,7 +3351,7 @@ int main()
 		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		warehousePort.RenderModel();
-		
+
 		//nave 1 de la pista
 		model = modelauxPista;
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -3408,32 +3386,27 @@ int main()
 		sateliteRace.RenderModel();
 
 		//--- plataforma de lanzamiento y cohete ---
-		//413,-254
-		//--- estacion espacial y naves ---
 
+		//--- estacion espacial y naves ---
+		//modelauxEstacion se guarda antes de escalar la estacion, asi los pads y las naves no se hacen chicos con ella
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, glm::vec3(613.0f, -5.0f, -350.0f));
+		model = glm::translate(model, posEstacion);
 		modelauxEstacion = model;
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		estacionEspacial.RenderModel();
 
-		//LANDING PADS
-
+		//landing pads; el modelo tiene hacia X negativo el lado donde se posan las naves, por eso cada pad se gira
+		//para que ese lado quede hacia afuera de la estacion
 		model = modelauxEstacion;
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		model = glm::translate(model, glm::vec3(-150.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		model = glm::rotate(model, 0.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		landingPad.RenderModel();
 
 		model = modelauxEstacion;
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		model = glm::translate(model, glm::vec3(150.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -3441,8 +3414,6 @@ int main()
 		landingPad.RenderModel();
 
 		model = modelauxEstacion;
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 150.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -3450,118 +3421,114 @@ int main()
 		landingPad.RenderModel();
 
 		model = modelauxEstacion;
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -150.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		model = glm::rotate(model, -90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		landingPad.RenderModel();
 
-		//NAVES
-
-		//landing Pad 1 naves
-
-		//NAVES (Animación por estados en los 4 Landing Pads)
-		float dtSegundos = deltaTime / 60.0f;
-
+		//naves de la estacion; cada una avanza en su estado y al terminarlo pasa al siguiente
+		//los tiempos de espera van en segundos y deltaTime suma 60 en un segundo, por eso se divide entre 60
+		//son de metal, como las de la carrera, y al terminar se regresa el material opaco
+		float segundosFrame = deltaTime / 60.0f;
+		Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		for (int i = 0; i < NUM_NAVES_ESTACION; i++)
 		{
-			NaveEstacion& n = navesEstacion[i];
+			//se copia la nave, se cambia y al final se guarda otra vez en el arreglo
+			NaveEstacion n = navesEstacion[i];
 
-			switch (n.estado)
+			if (n.estado == 0)
 			{
-			case 0: // 1. En reposo sobre el landing pad
-				n.tiempoRestante -= dtSegundos;
+				//estacionada, esperando a que se acabe su tiempo
+				n.tiempoRestante -= segundosFrame;
 				if (n.tiempoRestante <= 0.0f)
-				{
 					n.estado = 1;
-				}
-				break;
-
-			case 1: // 2. Se eleva sobre el eje Y 
-				n.offsetY += VEL_ELEVACION_Y * deltaTime;
-				if (n.offsetY >= ALTURA_ELEVACION_NAVE)
+			}
+			else if (n.estado == 1)
+			{
+				//se eleva sobre su pad
+				n.offsetY += velSubidaNave * deltaTime;
+				if (n.offsetY >= alturaNaveEstacion)
 				{
-					n.offsetY = ALTURA_ELEVACION_NAVE;
+					n.offsetY = alturaNaveEstacion;
 					n.estado = 2;
 				}
-				break;
-
-			case 2: // 3. Giro 180 grados sobre su eje Y para alinearse hacia afuera
-				n.giroExtraY += VEL_GIRO_SALIDA * deltaTime;
+			}
+			else if (n.estado == 2)
+			{
+				//gira 180 grados en Y para quedar viendo hacia afuera
+				n.giroExtraY += velGiroNave * deltaTime;
 				if (n.giroExtraY >= 180.0f)
 				{
 					n.giroExtraY = 180.0f;
 					n.estado = 3;
 				}
-				break;
-
-			case 3: // 4. Sale disparada a hipervelocidad
-				n.offsetAvance += VEL_HIPERVELOCIDAD * deltaTime;
-				if (n.offsetAvance >= DISTANCIA_DESAPARICION)
+			}
+			else if (n.estado == 3)
+			{
+				//sale a hipervelocidad; al llegar a distanciaSalida deja de dibujarse y se escoge cuanto tarda en regresar
+				n.offsetAvance += velHipervelocidad * deltaTime;
+				if (n.offsetAvance >= distanciaSalida)
 				{
-					n.offsetAvance = DISTANCIA_DESAPARICION;
-					n.visible = false; // Se deja de renderizar para ahorrar recursos
-					n.tiempoRestante = RandomRangoNaves(TIEMPO_MIN_FUERA, TIEMPO_MAX_FUERA);
+					n.offsetAvance = distanciaSalida;
+					n.visible = false;
+					n.tiempoRestante = AzarEntre(tiempoMinFuera, tiempoMaxFuera);
 					n.estado = 4;
 				}
-				break;
-
-			case 4: // 5. Fuera de escena sin renderizarse
-				n.tiempoRestante -= dtSegundos;
+			}
+			else if (n.estado == 4)
+			{
+				//fuera de la escena; cuando se acaba su tiempo vuelve a aparecer lejos, ya viendo hacia la estacion
+				n.tiempoRestante -= segundosFrame;
 				if (n.tiempoRestante <= 0.0f)
 				{
-					// Prepara el regreso en el mismo plano
 					n.giroExtraY = 0.0f;
-					n.offsetY = ALTURA_ELEVACION_NAVE;
-					n.offsetAvance = DISTANCIA_DESAPARICION;
-					n.visible = true; // Vuelve a renderizarse
+					n.offsetY = alturaNaveEstacion;
+					n.offsetAvance = distanciaSalida;
+					n.visible = true;
 					n.estado = 5;
 				}
-				break;
-
-			case 5: // 6. Llega a hipervelocidad y frena a 50 unidades
-				n.offsetAvance -= VEL_HIPERVELOCIDAD * deltaTime;
-				if (n.offsetAvance <= DISTANCIA_FRENADO_LLEGADA)
+			}
+			else if (n.estado == 5)
+			{
+				//regresa a hipervelocidad hasta que le faltan distanciaFrenado para llegar
+				n.offsetAvance -= velHipervelocidad * deltaTime;
+				if (n.offsetAvance <= distanciaFrenado)
 				{
-					n.offsetAvance = DISTANCIA_FRENADO_LLEGADA;
+					n.offsetAvance = distanciaFrenado;
 					n.estado = 6;
 				}
-				break;
-
-			case 6: // 7. Se acerca lentamente hacia el pad
-				n.offsetAvance -= VEL_APROXIMACION_LENTA * deltaTime;
+			}
+			else if (n.estado == 6)
+			{
+				//se acerca despacio hasta quedar arriba de su pad
+				n.offsetAvance -= velAcercamiento * deltaTime;
 				if (n.offsetAvance <= 0.0f)
 				{
 					n.offsetAvance = 0.0f;
 					n.estado = 7;
 				}
-				break;
-
-			case 7: 
-				n.offsetY -= VEL_ELEVACION_Y * deltaTime;
+			}
+			else
+			{
+				//baja hasta posarse y se escoge cuanto tiempo se queda estacionada
+				n.offsetY -= velSubidaNave * deltaTime;
 				if (n.offsetY <= 0.0f)
 				{
 					n.offsetY = 0.0f;
-					n.tiempoRestante = RandomRangoNaves(TIEMPO_MIN_ESTACIONADA, TIEMPO_MAX_ESTACIONADA);
+					n.tiempoRestante = AzarEntre(tiempoMinEstacionada, tiempoMaxEstacionada);
 					n.estado = 0;
 				}
-				break;
 			}
 
-			// Solo enviamos la matriz y dibujamos si la nave está dentro de la escena
+			//su lugar es el del pad mas lo que ha subido y lo que ha avanzado hacia afuera
 			if (n.visible)
 			{
-				glm::vec3 posActual = n.posBase + glm::vec3(0.0f, n.offsetY, 0.0f) + (n.dirSalida * n.offsetAvance);
-				float rotActualY = n.rotBaseY + n.giroExtraY;
-
+				glm::vec3 posNave = n.posBase + glm::vec3(0.0f, n.offsetY, 0.0f) + n.dirSalida * n.offsetAvance;
 				model = modelauxEstacion;
-				glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-				model = glm::translate(model, posActual);
-				model = glm::rotate(model, rotActualY * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::translate(model, posNave);
+				model = glm::rotate(model, (n.rotBaseY + n.giroExtraY) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
 				if (n.tipoModelo == 0)
 					naveDorada.RenderModel();
 				else if (n.tipoModelo == 1)
@@ -3569,7 +3536,10 @@ int main()
 				else
 					naveCaza.RenderModel();
 			}
+
+			navesEstacion[i] = n;
 		}
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		//--- avatar ---
 		//mientras el avatar camina, pasoAvatar va y viene entre sus limites como las patas del headcrab
@@ -3629,7 +3599,6 @@ int main()
 		}
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
-		//postes o lamparas de las luminarias
 		//el sol se dibuja en posSol en el espacio y en los planetas de dia; de noche sale la luna del lado contrario,
 		//que es de donde viene la luz azulada; el color va arriba de 1 para que brillen aunque la luz les pegue por atras
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
