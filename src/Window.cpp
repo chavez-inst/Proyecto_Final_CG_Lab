@@ -34,6 +34,7 @@ Window::Window()
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
+	personajeAvatar = 0; //empieza con Kirby
 
 	//--- camaras y recorridos ---
 	modoCamara = 1;
@@ -85,6 +86,7 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
+	personajeAvatar = 0; //empieza con Kirby
 
 	//--- camaras y recorridos ---
 	modoCamara = 1;
@@ -288,6 +290,19 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
+	//T cambia el personaje que se controla con la camara 2: 0 es Kirby y 1 la carnivora;
+	//al pasar del ultimo personaje se regresa al primero
+	if (key == GLFW_KEY_T && action == GLFW_PRESS)
+	{
+		theWindow->personajeAvatar += 1;
+		if (theWindow->personajeAvatar > 1)
+			theWindow->personajeAvatar = 0;
+		//se avisa en la consola cual personaje quedo
+		if (theWindow->personajeAvatar == 0)
+			printf("avatar: Kirby\n");
+		else
+			printf("avatar: carnivora\n");
+	}
 
 	//--- camaras y recorridos ---
 	//1 es la camara libre, 2 la del avatar, 3 la de una nave de la carrera, 4 la de la nave que viaja entre planetas

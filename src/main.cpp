@@ -457,6 +457,9 @@ float pasoAvatar = 0.0f;
 float pasoAvatarOffset = 3.0f;
 float limitePasoAvatar = 25.0f;
 bool pasoAdelanteAvatar = true;
+//la carnivora tambien puede ser el avatar (la T cambia de personaje); usa las mismas piezas, padres y pivotes
+//que la de la seccion de personajes, pero sus propias rotaciones para no mover a la otra carnivora al caminar
+glm::vec3 rotAvatarCarnivora[NUM_PIEZAS_CARNIVORA];
 //se comparan con la zona y el reinicio de Window para regresar al avatar al punto de llegada cuando cambian
 int zonaAvatar = 0;
 int reinicioAvatar = 0;
@@ -1839,15 +1842,9 @@ int main()
 		rotPeashooter[11].x = 25.0f * pasoPea;  //hoja_tras_der
 		rotPeashooter[9].x = -25.0f * pasoPea;  //hoja_del_der
 		rotPeashooter[10].x = -25.0f * pasoPea; //hoja_tras_izq
-		//los brazos vienen extendidos en T en el modelo; se bajan 70 grados en Z en el hombro
-		//y se balancean en X al caminar, cada uno al reves del otro
+		//los brazos vienen extendidos en T en el modelo; solo se bajan 70 grados en Z en el hombro y se quedan quietos
 		rotPeashooter[6].z = -70.0f;            //brazo_izq abajo
 		rotPeashooter[7].z = 70.0f;             //brazo_der abajo
-		rotPeashooter[6].x = -20.0f * pasoPea;  //brazo_izq adelante y atras
-		rotPeashooter[7].x = 20.0f * pasoPea;   //brazo_der adelante y atras
-		//la cabeza rebota dos veces por cada paso, por eso su seno va al doble que el del paso, y el tallo se mece un poco
-		rotPeashooter[3].x = 4.0f * sin(anguloVerdania * 6.0f * toRadians); //cabeza
-		rotPeashooter[1].z = 3.0f * pasoPea;                                 //tallo1
 		//la posicion en el circulo sale del seno y el coseno de su angulo, y se gira 90 grados mas para que mire hacia donde avanza
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + centroPeashooter +
@@ -1855,36 +1852,30 @@ int main()
 		model = glm::rotate(model, (anguloPeashooter + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Peashooter_M, padresPeashooter, pivotesPeashooter, rotPeashooter, NUM_PIEZAS_PEASHOOTER, model, uniformModel);
 
-		//crazy dave, que es NPC y camina de un lado a otro en linea recta
-		//las piernas van contrarias y cada brazo va al reves que su pierna, como cuando camina una persona;
+		//crazy dave (NPC): camina de un lado a otro en linea recta
+		//solo se mueven las piernas, una al reves de la otra, como cuando camina una persona;
 		//la pantorrilla y el pie son hijos del muslo, asi que se mueven con el sin tocarlos
 		float pasoDave = sin(anguloVerdania * 4.0f * toRadians);
 		rotCrazyDave[11].x = 25.0f * pasoDave;  //muslo_der
 		rotCrazyDave[14].x = -25.0f * pasoDave; //muslo_izq
-		//los brazos vienen abiertos en el modelo; se bajan 45 grados en Z y se balancean en X
+		//los brazos vienen abiertos en el modelo; solo se bajan 45 grados en Z y se quedan quietos
 		rotCrazyDave[5].z = 45.0f;              //brazo_der abajo
 		rotCrazyDave[8].z = -45.0f;             //brazo_izq abajo
-		rotCrazyDave[5].x = -20.0f * pasoDave;  //brazo_der adelante y atras
-		rotCrazyDave[8].x = 20.0f * pasoDave;   //brazo_izq adelante y atras
-		//la olla de la cabeza se tambalea rapido porque su seno multiplica al angulo por 8
-		rotCrazyDave[4].z = 6.0f * sin(anguloVerdania * 8.0f * toRadians); //olla
-		//el modelo mira hacia Z positivo y rumboDave lo gira en Y hacia donde camina
+		//el modelo mira hacia +Z; rumboDave lo gira en Y hacia donde camina
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(posDave, 0.0f, -8.0f));
 		model = glm::rotate(model, rumboDave * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(CrazyDave_M, padresCrazyDave, pivotesCrazyDave, rotCrazyDave, NUM_PIEZAS_CRAZYDAVE, model, uniformModel);
 
-		//los tres peas en maceta son NPCs que vigilan, voltean la cabeza de un lado a otro hasta 35 grados en Y
-		//y el tallo se inclina un poco hacia adelante y atras en X; cada uno va desfasado 120 grados del anterior
+		//ice pea y fire pea (NPCs en maceta) vigilan: solo voltean la cabeza de un lado a otro hasta 35 grados (en Y);
+		//cada uno lleva un desfase distinto (0 y 240) para que no volteen al mismo tiempo
 		rotIcePea[2].y = 35.0f * sin(anguloVerdania * toRadians);       //cabeza
-		rotIcePea[1].x = 4.0f * sin(anguloVerdania * 2.0f * toRadians); //tallo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-6.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(IcePea_M, padresIcePea, pivotesIcePea, rotIcePea, NUM_PIEZAS_ICEPEA, model, uniformModel);
 
-		rotGatlingPea[2].y = 35.0f * sin((anguloVerdania + 120.0f) * toRadians);       //cabeza
-		rotGatlingPea[1].x = 4.0f * sin((anguloVerdania * 2.0f + 120.0f) * toRadians); //tallo
+		//gatling pea (NPC en maceta): la cabeza se queda quieta y solo giran los canones
 		//los canones giran sobre su propio eje, que es el eje Z del modelo; como son hijos de la boca, siguen a la cabeza
 		rotGatlingPea[4].z = giroCanones;
 		model = glm::mat4(1.0);
@@ -1893,28 +1884,25 @@ int main()
 		DibujaJerarquia(GatlingPea_M, padresGatlingPea, pivotesGatlingPea, rotGatlingPea, NUM_PIEZAS_GATLINGPEA, model, uniformModel);
 
 		rotFirePea[2].y = 35.0f * sin((anguloVerdania + 240.0f) * toRadians);       //cabeza
-		rotFirePea[1].x = 4.0f * sin((anguloVerdania * 2.0f + 240.0f) * toRadians); //tallo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-6.5f, 0.0f, -6.5f));
 		model = glm::rotate(model, 70.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(FirePea_M, padresFirePea, pivotesFirePea, rotFirePea, NUM_PIEZAS_FIREPEA, model, uniformModel);
 
-		//el cactus es NPC y sube y baja los brazos en Z; con el mismo valor en los dos uno sube mientras el otro baja
-		//porque estan de lados contrarios, y el tallo de arriba se mece
+		//cactus (NPC): solo sube y baja los brazos en Z (el mismo valor en los dos hace que uno suba mientras el otro baja,
+		//porque estan de lados contrarios)
 		rotCactus[4].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_izq
 		rotCactus[5].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_der
-		rotCactus[2].z = 3.0f * sin(anguloVerdania * toRadians);         //tallo2
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(6.5f, 0.0f, -1.0f));
 		model = glm::rotate(model, -40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Cactus_M, padresCactus, pivotesCactus, rotCactus, NUM_PIEZAS_CACTUS, model, uniformModel);
 
-		//los girasoles son de adorno y mecen la cabeza de lado en Z y el tallo hacia adelante y atras en X, como con el viento;
+		//girasoles (adorno): solo mecen la cabeza de lado (Z), como con el viento;
 		//cada uno va desfasado 120 grados del anterior
 		rotSunflower[6].z = -60.0f; //los brazos tambien vienen en T y se bajan 60 grados
 		rotSunflower[7].z = 60.0f;
 		rotSunflower[3].z = 8.0f * sin(anguloVerdania * toRadians); //cabeza
-		rotSunflower[1].x = 3.0f * sin(anguloVerdania * toRadians); //tallo1
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-3.0f, 0.0f, -12.0f));
 		model = glm::rotate(model, 15.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1923,7 +1911,6 @@ int main()
 		rotSunflower2[6].z = -60.0f;
 		rotSunflower2[7].z = 60.0f;
 		rotSunflower2[3].z = 8.0f * sin((anguloVerdania + 120.0f) * toRadians); //cabeza
-		rotSunflower2[1].x = 3.0f * sin((anguloVerdania + 120.0f) * toRadians); //tallo1
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -13.0f));
 		DibujaJerarquia(Sunflower2_M, padresSunflower2, pivotesSunflower2, rotSunflower2, NUM_PIEZAS_SUNFLOWER2, model, uniformModel);
@@ -1931,23 +1918,21 @@ int main()
 		rotStuffyFlower[6].z = -60.0f;
 		rotStuffyFlower[7].z = 60.0f;
 		rotStuffyFlower[3].z = 8.0f * sin((anguloVerdania + 240.0f) * toRadians); //cabeza
-		rotStuffyFlower[1].x = 3.0f * sin((anguloVerdania + 240.0f) * toRadians); //tallo1
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(3.0f, 0.0f, -12.0f));
 		model = glm::rotate(model, -15.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(StuffyFlower_M, padresStuffyFlower, pivotesStuffyFlower, rotStuffyFlower, NUM_PIEZAS_STUFFYFLOWER, model, uniformModel);
 
-		//hypno-shroom de adorno, el sombrero se tambalea de lado y el tallo gira un poco sobre si mismo
+		//hypno-shroom (adorno): solo el sombrero se tambalea de lado
 		rotHypnoShroom[2].z = 6.0f * sin(anguloVerdania * 2.0f * toRadians); //sombrero
-		rotHypnoShroom[1].y = 10.0f * sin(anguloVerdania * toRadians);       //tallo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(7.0f, 0.0f, -6.0f));
 		model = glm::rotate(model, -50.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(HypnoShroom_M, padresHypnoShroom, pivotesHypnoShroom, rotHypnoShroom, NUM_PIEZAS_HYPNOSHROOM, model, uniformModel);
 
-		//laser bean de adorno, el cuerpo se balancea dentro de su maceta y el pelo rebota al doble de rapido
+		//laser bean (adorno): solo el cuerpo se balancea dentro de su maceta; la antena (pieza pelo) ya no tiene
+		//movimiento propio, solo acompana al cuerpo porque es su hija
 		rotLaserBean[1].z = 8.0f * sin(anguloVerdania * toRadians);         //cuerpo
-		rotLaserBean[2].x = 15.0f * sin(anguloVerdania * 2.0f * toRadians); //pelo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(5.0f, 0.0f, 3.0f));
 		model = glm::rotate(model, -30.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1969,10 +1954,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		WallNut_M.RenderModel();
 
-		//torchwood de adorno, los brazos suben y bajan en Z y la mandibula se abre entre 0 y 12 grados en X
-		//como a 6 se le suma 6 por el seno, nunca baja de 0 y la boca no se cierra de mas
-		rotTorchwood[5].z = 8.0f * sin(anguloVerdania * toRadians);               //brazo_izq
-		rotTorchwood[7].z = -8.0f * sin(anguloVerdania * toRadians);              //brazo_der
+		//torchwood (adorno): solo la mandibula se abre entre 0 y 12 grados en X
+		//(6 + 6 * seno nunca baja de 0, asi la boca no se cierra de mas)
 		rotTorchwood[4].x = 6.0f + 6.0f * sin(anguloVerdania * 2.0f * toRadians); //mandibula
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -18.0f));
@@ -2571,6 +2554,12 @@ int main()
 		//mientras la otra va hacia atras, y cada una va al reves del pie de su lado
 		rotAvatar[1].y = pasoAvatar * 1.2f;
 		rotAvatar[2].y = pasoAvatar * 1.2f;
+		//si el avatar es la carnivora, sus hojas-pata usan el mismo pasoAvatar y se mueven cruzadas como las del peashooter:
+		//la delantera izquierda junto con la trasera derecha, y la delantera derecha junto con la trasera izquierda
+		rotAvatarCarnivora[8].x = pasoAvatar;   //hoja_del_izq
+		rotAvatarCarnivora[9].x = pasoAvatar;   //hoja_tras_der
+		rotAvatarCarnivora[7].x = -pasoAvatar;  //hoja_del_der
+		rotAvatarCarnivora[10].x = -pasoAvatar; //hoja_tras_izq
 		//Kirby da un pequeno salto en cada paso, mas alto mientras mas separados van los pies
 		float saltoAvatar = 0.03f * fabs(pasoAvatar) / limitePasoAvatar;
 
@@ -2584,7 +2573,11 @@ int main()
 			color = glm::vec3(1.0f, 1.0f, 1.0f);
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 			Material_avatar.UseMaterial(uniformSpecularIntensity, uniformShininess);
-			DibujaJerarquia(Kirby_M, padresKirby, pivotesAvatar, rotAvatar, NUM_PIEZAS_KIRBY, model, uniformModel);
+			//los dos personajes se colocan, giran y escalan igual; la T solo cambia cual modelo se dibuja
+			if (mainWindow.getpersonajeAvatar() == 0)
+				DibujaJerarquia(Kirby_M, padresKirby, pivotesAvatar, rotAvatar, NUM_PIEZAS_KIRBY, model, uniformModel);
+			else
+				DibujaJerarquia(Carnivora_M, padresCarnivora, pivotesCarnivora, rotAvatarCarnivora, NUM_PIEZAS_CARNIVORA, model, uniformModel);
 		}
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
