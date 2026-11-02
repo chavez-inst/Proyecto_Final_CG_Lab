@@ -1,13 +1,9 @@
 /*
 Proyecto Final - Computacion Grafica
-En este archivo se arma toda la escena. Sale de la base del lab, que ya traia la ventana, la camara,
-la iluminacion, las texturas, los modelos con Assimp y el skybox. Las teclas estan en README.md
-
-El archivo esta partido en 4 bloques y cada uno empieza con una linea de ===: las variables globales,
-la geometria hecha a mano, la carga de recursos, dentro del main, y el while, que dibuja todo cada frame.
-Dentro de cada bloque hay una seccion //--- ... --- por actividad, siempre en el mismo orden, y cada quien
-escribe solo en las suyas. Los arreglos largos de datos, como las piezas de los modelos con jerarquia y los
-puntos de la pista, estan en DatosEscena.h con las mismas secciones.
+Aqui se arma toda la escena. El archivo esta partido en 4 bloques que empiezan con una linea de ===: las variables
+globales, la geometria hecha a mano, la carga de recursos dentro del main y el while, que dibuja todo cada frame.
+En cada bloque hay una seccion //--- ... --- por actividad, siempre en el mismo orden. Los arreglos largos, como las
+piezas de los modelos con jerarquia y los puntos de la pista, estan en DatosEscena.h con las mismas secciones.
 */
 
 //esto solo va aqui y en ningun otro archivo, porque si no da error de simbolos repetidos
@@ -79,7 +75,7 @@ glm::vec3 posPlaneta2 = glm::vec3(-6000.0f, 0.0f, 0.0f);
 glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 6000.0f);
 
 //--- personajes ---
-//modelos de los personajes; ya se cargan, pero todavia no se dibujan en ninguna parte de la escena
+//modelos de los personajes; se cargan, pero todavia no se dibujan en la escena
 //los que tienen jerarquia se dibujan con DibujaJerarquia y se articulan cambiando sus rotaciones en el while,
 //por ejemplo rotGordon[2].x = -30.0f; gira el brazo derecho en el hombro
 Model CapitanFalcon_M;
@@ -104,13 +100,12 @@ Model XenPlaneta_M;
 glm::vec3 posPlanetaXen = glm::vec3(300.0f, 250.0f, -1500.0f);
 float giroPlanetaXen = 0.0f;
 float giroPlanetaXenOffset = 0.05f;
-//objetos de la superficie, hechos en Blender
+//objetos de la superficie
 Model XenCristal_M;
 Model XenIsla_M;
 Model XenTallo_M;
 Model XenFoco_M;
-//criaturas acomodadas de la mas simple a la mas evolucionada; son descargadas y los creditos estan en el LICENCIA.txt
-//de cada una
+//criaturas acomodadas de la mas simple a la mas evolucionada
 Model Houndeye_M;
 Model Bullsquid_M;
 Model Vortigaunt_M;
@@ -150,7 +145,7 @@ Model Planeta2Espacio_M;
 glm::vec3 posPlaneta2Espacio = glm::vec3(-912.0f, -150.0f, 600.0f);
 float giroPlaneta2 = 0.0f;
 float giroPlaneta2Offset = 0.04f;
-//objetos de la superficie, hechos en Blender
+//objetos de la superficie
 Model Planeta2Colina_M;
 Model Planeta2Arbol_M;
 Model Planeta2Nube1_M;
@@ -172,7 +167,7 @@ glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
 float giroPlanetaVerdania = 0.0f;
 float giroPlanetaVerdaniaOffset = 0.05f;
 
-//las plantas son modelos descargados y separados en piezas por sus huesos; los creditos estan en el LICENCIA.txt de cada una
+//las plantas estan separadas en piezas por sus huesos
 //anguloVerdania marca el tiempo de todas sus animaciones y solo avanza mientras la F las tenga prendidas
 float anguloVerdania = 0.0f;
 float anguloVerdaniaOffset = 2.0f;
@@ -226,8 +221,7 @@ Model Torchwood_M[NUM_PIEZAS_TORCHWOOD];
 glm::vec3 rotTorchwood[NUM_PIEZAS_TORCHWOOD];
 Model WallNut_M; //es una sola pieza, por eso es un Model normal
 
-//jardin de crazy dave con su casa, la calle, cercas, un farol, arboles, arbustos, flores y piedras; son modelos CC0
-//de Kenney y Quaternius que estan en Models/JardinDave, con los creditos en su LICENCIA.txt
+//jardin de crazy dave con su casa, la calle, cercas, un farol, arboles, arbustos, flores y piedras
 Model JardinCasa_M;
 Model JardinCalle_M;
 Model JardinCalleFin_M;
@@ -245,15 +239,14 @@ Model JardinCaminoPiedra_M;
 Model JardinHongo_M;
 Model JardinTrebol_M;
 Model JardinHelecho_M;
-//los modelos de Kenney, que son la casa, la calle, las cercas y el farol, son muy chicos; una casa mide 1.2 de alto y con escala 6.5 queda de casi 8
-float escalaKenney = 6.5f;
+//la casa mide 1.2 de alto y con escala 6.5 queda de casi 8; la calle, las cercas y el farol usan la misma escala
+float escalaCasa = 6.5f;
 
 //--- nave de Among Us y crewmates ---
 //nave de Among Us con la puerta abierta y 6 crewmates que se salieron y van flotando en el espacio
-//la nave se hizo en Blender, mide como 12 de largo y tiene el frente hacia Z positivo y la puerta atras
-//el crewmate es descargado y sus creditos estan en el LICENCIA.txt de su carpeta; mide 1 de alto y esta separado en
-//cuerpo y visor, el cuerpo tiene la textura en gris para pintarlo de cualquier color con el uniform color
-//y el visor se dibuja con blanco para que no se pinte
+//la nave mide como 12 de largo y tiene el frente hacia Z positivo y la puerta atras
+//el crewmate mide 1 de alto y esta separado en cuerpo y visor; el cuerpo tiene la textura en gris para pintarlo
+//de cualquier color con el uniform color, y el visor se dibuja con blanco para que no se pinte
 Model AmongUsNave_M;
 Model CrewmateCuerpo_M;
 Model CrewmateVisor_M;
@@ -655,9 +648,9 @@ void DibujaJerarquia(Model piezas[], int padres[], glm::vec3 pivotes[], glm::vec
 }
 
 
-//funciones con geometria de cada actividad; se llaman en la carga de recursos, dentro de su seccion
-//el indice en meshListModel depende del orden en que se agregan, por eso cada quien lo guarda en una
-//variable global antes del push_back, por ejemplo idxCohete = meshListModel.size();, y dibuja con meshListModel[idxCohete]
+//funciones con la geometria de cada actividad, que se llaman en la carga de recursos dentro de su seccion
+//como el indice en meshListModel depende del orden en que se agregan, se guarda en una variable global antes
+//del push_back, por ejemplo idxCohete = meshListModel.size();, y se dibuja con meshListModel[idxCohete]
 
 //--- personajes ---
 
@@ -1040,7 +1033,6 @@ int main()
 	unsigned int spotLightCount = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
-	//las luces de la escena van aqui; si otra actividad necesita una luz, se pide a quien lleva esta seccion
 	Sol_M = Model();
 	Sol_M.LoadModel("Models/Sol/sol.obj");
 	Luna_M = Model();
@@ -1180,7 +1172,7 @@ int main()
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	GLuint uniformColor = 0;
-	//glm::perspective usa radianes, asi que el 45.0f no son 45 grados, pero asi venia del lab y se ve bien
+	//el angulo de glm::perspective va en radianes, por eso 45.0f da una vista de unos 58 grados y no de 45
 	//el plano lejano esta en 3000 para que desde cualquier parte del espacio se vean los planetas, que estan lejos
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 3000.0f);
 
@@ -1543,7 +1535,7 @@ int main()
 		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); //con blanco la textura se ve con sus colores normales
 
 		// ---------- objetos opacos ----------
-		//todo empieza con color blanco y material opaco; quien use otro material lo regresa al terminar
+		//todo empieza con color blanco y material opaco, y lo que usa otro material regresa el opaco al terminar
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
@@ -1993,7 +1985,7 @@ int main()
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -34.0f));
 		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+		model = glm::scale(model, glm::vec3(escalaCasa, escalaCasa, escalaCasa));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinCasa_M.RenderModel();
 
@@ -2003,14 +1995,14 @@ int main()
 			model = glm::mat4(1.0);
 			model = glm::translate(model, posVerdania + glm::vec3(posCalleX[i], 0.01f, posCalleZ));
 			model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+			model = glm::scale(model, glm::vec3(escalaCasa, escalaCasa, escalaCasa));
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			JardinCalle_M.RenderModel();
 		}
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(posCalleX[0] - 6.5f, 0.01f, posCalleZ));
 		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+		model = glm::scale(model, glm::vec3(escalaCasa, escalaCasa, escalaCasa));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinCalleFin_M.RenderModel();
 
@@ -2018,7 +2010,7 @@ int main()
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(posCalleX[0] - 5.0f, 0.0f, posCalleZ - 4.0f));
 		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+		model = glm::scale(model, glm::vec3(escalaCasa, escalaCasa, escalaCasa));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinFarol_M.RenderModel();
 
@@ -2039,13 +2031,13 @@ int main()
 			model = glm::translate(model, posVerdania + glm::vec3(posCercaX[i], 0.0f, posCercaZ));
 			if (i == indicePuerta)
 			{
-				model = glm::scale(model, glm::vec3(escalaKenney * estiraPuerta, escalaKenney, escalaKenney));
+				model = glm::scale(model, glm::vec3(escalaCasa * estiraPuerta, escalaCasa, escalaCasa));
 				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 				JardinCercaPuerta_M.RenderModel();
 			}
 			else
 			{
-				model = glm::scale(model, glm::vec3(escalaKenney, escalaKenney, escalaKenney));
+				model = glm::scale(model, glm::vec3(escalaCasa, escalaCasa, escalaCasa));
 				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 				JardinCerca_M.RenderModel();
 			}
@@ -2623,7 +2615,7 @@ int main()
 
 		// ---------- objetos con transparencia ----------
 		//van al final, despues de todos los opacos, si no se ven mal
-		//cada actividad dibuja aqui sus transparentes, entre glEnable(GL_BLEND) y glDisable(GL_BLEND)
+		//se dibujan entre glEnable(GL_BLEND) y glDisable(GL_BLEND)
 
 		//--- personajes ---
 

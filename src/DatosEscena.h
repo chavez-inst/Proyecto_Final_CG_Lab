@@ -1,6 +1,6 @@
 #pragma once
 //datos fijos de la escena: piezas de los modelos con jerarquia, puntos de la pista y lugares de los objetos que se repiten
-//estan aparte para que main.cpp se pueda leer; lo que cambia mientras corre el programa se queda en main.cpp
+//estan aparte para que main.cpp quede mas corto; lo que cambia mientras corre el programa se queda en main.cpp
 //solo se incluye en main.cpp, porque los arreglos se crean aqui y en otro .cpp darian simbolos repetidos
 //tiene las mismas secciones que main.cpp
 
@@ -86,7 +86,7 @@ glm::vec3 pivotesKirby[NUM_PIEZAS_KIRBY] = {
 };
 
 //--- planetas: Xen y planeta 2 ---
-//el headcrab de Xen mide como 0.3 de alto y 0.6 de largo contando las patas, y se hizo en Blender
+//el headcrab de Xen mide como 0.3 de alto y 0.6 de largo contando las patas
 const int NUM_PIEZAS_HEADCRAB = 10;
 const char* piezasHeadcrab[NUM_PIEZAS_HEADCRAB] = {
 	"cuerpo", "boca",
@@ -159,7 +159,6 @@ int tipoNubes[NUM_NUBES] = { 2, 1, 2, 1, 1 };
 float escalaNubes[NUM_NUBES] = { 3.0f, 3.0f, 4.0f, 3.0f, 2.5f };
 
 //--- planeta 3: Verdania ---
-//los pivotes de las plantas salen del piezas.txt de cada carpeta
 //el peashooter mide como 1.5 de alto
 const int NUM_PIEZAS_PEASHOOTER = 12;
 const char* piezasPeashooter[NUM_PIEZAS_PEASHOOTER] = {
@@ -274,7 +273,7 @@ glm::vec3 pivotesCactus[NUM_PIEZAS_CACTUS] = {
 	glm::vec3(-0.2346f, 0.5808f, -0.0527f)      //brazo_der
 };
 
-//girasol de Garden Warfare 1, mide como 1.1 de alto
+//girasol, mide como 1.1 de alto
 const int NUM_PIEZAS_SUNFLOWER = 12;
 const char* piezasSunflower[NUM_PIEZAS_SUNFLOWER] = {
 	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
@@ -295,7 +294,7 @@ glm::vec3 pivotesSunflower[NUM_PIEZAS_SUNFLOWER] = {
 	glm::vec3(-0.0390f, 0.1462f, 0.0450f)       //hoja_tras_der
 };
 
-//girasol de Garden Warfare 2, mide como 1.9 de alto
+//girasol mas grande, mide como 1.9 de alto
 const int NUM_PIEZAS_SUNFLOWER2 = 12;
 const char* piezasSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
 	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
@@ -316,7 +315,7 @@ glm::vec3 pivotesSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
 	glm::vec3(-0.0652f, 0.2445f, 0.0759f)       //hoja_tras_der
 };
 
-//girasol de peluche (stuffy flower) de Garden Warfare 2, tiene las mismas piezas que el girasol
+//girasol de peluche, tiene las mismas piezas que los otros girasoles
 const int NUM_PIEZAS_STUFFYFLOWER = 12;
 const char* piezasStuffyFlower[NUM_PIEZAS_STUFFYFLOWER] = {
 	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
@@ -393,7 +392,7 @@ glm::vec3 pivotesTorchwood[NUM_PIEZAS_TORCHWOOD] = {
 };
 
 //jardin de crazy dave
-//la calle va en linea recta sobre X; cada tramo mide 1 por 1, que con escalaKenney queda de 6.5 por 6.5, y el ultimo es el final de la calle
+//la calle va en linea recta sobre X; cada tramo mide 1 por 1, que con escalaCasa queda de 6.5 por 6.5, y el ultimo es el final de la calle
 const int NUM_TRAMOS_CALLE = 4;
 float posCalleX[NUM_TRAMOS_CALLE] = { 19.5f, 26.0f, 32.5f, 39.0f };
 float posCalleZ = -27.0f;
@@ -481,7 +480,7 @@ glm::vec3 colorEscondidos[NUM_CREWMATES_ESCONDIDOS] = {
 	glm::vec3(0.22f, 0.95f, 0.86f) };
 
 //--- pista de carreras y naves ---
-//puntos del centro de la pista, sacados de pista.obj con un script de Blender y en el orden en que avanzan las naves
+//puntos del centro de la pista, en el orden en que avanzan las naves
 //cada punto tiene la normal del piso en ese lugar, que dice hacia donde esta arriba para la nave
 const int NUM_PUNTOS_PISTA = 148;
 glm::vec3 posRutaPista[NUM_PUNTOS_PISTA] = {
