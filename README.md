@@ -32,10 +32,11 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 
 | Tecla       | Que hace                     |
 |-------------|------------------------------|
-| W A S D     | Con la camara libre, moverla. Con la del avatar, caminar con Kirby (W y S avanzan y retroceden, A y D giran) |
+| W A S D     | Con la camara libre, moverla. Con la del avatar, caminar con el avatar (W y S avanzan y retroceden, A y D giran) |
 | Mouse       | Voltear la camara libre      |
 | Espacio / Ctrl | Subir y bajar la camara libre |
-| Shift       | Ir al doble de rapido (camara libre o Kirby) |
+| Shift       | Ir al doble de rapido (camara libre o avatar) |
+| T           | Cambiar el avatar entre Kirby y la planta carnivora |
 | 1 2 3 4 5   | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento y estacion |
 | Q / E       | Nave anterior o siguiente en la camara 3 (y vista anterior o siguiente en la 5) |
 | Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
@@ -54,7 +55,7 @@ la camara anterior.
 
 En los planetas el sol da una vuelta cada 2 minutos: de dia se ve el sol y el skybox de dia, y de noche
 la luna, el skybox de noche y las luminarias prendidas. En el espacio el sol esta fijo y no hay noche.
-La consola avisa cuando se prende o apaga algo con P, F, L, K y N.
+La consola avisa cuando se prende o apaga algo con P, F, L, K y N, y cual es el avatar al presionar la T.
 
 ---
 
@@ -165,13 +166,14 @@ agrega a esta tabla.
 | Teclas | Actividad | Uso |
 |---|---|---|
 | W A S D, mouse, Espacio, Ctrl, Shift | base y avatar | moverse con la camara libre o caminar con el avatar |
+| T | avatar | cambiar el avatar entre Kirby y la carnivora |
 | ESC | base | cerrar |
 | P | base | pausar o continuar todas las animaciones |
 | 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave o la vista que se sigue |
 | Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
 | F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, plantas en Verdania y cohete en el espacio |
 | K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |
-| G H J B M R T I O Y U | libres | se piden en el grupo (Y y U todavia cambian `muevex` en `Window.cpp`, que ya no se usa; quien las tome quita esas lineas) |
+| G H J B M R I O Y U | libres | se piden en el grupo (Y y U todavia cambian `muevex` en `Window.cpp`, que ya no se usa; quien las tome quita esas lineas) |
 
 - La **F** es la tecla de las animaciones basicas (las que se inician con teclado). Cada actividad
   revisa en `ManejaTeclado` que se este en su zona (0 espacio, 1 Xen, 2 planeta 2, 3 Verdania),
@@ -283,7 +285,7 @@ Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);  //antes
 
 Ya existen `Material_opaco` (casi sin brillo, lo de la mayoria), `Material_brillante` (reflejo chico y
 fuerte, como el visor de los crewmates), `Material_metal` (naves de la carrera) y `Material_avatar`
-(Kirby). Despues de usar uno distinto, se regresa `Material_opaco` para lo que sigue.
+(Kirby y la carnivora cuando son el avatar). Despues de usar uno distinto, se regresa `Material_opaco` para lo que sigue.
 
 ### Una luz
 
@@ -330,7 +332,7 @@ Se hace igual que la variable `muevex` (teclas Y/U):
 4. En `main.cpp` usarla: `mainWindow.getrotaPuerta()`.
 
 Usar solo las teclas de su actividad (ver "Teclas por actividad"). W, A, S, D son de la camara libre y
-del avatar, P pausa y ESC cierra.
+del avatar, T cambia el avatar, P pausa y ESC cierra.
 
 ### Cambiar el skybox
 

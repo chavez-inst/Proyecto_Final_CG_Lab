@@ -75,7 +75,7 @@ glm::vec3 posPlaneta2 = glm::vec3(-6000.0f, 0.0f, 0.0f);
 glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 6000.0f);
 
 //--- personajes ---
-//modelos de los personajes; se cargan, pero todavia no se dibujan en la escena
+//modelos de los personajes; Kirby y la carnivora se dibujan como el avatar y los demas todavia no salen en la escena
 //los que tienen jerarquia se dibujan con DibujaJerarquia y se articulan cambiando sus rotaciones en el while,
 //por ejemplo rotGordon[2].x = -30.0f; gira el brazo derecho en el hombro
 Model CapitanFalcon_M;
@@ -439,8 +439,8 @@ void InicializarNavesEstacion()
 }
 
 //--- avatar ---
-//el avatar es Kirby; usa las piezas y los padres de Kirby, pero con sus propias rotaciones y sus propios pivotes,
-//que estan en DatosEscena.h
+//el avatar puede ser Kirby o la carnivora y la T cambia entre los dos; Kirby usa sus piezas y sus padres, pero con sus
+//propias rotaciones y sus propios pivotes, que estan en DatosEscena.h
 glm::vec3 rotAvatar[NUM_PIEZAS_KIRBY];
 //lugar del avatar medido desde el centro del piso del planeta donde esta, y hacia donde mira en grados alrededor de Y
 //con rumbo 0 ve hacia Z positivo y con 180 hacia Z negativo, que es hacia donde estan las cosas de cada planeta
@@ -457,9 +457,10 @@ float pasoAvatar = 0.0f;
 float pasoAvatarOffset = 3.0f;
 float limitePasoAvatar = 25.0f;
 bool pasoAdelanteAvatar = true;
-//la carnivora tambien puede ser el avatar (la T cambia de personaje); usa las mismas piezas, padres y pivotes
-//que la de la seccion de personajes, pero sus propias rotaciones para no mover a la otra carnivora al caminar
+//la carnivora usa sus piezas, padres y pivotes de siempre, pero con sus propias rotaciones, igual que rotAvatar con Kirby
 glm::vec3 rotAvatarCarnivora[NUM_PIEZAS_CARNIVORA];
+//la carnivora ya mide como 1.4 y Kirby con su escala como 1.1, asi que ella se dibuja de su tamano para no tapar la camara 2
+float escalaAvatarCarnivora = 1.0f;
 //se comparan con la zona y el reinicio de Window para regresar al avatar al punto de llegada cuando cambian
 int zonaAvatar = 0;
 int reinicioAvatar = 0;
@@ -708,7 +709,7 @@ int main()
 	Material_opaco = Material(0.3f, 4);
 	//el metal brilla mas que el opaco y con un reflejo mas grande que el brillante; lo usan las naves
 	Material_metal = Material(2.0f, 64);
-	//el del avatar da un brillo debil y extendido, como de goma, para que Kirby reaccione a las luces sin verse metalico
+	//el del avatar da un brillo debil y extendido, como de goma, para que el avatar reaccione a las luces sin verse metalico
 	Material_avatar = Material(0.4f, 8);
 
 	//--- personajes ---
@@ -1842,7 +1843,7 @@ int main()
 		rotPeashooter[11].x = 25.0f * pasoPea;  //hoja_tras_der
 		rotPeashooter[9].x = -25.0f * pasoPea;  //hoja_del_der
 		rotPeashooter[10].x = -25.0f * pasoPea; //hoja_tras_izq
-		//los brazos vienen extendidos en T en el modelo; solo se bajan 70 grados en Z en el hombro y se quedan quietos
+		//los brazos vienen extendidos en T en el modelo; se bajan 70 grados en Z en el hombro y se quedan quietos
 		rotPeashooter[6].z = -70.0f;            //brazo_izq abajo
 		rotPeashooter[7].z = 70.0f;             //brazo_der abajo
 		//la posicion en el circulo sale del seno y el coseno de su angulo, y se gira 90 grados mas para que mire hacia donde avanza
@@ -1852,31 +1853,31 @@ int main()
 		model = glm::rotate(model, (anguloPeashooter + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Peashooter_M, padresPeashooter, pivotesPeashooter, rotPeashooter, NUM_PIEZAS_PEASHOOTER, model, uniformModel);
 
-		//crazy dave (NPC): camina de un lado a otro en linea recta
-		//solo se mueven las piernas, una al reves de la otra, como cuando camina una persona;
+		//crazy dave, que es NPC y camina de un lado a otro en linea recta
+		//solo mueve las piernas, una al reves de la otra, como cuando camina una persona;
 		//la pantorrilla y el pie son hijos del muslo, asi que se mueven con el sin tocarlos
 		float pasoDave = sin(anguloVerdania * 4.0f * toRadians);
 		rotCrazyDave[11].x = 25.0f * pasoDave;  //muslo_der
 		rotCrazyDave[14].x = -25.0f * pasoDave; //muslo_izq
-		//los brazos vienen abiertos en el modelo; solo se bajan 45 grados en Z y se quedan quietos
+		//los brazos vienen abiertos en el modelo; se bajan 45 grados en Z y se quedan quietos
 		rotCrazyDave[5].z = 45.0f;              //brazo_der abajo
 		rotCrazyDave[8].z = -45.0f;             //brazo_izq abajo
-		//el modelo mira hacia +Z; rumboDave lo gira en Y hacia donde camina
+		//el modelo mira hacia Z positivo y rumboDave lo gira en Y hacia donde camina
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(posDave, 0.0f, -8.0f));
 		model = glm::rotate(model, rumboDave * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(CrazyDave_M, padresCrazyDave, pivotesCrazyDave, rotCrazyDave, NUM_PIEZAS_CRAZYDAVE, model, uniformModel);
 
-		//ice pea y fire pea (NPCs en maceta) vigilan: solo voltean la cabeza de un lado a otro hasta 35 grados (en Y);
-		//cada uno lleva un desfase distinto (0 y 240) para que no volteen al mismo tiempo
+		//el ice pea y el fire pea son NPCs en maceta que vigilan y solo voltean la cabeza de un lado a otro hasta 35 grados en Y;
+		//el fire pea va desfasado 240 grados para que no volteen al mismo tiempo
 		rotIcePea[2].y = 35.0f * sin(anguloVerdania * toRadians);       //cabeza
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-6.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(IcePea_M, padresIcePea, pivotesIcePea, rotIcePea, NUM_PIEZAS_ICEPEA, model, uniformModel);
 
-		//gatling pea (NPC en maceta): la cabeza se queda quieta y solo giran los canones
-		//los canones giran sobre su propio eje, que es el eje Z del modelo; como son hijos de la boca, siguen a la cabeza
+		//el gatling pea es NPC en maceta y su cabeza se queda quieta; solo giran los canones sobre su propio eje,
+		//que es el eje Z del modelo
 		rotGatlingPea[4].z = giroCanones;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-7.0f, 0.0f, -3.0f));
@@ -1889,8 +1890,8 @@ int main()
 		model = glm::rotate(model, 70.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(FirePea_M, padresFirePea, pivotesFirePea, rotFirePea, NUM_PIEZAS_FIREPEA, model, uniformModel);
 
-		//cactus (NPC): solo sube y baja los brazos en Z (el mismo valor en los dos hace que uno suba mientras el otro baja,
-		//porque estan de lados contrarios)
+		//el cactus es NPC y solo sube y baja los brazos en Z; con el mismo valor en los dos uno sube mientras el otro baja
+		//porque estan de lados contrarios
 		rotCactus[4].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_izq
 		rotCactus[5].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_der
 		model = glm::mat4(1.0);
@@ -1898,7 +1899,7 @@ int main()
 		model = glm::rotate(model, -40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Cactus_M, padresCactus, pivotesCactus, rotCactus, NUM_PIEZAS_CACTUS, model, uniformModel);
 
-		//girasoles (adorno): solo mecen la cabeza de lado (Z), como con el viento;
+		//los girasoles son de adorno y solo mecen la cabeza de lado en Z, como con el viento;
 		//cada uno va desfasado 120 grados del anterior
 		rotSunflower[6].z = -60.0f; //los brazos tambien vienen en T y se bajan 60 grados
 		rotSunflower[7].z = 60.0f;
@@ -1923,15 +1924,14 @@ int main()
 		model = glm::rotate(model, -15.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(StuffyFlower_M, padresStuffyFlower, pivotesStuffyFlower, rotStuffyFlower, NUM_PIEZAS_STUFFYFLOWER, model, uniformModel);
 
-		//hypno-shroom (adorno): solo el sombrero se tambalea de lado
+		//hypno-shroom de adorno, solo el sombrero se tambalea de lado
 		rotHypnoShroom[2].z = 6.0f * sin(anguloVerdania * 2.0f * toRadians); //sombrero
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(7.0f, 0.0f, -6.0f));
 		model = glm::rotate(model, -50.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(HypnoShroom_M, padresHypnoShroom, pivotesHypnoShroom, rotHypnoShroom, NUM_PIEZAS_HYPNOSHROOM, model, uniformModel);
 
-		//laser bean (adorno): solo el cuerpo se balancea dentro de su maceta; la antena (pieza pelo) ya no tiene
-		//movimiento propio, solo acompana al cuerpo porque es su hija
+		//laser bean de adorno, el cuerpo se balancea dentro de su maceta y el pelo se mueve con el porque es su hijo
 		rotLaserBean[1].z = 8.0f * sin(anguloVerdania * toRadians);         //cuerpo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(5.0f, 0.0f, 3.0f));
@@ -1954,8 +1954,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		WallNut_M.RenderModel();
 
-		//torchwood (adorno): solo la mandibula se abre entre 0 y 12 grados en X
-		//(6 + 6 * seno nunca baja de 0, asi la boca no se cierra de mas)
+		//torchwood de adorno, solo la mandibula se abre entre 0 y 12 grados en X
+		//como a 6 se le suma 6 por el seno, nunca baja de 0 y la boca no se cierra de mas
 		rotTorchwood[4].x = 6.0f + 6.0f * sin(anguloVerdania * 2.0f * toRadians); //mandibula
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -18.0f));
@@ -2554,30 +2554,35 @@ int main()
 		//mientras la otra va hacia atras, y cada una va al reves del pie de su lado
 		rotAvatar[1].y = pasoAvatar * 1.2f;
 		rotAvatar[2].y = pasoAvatar * 1.2f;
-		//si el avatar es la carnivora, sus hojas-pata usan el mismo pasoAvatar y se mueven cruzadas como las del peashooter:
-		//la delantera izquierda junto con la trasera derecha, y la delantera derecha junto con la trasera izquierda
+		//en la carnivora, las hojas de abajo le sirven de patas y usan el mismo pasoAvatar; se mueven cruzadas como las del
+		//peashooter, la delantera izquierda junto con la trasera derecha y la delantera derecha junto con la trasera izquierda
 		rotAvatarCarnivora[8].x = pasoAvatar;   //hoja_del_izq
 		rotAvatarCarnivora[9].x = pasoAvatar;   //hoja_tras_der
 		rotAvatarCarnivora[7].x = -pasoAvatar;  //hoja_del_der
 		rotAvatarCarnivora[10].x = -pasoAvatar; //hoja_tras_izq
-		//Kirby da un pequeno salto en cada paso, mas alto mientras mas separados van los pies
+		//el avatar da un pequeno salto en cada paso, mas alto mientras mas separados van los pies
 		float saltoAvatar = 0.03f * fabs(pasoAvatar) / limitePasoAvatar;
 
-		//Kirby solo esta en los planetas y se queda donde se dejo aunque se cambie a la camara libre
+		//el avatar solo esta en los planetas y se queda donde se dejo aunque se cambie a la camara libre
 		if (zonaActual != 0)
 		{
 			model = glm::mat4(1.0);
 			model = glm::translate(model, centroAvatar + posAvatar + glm::vec3(0.0f, saltoAvatar, 0.0f));
 			model = glm::rotate(model, rumboAvatar * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(escalaAvatar, escalaAvatar, escalaAvatar));
 			color = glm::vec3(1.0f, 1.0f, 1.0f);
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 			Material_avatar.UseMaterial(uniformSpecularIntensity, uniformShininess);
-			//los dos personajes se colocan, giran y escalan igual; la T solo cambia cual modelo se dibuja
+			//los dos personajes se colocan y giran igual; la T cambia cual modelo se dibuja y cada uno lleva su escala
 			if (mainWindow.getpersonajeAvatar() == 0)
+			{
+				model = glm::scale(model, glm::vec3(escalaAvatar, escalaAvatar, escalaAvatar));
 				DibujaJerarquia(Kirby_M, padresKirby, pivotesAvatar, rotAvatar, NUM_PIEZAS_KIRBY, model, uniformModel);
+			}
 			else
+			{
+				model = glm::scale(model, glm::vec3(escalaAvatarCarnivora, escalaAvatarCarnivora, escalaAvatarCarnivora));
 				DibujaJerarquia(Carnivora_M, padresCarnivora, pivotesCarnivora, rotAvatarCarnivora, NUM_PIEZAS_CARNIVORA, model, uniformModel);
+			}
 		}
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---

@@ -290,18 +290,17 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
-	//T cambia el personaje que se controla con la camara 2: 0 es Kirby y 1 la carnivora;
+	//la T cambia el personaje que se controla con la camara 2 entre Kirby, que es el 0, y la carnivora, que es el 1;
 	//al pasar del ultimo personaje se regresa al primero
 	if (key == GLFW_KEY_T && action == GLFW_PRESS)
 	{
 		theWindow->personajeAvatar += 1;
 		if (theWindow->personajeAvatar > 1)
 			theWindow->personajeAvatar = 0;
-		//se avisa en la consola cual personaje quedo
 		if (theWindow->personajeAvatar == 0)
-			printf("avatar: Kirby\n");
+			printf("el avatar es Kirby\n");
 		else
-			printf("avatar: carnivora\n");
+			printf("el avatar es la carnivora\n");
 	}
 
 	//--- camaras y recorridos ---

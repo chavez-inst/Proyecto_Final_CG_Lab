@@ -23,16 +23,16 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Geometria 3D (modelos o geometria propia) | 10 | todos | en proceso | |
 | Jerarquia en elementos del escenario | 10 | todos | en proceso | Gordon, carnivora y Kirby ya estan por piezas (`DibujaJerarquia`) |
 | Ambientacion de los universos y tematicas | 40 | todos | pendiente | cada quien mete elementos de su universo |
-| NPCs (otras especies intergalacticas) | 10 | por definir | pendiente | gradas con aliens (plano), criaturas de Xen |
+| NPCs (otras especies intergalacticas) | 10 | Abraham | hecho | en Verdania: peashooter y crazy dave caminando, ice pea, gatling pea, fire pea y cactus; en Xen, el headcrab |
 | Pista de carreras con naves corriendo | 20 | Dylan | en proceso | pista, nave y satelite cargados; falta que las naves recorran el circuito |
 | Plataforma de lanzamiento con cohete | 20 | por definir | pendiente | |
 | Estacion espacial (entran y salen naves) | 20 | por definir | pendiente | |
 | Satelites y cuerpos espaciales | 10 | Dylan | en proceso | lunas, asteroides, satelites |
 | Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | planeta 1: Xen (Half-Life); planeta 2: Dream Land (Kirby). Falta su cadena de evolucion |
 | Texturizado de todo | 20 | todos | en proceso | |
-| Avatar jerarquico **no humanoide** | 10 | Alejandro | en proceso | Kirby por piezas, uno solo para todos los planetas |
+| Avatar jerarquico **no humanoide** | 10 | Alejandro y Abraham | en proceso | Kirby o la carnivora, los dos por piezas; la T cambia de personaje y sirve en todos los planetas |
 | Avatar con textura y material | 10 | Alejandro | en proceso | su textura y `Material_avatar` |
-| Avatar con caminata animada | 10 | Alejandro | en proceso | pies y manos se balancean al caminar |
+| Avatar con caminata animada | 10 | Alejandro y Abraham | en proceso | en Kirby se balancean los pies y las manos, y en la carnivora las hojas de abajo |
 | Recorrido 1: 3a persona en cada planeta (plano XZ) | 10 | Alejandro | en proceso | camara 2 |
 | Recorrido 2: 3a persona como nave de la carrera | 10 | Alejandro | en proceso | camara 3, Q y E cambian de nave |
 | Recorrido 3: 3a persona de nave volando entre planetas | 10 | por definir | pendiente | |
@@ -80,7 +80,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | `alejandro-avatar-camara` | Alejandro | avatar, camaras 1 a 3 y teclas nuevas (F por escena, P pausa) (integrada) |
 | `alejandro-correcciones` | Alejandro | texturas faltantes de las naves, aviso de pausa y plantas de Xen (integrada) |
 | `alejandro-iluminacion` | Alejandro | ciclo de dia y noche, luces por zona, sol y luna, skyboxes de dia y noche, materiales |
-| `abraham-npcs` | Abraham | NPCs |
+| `Abraham-NPCs` | Abraham | Verdania, NPCs y plantas de adorno, y la carnivora como segundo avatar (integrada) |
 | `dylan-pista-y-cuerpos-espaciales` | Dylan | pista de carreras y cuerpos espaciales |
 
 - Cada avance va en una rama nueva que sale de `main` (ver `README.md`, Trabajo en equipo con Git) y se
