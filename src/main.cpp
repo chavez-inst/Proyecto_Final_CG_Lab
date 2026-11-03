@@ -378,15 +378,17 @@ glm::mat4 ObtenerMatrizNavePista(float distancia, float carrilX, float alturaFlo
 Model Satelite_M;
 
 //--- plataforma de lanzamiento y cohete ---
-//la plataforma flota en el espacio, lejos de la pista y de la estacion, y en ella estan el cohete y su torre
+//la plataforma esta en la superficie de Pop Star, el planeta 2, y en ella estan el cohete y su torre
+//su lugar se mide desde el centro del piso del planeta, como los arboles y las colinas; queda adelante a la izquierda
+//de donde se llega, entre los arboles y las colinas de las orillas, para que no se encime con nada
 //son modelos de Kenney muy chicos (el cohete mide 4.6 de alto), por eso todo se escala por escalaPlataforma;
-//con 12 el cohete queda de unas 55 unidades
+//con 4 el cohete queda de unas 18 unidades y el piso de 24 por 24
 Model Cohete_M[NUM_PIEZAS_COHETE];
 glm::vec3 rotCohete[NUM_PIEZAS_COHETE]; //las globales empiezan en 0
 Model PlataformaCohete_M;
 Model TorreCohete_M;
-glm::vec3 posPlataforma = glm::vec3(-200.0f, -40.0f, -150.0f);
-float escalaPlataforma = 12.0f;
+glm::vec3 posPlataforma = glm::vec3(-42.0f, 0.0f, -32.0f);
+float escalaPlataforma = 4.0f;
 int pisosTorre = 5;
 glm::mat4 modelauxPlataforma(1.0);
 
@@ -2392,7 +2394,7 @@ int main()
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		model = glm::translate(model, posPlataforma);
+		model = glm::translate(model, posPlaneta2 + posPlataforma);
 		model = glm::scale(model, glm::vec3(escalaPlataforma, escalaPlataforma, escalaPlataforma));
 		modelauxPlataforma = model;
 		//piso: 3 por 3 placas de 2 por 2 con el cohete en medio; se bajan 0.1, que es lo que miden de grueso,
