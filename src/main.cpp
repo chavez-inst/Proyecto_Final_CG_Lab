@@ -378,6 +378,18 @@ glm::mat4 ObtenerMatrizNavePista(float distancia, float carrilX, float alturaFlo
 Model Satelite_M;
 
 //--- plataforma de lanzamiento y cohete ---
+//la plataforma flota en el espacio, lejos de la pista y de la estacion, y en ella estan el cohete y su torre
+//son modelos de Kenney muy chicos (el cohete mide 4.6 de alto), por eso todo se escala por escalaPlataforma;
+//con 12 el cohete queda de unas 55 unidades
+Model Cohete_M[NUM_PIEZAS_COHETE];
+glm::vec3 rotCohete[NUM_PIEZAS_COHETE]; //las globales empiezan en 0
+Model PlataformaCohete_M;
+Model TorreCohete_M;
+glm::vec3 posPlataforma = glm::vec3(-200.0f, -40.0f, -150.0f);
+float escalaPlataforma = 12.0f;
+int pisosTorre = 5;
+glm::mat4 modelauxPlataforma(1.0);
+
 
 //--- estacion espacial y naves ---
 //la estacion tiene cuatro landing pads alrededor, a 150 de su centro hacia X positivo, X negativo, Z positivo y Z negativo,
@@ -999,6 +1011,18 @@ int main()
 	Satelite_M.LoadModel("Models/sateliteRace/sateliteRace.obj");
 
 	//--- plataforma de lanzamiento y cohete ---
+	//las rutas de las piezas del cohete se arman con su nombre, igual que las plantas: Models/Cohete/cohete_base.obj, ...
+	for (int i = 0; i < NUM_PIEZAS_COHETE; i++)
+	{
+		std::string ruta = std::string("Models/Cohete/cohete_") + piezasCohete[i] + ".obj";
+		Cohete_M[i] = Model();
+		Cohete_M[i].LoadModel(ruta);
+	}
+	PlataformaCohete_M = Model();
+	PlataformaCohete_M.LoadModel("Models/Cohete/plataforma.obj");
+	TorreCohete_M = Model();
+	TorreCohete_M.LoadModel("Models/Cohete/torre_estructura.obj");
+
 
 	//--- estacion espacial y naves ---
 	Estacion_M = Model();
@@ -2363,6 +2387,40 @@ int main()
 		Satelite_M.RenderModel();
 
 		//--- plataforma de lanzamiento y cohete ---
+		//modelauxPlataforma guarda el lugar y el tamano de la plataforma, y desde ahi se ponen el piso, la torre y el cohete;
+		//asi todo se mide en las unidades de los modelos de Kenney y despues se escala junto
+		model = glm::mat4(1.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		model = glm::translate(model, posPlataforma);
+		model = glm::scale(model, glm::vec3(escalaPlataforma, escalaPlataforma, escalaPlataforma));
+		modelauxPlataforma = model;
+		//piso: 3 por 3 placas de 2 por 2 con el cohete en medio; se bajan 0.1, que es lo que miden de grueso,
+		//para que su parte de arriba quede en y = 0, que es donde estan las patas del cohete
+		for (int i = -1; i <= 1; i++)
+		{
+			for (int j = -1; j <= 1; j++)
+			{
+				model = modelauxPlataforma;
+				model = glm::translate(model, glm::vec3(i * 2.0f, -0.1f, j * 2.0f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				PlataformaCohete_M.RenderModel();
+			}
+		}
+		//la torre y el cohete son de metal, como las naves, y al terminar se regresa el material opaco
+		Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		//torre: cubos de vigas de 1 por lado, uno encima de otro, a un lado del cohete; con 5 queda un poco mas alta que el
+		for (int i = 0; i < pisosTorre; i++)
+		{
+			model = modelauxPlataforma;
+			model = glm::translate(model, glm::vec3(1.6f, i * 1.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			TorreCohete_M.RenderModel();
+		}
+		//cohete por piezas; rotCohete esta en 0, asi que sale armado y quieto en medio de la plataforma
+		DibujaJerarquia(Cohete_M, padresCohete, pivotesCohete, rotCohete, NUM_PIEZAS_COHETE, modelauxPlataforma, uniformModel);
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
 
 		//--- estacion espacial y naves ---
 		//modelauxEstacion se guarda antes de escalar la estacion, asi los pads y las naves no se hacen chicos con ella
