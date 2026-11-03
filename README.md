@@ -171,7 +171,7 @@ agrega a esta tabla.
 | P | base | pausar o continuar todas las animaciones |
 | 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave o la vista que se sigue |
 | Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
-| F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, plantas en Verdania y cohete en el espacio |
+| F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, despegue del cohete en el planeta 2 y plantas en Verdania |
 | K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |
 | G H J B M R I O Y U | libres | se piden en el grupo (Y y U todavia cambian `muevex` en `Window.cpp`, que ya no se usa; quien las tome quita esas lineas) |
 

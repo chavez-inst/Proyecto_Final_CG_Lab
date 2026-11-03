@@ -391,6 +391,23 @@ glm::vec3 posPlataforma = glm::vec3(-42.0f, 0.0f, -32.0f);
 float escalaPlataforma = 4.0f;
 int pisosTorre = 5;
 glm::mat4 modelauxPlataforma(1.0);
+//despegue del cohete con la F: estadoCohete dice en que parte va, 0 parado, 1 cuenta regresiva, 2 subiendo y 3 bajando
+//las alturas estan en las unidades de Kenney, asi que se multiplican por escalaPlataforma (con 4, subir 60 son 240 unidades)
+int estadoCohete = 0;
+float tiempoCuentaCohete = 3.0f; //la cuenta regresiva dura 3 segundos
+float cuentaCohete = 0.0f;       //segundos que le faltan a la cuenta
+float alturaCohete = 0.0f;       //cuanto ha subido el cohete desde la plataforma
+float velocidadCohete = 0.0f;
+float aceleracionCohete = 0.002f; //lo que crece la velocidad cada frame, asi sube cada vez mas rapido
+float alturaMaxCohete = 60.0f;    //al llegar aqui deja de subir y regresa
+float velBajadaCohete = 0.15f;    //regresa a velocidad constante y despacio, como aterrizando
+float fuegoCohete = 0.0f;         //tamano de la llama: 0 apagada y 1 completa
+//Gordon y el Capitan Falcon esperan junto a la plataforma como astronautas, del lado de donde llega la camara;
+//su lugar tambien se mide desde el centro del planeta 2
+glm::vec3 posGordonAstronauta = glm::vec3(-27.0f, 0.0f, -16.0f);
+glm::vec3 posFalconAstronauta = glm::vec3(-23.0f, 0.0f, -17.0f);
+float escalaGordonAstronauta = 1.5f; //igual que el avatar; Gordon mide 1.4 y queda de 2.1
+float escalaFalconAstronauta = 1.8f; //el Capitan Falcon mide 0.95 y queda de 1.7, un poco mas bajo que Gordon
 
 
 //--- estacion espacial y naves ---
@@ -2389,6 +2406,56 @@ int main()
 		Satelite_M.RenderModel();
 
 		//--- plataforma de lanzamiento y cohete ---
+		//despegue del cohete; cada parte avanza y al terminar pasa a la siguiente, como las naves de la estacion
+		//las esperas van en segundos, por eso deltaTime se divide entre 61, que es lo que suma en un segundo
+		if (estadoCohete == 0)
+		{
+			//parado en la plataforma; si la F tiene prendidos los despegues, empieza la cuenta regresiva
+			if (mainWindow.getdespegaCohete())
+			{
+				cuentaCohete = tiempoCuentaCohete;
+				estadoCohete = 1;
+			}
+		}
+		else if (estadoCohete == 1)
+		{
+			//cuenta regresiva: la llama crece hasta la mitad y el cohete tiembla cada vez mas desde la base,
+			//que es la raiz de su jerarquia, asi tiembla todo junto; el seno da unas 5 sacudidas por segundo
+			cuentaCohete -= deltaTime / 61.0f;
+			fuegoCohete = 0.5f * (1.0f - cuentaCohete / tiempoCuentaCohete);
+			rotCohete[0].z = 3.0f * fuegoCohete * sin(cuentaCohete * 2000.0f * toRadians);
+			if (cuentaCohete <= 0.0f)
+			{
+				rotCohete[0].z = 0.0f;
+				velocidadCohete = 0.0f;
+				estadoCohete = 2;
+			}
+		}
+		else if (estadoCohete == 2)
+		{
+			//sube acelerando con la llama completa: la velocidad crece cada frame y la altura crece con la velocidad
+			fuegoCohete = 1.0f;
+			velocidadCohete += aceleracionCohete * deltaTime;
+			alturaCohete += velocidadCohete * deltaTime;
+			if (alturaCohete >= alturaMaxCohete)
+			{
+				alturaCohete = alturaMaxCohete;
+				estadoCohete = 3;
+			}
+		}
+		else if (estadoCohete == 3)
+		{
+			//regresa a su lugar bajando despacio con la llama mas chica; al tocar la plataforma se apaga
+			fuegoCohete = 0.6f;
+			alturaCohete -= velBajadaCohete * deltaTime;
+			if (alturaCohete <= 0.0f)
+			{
+				alturaCohete = 0.0f;
+				fuegoCohete = 0.0f;
+				estadoCohete = 0;
+			}
+		}
+
 		//modelauxPlataforma guarda el lugar y el tamano de la plataforma, y desde ahi se ponen el piso, la torre y el cohete;
 		//asi todo se mide en las unidades de los modelos de Kenney y despues se escala junto
 		model = glm::mat4(1.0f);
@@ -2397,14 +2464,14 @@ int main()
 		model = glm::translate(model, posPlaneta2 + posPlataforma);
 		model = glm::scale(model, glm::vec3(escalaPlataforma, escalaPlataforma, escalaPlataforma));
 		modelauxPlataforma = model;
-		//piso: 3 por 3 placas de 2 por 2 con el cohete en medio; se bajan 0.1, que es lo que miden de grueso,
-		//para que su parte de arriba quede en y = 0, que es donde estan las patas del cohete
+		//piso: 3 por 3 placas de 2 por 2 con el cohete en medio; van sobre el piso del planeta (y = 0) y miden 0.1 de grueso,
+		//por eso la torre y el cohete se suben 0.1, para que queden parados encima de las placas y no se hundan
 		for (int i = -1; i <= 1; i++)
 		{
 			for (int j = -1; j <= 1; j++)
 			{
 				model = modelauxPlataforma;
-				model = glm::translate(model, glm::vec3(i * 2.0f, -0.1f, j * 2.0f));
+				model = glm::translate(model, glm::vec3(i * 2.0f, 0.0f, j * 2.0f));
 				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 				PlataformaCohete_M.RenderModel();
 			}
@@ -2415,13 +2482,49 @@ int main()
 		for (int i = 0; i < pisosTorre; i++)
 		{
 			model = modelauxPlataforma;
-			model = glm::translate(model, glm::vec3(1.6f, i * 1.0f, 0.0f));
+			model = glm::translate(model, glm::vec3(1.6f, 0.1f + i * 1.0f, 0.0f));
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			TorreCohete_M.RenderModel();
 		}
-		//cohete por piezas; rotCohete esta en 0, asi que sale armado y quieto en medio de la plataforma
-		DibujaJerarquia(Cohete_M, padresCohete, pivotesCohete, rotCohete, NUM_PIEZAS_COHETE, modelauxPlataforma, uniformModel);
+		//cohete por piezas en medio de la plataforma; se sube 0.1 para quedar sobre las placas, mas lo que lleva de despegue
+		//raizCohete se guarda para poner la llama abajo del motor
+		model = modelauxPlataforma;
+		model = glm::translate(model, glm::vec3(0.0f, 0.1f + alturaCohete, 0.0f));
+		glm::mat4 raizCohete = model;
+		DibujaJerarquia(Cohete_M, padresCohete, pivotesCohete, rotCohete, NUM_PIEZAS_COHETE, model, uniformModel);
+		//llama del motor: es la pieza del fuego del torchwood de Verdania, que ya esta cargada, puesta de cabeza
+		//abajo del motor, que termina en y = 0.2; mientras mas grande fuegoCohete, mas larga la llama
+		if (fuegoCohete > 0.0f)
+		{
+			model = raizCohete;
+			model = glm::translate(model, glm::vec3(0.0f, 0.2f, 0.0f));
+			model = glm::rotate(model, 180.0f * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.6f, 1.2f * fuegoCohete, 0.6f));
+			//el fuego del torchwood esta arriba de su cabeza, entre y = 1.9 y 2.72; se baja para que su base quede en el origen
+			model = glm::translate(model, glm::vec3(0.0f, -1.9f, 0.23f));
+			//un color arriba de 1 hace que brille aunque no le llegue luz, como el sol
+			color = glm::vec3(2.0f, 2.0f, 2.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Torchwood_M[3].RenderModel();
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		}
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		//astronautas: Gordon y el Capitan Falcon parados junto a la plataforma, viendo hacia donde llega la camara
+		//Gordon es por piezas y tiene los pies en y = 0, asi que solo se pone en su lugar y se escala
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, posPlaneta2 + posGordonAstronauta);
+		model = glm::scale(model, glm::vec3(escalaGordonAstronauta, escalaGordonAstronauta, escalaGordonAstronauta));
+		DibujaJerarquia(Gordon_M, padresGordon, pivotesGordon, rotGordon, NUM_PIEZAS_GORDON, model, uniformModel);
+		//el Capitan Falcon es una sola pieza y su modelo tiene los pies en y = -0.627, por eso se sube eso despues de escalar
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, posPlaneta2 + posFalconAstronauta);
+		model = glm::scale(model, glm::vec3(escalaFalconAstronauta, escalaFalconAstronauta, escalaFalconAstronauta));
+		model = glm::translate(model, glm::vec3(0.0f, 0.627f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CapitanFalcon_M.RenderModel();
 
 
 		//--- estacion espacial y naves ---

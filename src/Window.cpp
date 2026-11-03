@@ -30,6 +30,7 @@ Window::Window()
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	despegaCohete = false;
 
 	//--- estacion espacial y naves ---
 
@@ -82,6 +83,7 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	despegaCohete = false;
 
 	//--- estacion espacial y naves ---
 
@@ -286,6 +288,16 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	//F prende o apaga los despegues del cohete cuando se esta en el planeta 2, igual que las otras animaciones basicas;
+	//mientras este prendida el cohete despega, sube, regresa a la plataforma y vuelve a despegar
+	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 2)
+	{
+		theWindow->despegaCohete = !theWindow->despegaCohete;
+		if (theWindow->despegaCohete)
+			printf("despegue del cohete prendido\n");
+		else
+			printf("despegue del cohete apagado, el cohete se queda en la plataforma al aterrizar\n");
+	}
 
 	//--- estacion espacial y naves ---
 
