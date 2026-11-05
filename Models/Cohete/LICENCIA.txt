@@ -1,0 +1,20 @@
+Modelos del cohete y de la plataforma de lanzamiento. Son CC0 (dominio publico), no piden credito pero se da:
+
+- Kenney (www.kenney.nl), paquete "Space Kit" (2.0), licencia CC0 1.0
+  https://kenney.nl/assets/space-kit
+
+piezas del cohete (de abajo hacia arriba) y de que archivo de Kenney salen:
+- cohete_base.obj    <- rocket_baseA.obj  (motor y patas)
+- cohete_tanque.obj  <- rocket_fuelA.obj
+- cohete_cuerpo.obj  <- rocket_sidesA.obj (ventanas)
+- cohete_anillo.obj  <- rocket_finsA.obj
+- cohete_punta.obj   <- rocket_topA.obj
+las piezas del cohete se subieron en Y para que todas compartan el mismo origen (los pies de la base en y = 0)
+y el cohete quede armado sin moverlas; los pivotes de cada pieza estan en piezas.txt
+
+torre y plataforma:
+- torre_estructura.obj <- structure_diagonal.obj (mide 1 por lado; se apila para armar la torre)
+- plataforma.obj       <- platform_large.obj (mide 2 por 2)
+
+sus materiales solo tenian color, asi que los colores se pasaron a la textura Textures/cohete_colores.png,
+igual que con los modelos de Kenney del jardin de Verdania

@@ -33,6 +33,7 @@ public:
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	bool getdespegaCohete() { return despegaCohete; }
 
 	//--- estacion espacial y naves ---
 
@@ -87,6 +88,7 @@ private:
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	bool despegaCohete; //F prende o apaga los despegues del cohete cuando se esta en el planeta 2
 
 	//--- estacion espacial y naves ---
 

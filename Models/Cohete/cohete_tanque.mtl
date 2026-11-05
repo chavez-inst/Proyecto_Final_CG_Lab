@@ -1,0 +1,7 @@
+newmtl metalRed
+Kd 1 1 1
+map_Kd cohete_colores.png
+
+newmtl metalDark
+Kd 1 1 1
+map_Kd cohete_colores.png

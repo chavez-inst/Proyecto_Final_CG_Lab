@@ -1,0 +1,6 @@
+pieza padre pivote_x pivote_y pivote_z triangulos
+base - 0.0000 0.0000 0.0000 300
+tanque base 0.0000 1.6000 0.0000 94
+cuerpo tanque 0.0000 2.1000 0.0000 222
+anillo cuerpo 0.0000 3.1000 0.0000 192
+punta anillo 0.0000 3.8000 0.0000 50

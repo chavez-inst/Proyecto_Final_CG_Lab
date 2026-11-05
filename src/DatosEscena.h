@@ -787,6 +787,20 @@ glm::vec3 normalRutaPista[NUM_PUNTOS_PISTA] = {
 //--- satelites y cuerpos espaciales ---
 
 //--- plataforma de lanzamiento y cohete ---
+//el cohete son 5 piezas de Kenney que van una encima de otra; armado mide 4.6 de alto
+//cada pieza cuelga de la de abajo, asi al mover la base se mueve todo el cohete
+const int NUM_PIEZAS_COHETE = 5;
+const char* piezasCohete[NUM_PIEZAS_COHETE] = {
+	"base", "tanque", "cuerpo", "anillo", "punta" };
+int padresCohete[NUM_PIEZAS_COHETE] = {
+	-1, 0, 1, 2, 3 };
+glm::vec3 pivotesCohete[NUM_PIEZAS_COHETE] = {
+	glm::vec3(0.0f, 0.0f, 0.0f), //base, con el motor y las patas
+	glm::vec3(0.0f, 1.6f, 0.0f), //tanque
+	glm::vec3(0.0f, 2.1f, 0.0f), //cuerpo, con las ventanas
+	glm::vec3(0.0f, 3.1f, 0.0f), //anillo
+	glm::vec3(0.0f, 3.8f, 0.0f)  //punta
+};
 
 //--- estacion espacial y naves ---
 //las naves de un mismo pad estan en tres niveles, una arriba de otra, y el pad de X negativo solo tiene dos
