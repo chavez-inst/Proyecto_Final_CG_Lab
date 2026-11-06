@@ -1054,19 +1054,20 @@ float inclinaCoheteEspacio = 77.9f;
 const int NUM_VIAJES = 3;
 //zona del planeta a donde va, como las de Window
 int zonaViajes[NUM_VIAJES] = { 1, 2, 3 };
-//lo que sube en diagonal antes de girar; para ir a Verdania sube mas, porque si no pasaria por la estacion
-float subidaViajes[NUM_VIAJES] = { 60.0f, 40.0f, 240.0f };
+//lo que sube en diagonal antes de girar; para ir a Verdania la nave pasa junto a la estacion, y con 60 ya va
+//mas arriba que las naves de los pads
+float subidaViajes[NUM_VIAJES] = { 60.0f, 40.0f, 60.0f };
 //rumbo con el que apunta al planeta en el espacio; sale del arco tangente del camino de donde termina de subir al planeta,
 //sin contar la altura, y se le resto una vuelta a los que asi giran por el lado corto desde -90, que es como esta en el pad
-float rumboViajes[NUM_VIAJES] = { 0.7f, -237.1f, -122.2f };
+float rumboViajes[NUM_VIAJES] = { 0.7f, -237.1f, -123.8f };
 //lo que vuela antes de que la camara pase al planeta; es la distancia al planeta menos unas dos veces y media su radio,
 //asi se ve muy lejos pero no lo toca
-float distanciaViajes[NUM_VIAJES] = { 1600.0f, 2330.0f, 2400.0f };
+float distanciaViajes[NUM_VIAJES] = { 1600.0f, 2330.0f, 2360.0f };
 //camara en la estacion, medida desde su centro; cada una ve el pad y hacia donde se va la nave en ese viaje
 glm::vec3 camaraEstacionViajes[NUM_VIAJES] = {
 	glm::vec3(-265.0f, 8.0f, 45.0f),
 	glm::vec3(-265.0f, 8.0f, -45.0f),
-	glm::vec3(-300.0f, 60.0f, 200.0f) };
+	glm::vec3(-320.0f, 65.0f, 0.0f) };
 //en el planeta, donde se estaciona la nave, el rumbo con el que llega y donde esta la camara, medidos desde el centro del piso
 //son lugares libres: en Xen adelante de donde se llega, en Pop Star entre las dos colinas de Z positivo y en Verdania
 //del lado contrario al jardin

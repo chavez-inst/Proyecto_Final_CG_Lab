@@ -46,7 +46,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Recorrido 2: 3a persona como nave de la carrera | 10 | Alejandro | hecho | camara 3, Q y E cambian de nave |
 | Recorrido 3: 3a persona de nave volando entre planetas | 10 | Alejandro | hecho | camara 4: una nave sale de la estacion y viaja a Xen, Pop Star o Verdania (G, H y J); la camara la ve irse y luego llegar y estacionarse en el planeta |
 | Recorrido 4: lanzamiento, estacion y objetos celestes | 10 | Alejandro | hecho | camara 5: ve despegar el cohete en Pop Star, lo sigue en el espacio hasta que pasa la estacion, lo ve alejarse y da una vuelta en circulo alrededor de la pista, la estacion y el satelite |
-| Cambio correcto de camaras | 10 | Alejandro | hecho | teclas 1 a 5, y G, H y J para los viajes de la camara 4 |
+| Cambio correcto de camaras | 10 | Alejandro | hecho | teclas 1, 2, 3 y 5, y G, H y J para los viajes de la camara 4 |
 | Luz direccional con ciclo dia/noche | 10 | Alejandro | hecho | en los planetas el sol da una vuelta cada 2 minutos (con sol y luna); la N salta a dia o noche; en el espacio el sol esta fijo |
 | Luces puntuales que se prenden/apagan con el ciclo (max 2 min) | 10 | Alejandro | hecho | de noche: plantas de luz en Xen, warp star en Pop Star y farol en Verdania; en el espacio, faros de la meta |
 | Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio y uno de dia y otro de noche para cada planeta |

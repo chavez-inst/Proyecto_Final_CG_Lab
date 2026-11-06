@@ -693,7 +693,7 @@ float alturaMiraAvatar = 0.8f;
 glm::vec3 camaraNaveAtras = glm::vec3(0.0f, 3.5f, 10.0f);
 glm::vec3 camaraNaveMira = glm::vec3(0.0f, 1.5f, -8.0f);
 //camara 4, el recorrido de una nave que viaja de la estacion a un planeta; G la manda a Xen, H a Pop Star y J a Verdania,
-//y la 4 repite el ultimo viaje que se escogio; el viaje se repite mientras se use la camara
+//y el viaje se repite mientras se use la camara
 //la nave sale del pad de la estacion que da hacia X negativo, en el nivel de abajo, que es el que esta libre
 //etapaViaje dice en que parte va: 0 estacionada en la estacion, 1 se eleva en diagonal hacia atras, 2 gira hasta
 //apuntar al planeta, 3 se va volando hacia el, 4 llega al planeta, 5 baja hasta posarse y 6 se queda estacionada
