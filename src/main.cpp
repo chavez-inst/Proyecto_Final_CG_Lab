@@ -1593,7 +1593,10 @@ int main()
 	glm::vec2 toffset = glm::vec2(0.0f, 0.0f);
 	//el angulo de glm::perspective va en radianes, por eso 45.0f da una vista de unos 58 grados y no de 45
 	//el plano lejano esta en 7000 para que desde cualquier parte del espacio se vean los planetas, que estan lejos
-	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 7000.0f);
+	//la precision del depth buffer depende sobre todo del plano cercano, y mientras mas cerca de 0 este, menos precision hay
+	//lejos de la camara; con 0.5 se distinguen las capas muy pegadas de algunos modelos, como los ojos sobre la cara,
+	//y no parpadean
+	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.5f, 7000.0f);
 
 	//la carga tarda varios segundos; si lastTime se quedara en 0, el primer frame tendria un deltaTime enorme
 	//y todas las animaciones darian un salto, por eso se toma la hora justo antes de empezar
