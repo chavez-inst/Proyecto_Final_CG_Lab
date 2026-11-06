@@ -1,0 +1,11 @@
+Model Information:
+* title:	Kirby's Return to Dreamland - King Dedede
+* source:	https://sketchfab.com/3d-models/kirbys-return-to-dreamland-king-dedede-d767a2e29b624fbdb963eae7cc166e76
+* author:	taej11503 (https://sketchfab.com/taej11503)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Kirby's Return to Dreamland - King Dedede" (https://sketchfab.com/3d-models/kirbys-return-to-dreamland-king-dedede-d767a2e29b624fbdb963eae7cc166e76) by taej11503 (https://sketchfab.com/taej11503) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

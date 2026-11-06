@@ -153,6 +153,17 @@ Model Planeta2Nube2_M;
 Model WarpStar_M;
 //la warp star flota un poco arriba del piso, enfrente de donde llega la camara
 glm::vec3 posWarpStar = glm::vec3(4.0f, 0.8f, -4.0f);
+//habitantes acomodados del mas simple al mas evolucionado, atras de la warp star
+Model WaddleDee_M;
+Model WaddleDoo_M;
+Model BandanaDee_M;
+Model KingDedede_M;
+//el Halberd vuela en un circulo alto sobre el planeta, igual que el headcrab pero sin la F, asi que siempre se mueve
+Model Halberd_M;
+glm::vec3 centroHalberd = glm::vec3(0.0f, 30.0f, -30.0f); //se mide desde posPlaneta2
+float radioHalberd = 55.0f;
+float anguloHalberd = 0.0f;
+float anguloHalberdOffset = 0.08f;
 
 //--- planeta 3: Verdania ---
 Skybox skyboxVerdaniaDia;
@@ -933,6 +944,17 @@ int main()
 	WarpStar_M.LoadModel("Models/Planeta2/planeta2_warpstar.obj");
 	Planeta2Colina_M = Model();
 	Planeta2Colina_M.LoadModel("Models/Planeta2/planeta2_colina.obj");
+
+	WaddleDee_M = Model();
+	WaddleDee_M.LoadModel("Models/WaddleDee/waddledee.obj");
+	WaddleDoo_M = Model();
+	WaddleDoo_M.LoadModel("Models/WaddleDoo/waddledoo.obj");
+	BandanaDee_M = Model();
+	BandanaDee_M.LoadModel("Models/BandanaDee/bandanadee.obj");
+	KingDedede_M = Model();
+	KingDedede_M.LoadModel("Models/KingDedede/kingdedede.obj");
+	Halberd_M = Model();
+	Halberd_M.LoadModel("Models/Halberd/halberd.obj");
 
 	//--- planeta 3: Verdania ---
 	std::vector<std::string> carasVerdaniaDia;
@@ -2002,6 +2024,44 @@ int main()
 		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		WarpStar_M.RenderModel();
+
+		//habitantes de Pop Star del mas simple al mas evolucionado, viendo hacia donde llega la camara
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2 + glm::vec3(-8.5f, 0.0f, -8.0f));
+		model = glm::rotate(model, 20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		WaddleDee_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2 + glm::vec3(-6.0f, 0.0f, -9.0f));
+		model = glm::rotate(model, 10.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		WaddleDoo_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2 + glm::vec3(-3.5f, 0.0f, -9.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BandanaDee_M.RenderModel();
+
+		//King Dedede es el mas grande y va al final con su martillo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2 + glm::vec3(0.0f, 0.0f, -11.0f));
+		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		KingDedede_M.RenderModel();
+
+		//el angulo da la posicion en el circulo con seno y coseno, y se le suman 90 grados al giro
+		//para que la nariz del Halberd vea hacia donde avanza; con la P se queda quieto porque usa deltaTime
+		anguloHalberd += anguloHalberdOffset * deltaTime;
+		if (anguloHalberd > 360.0f)
+			anguloHalberd -= 360.0f;
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2 + centroHalberd +
+			glm::vec3(radioHalberd * sin(anguloHalberd * toRadians), 0.0f, radioHalberd * cos(anguloHalberd * toRadians)));
+		model = glm::rotate(model, (anguloHalberd + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Halberd_M.RenderModel();
 
 		//--- planeta 3: Verdania ---
 		//cada parte que se mueve usa el seno de anguloVerdania por un numero entero, que va y viene suave entre -1 y 1 y no
