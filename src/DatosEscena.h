@@ -383,7 +383,7 @@ glm::vec3 pivotesCrazyDave[NUM_PIEZAS_CRAZYDAVE] = {
 	glm::vec3(0.1927f, 0.1641f, -0.0969f)       //pie_izq
 };
 
-//ice pea, un pea de hielo en maceta; los tres peas en maceta miden como 1.4 de alto
+//ice pea; los tres peas en maceta miden como 1.4 de alto
 const int NUM_PIEZAS_ICEPEA = 8;
 const char* piezasIcePea[NUM_PIEZAS_ICEPEA] = {
 	"base", "tallo", "cabeza", "boca", "hoja_izq", "hoja_frente", "hoja_der", "hoja_atras" };
@@ -400,7 +400,7 @@ glm::vec3 pivotesIcePea[NUM_PIEZAS_ICEPEA] = {
 	glm::vec3(0.0000f, 0.5212f, 0.0221f)        //hoja_atras
 };
 
-//gatling pea, un pea con casco y canones de metralleta; los canones son una pieza aparte para que puedan girar
+//gatling pea; los canones son una pieza aparte para que puedan girar
 const int NUM_PIEZAS_GATLINGPEA = 9;
 const char* piezasGatlingPea[NUM_PIEZAS_GATLINGPEA] = {
 	"base", "tallo", "cabeza", "boca", "canones", "hoja_izq", "hoja_frente", "hoja_der", "hoja_atras" };
@@ -418,7 +418,7 @@ glm::vec3 pivotesGatlingPea[NUM_PIEZAS_GATLINGPEA] = {
 	glm::vec3(0.0000f, 0.5212f, -0.0783f)       //hoja_atras
 };
 
-//fire pea, un pea de fuego en maceta
+//fire pea
 const int NUM_PIEZAS_FIREPEA = 8;
 const char* piezasFirePea[NUM_PIEZAS_FIREPEA] = {
 	"base", "tallo", "cabeza", "boca", "hoja_izq", "hoja_frente", "hoja_der", "hoja_atras" };
@@ -435,7 +435,7 @@ glm::vec3 pivotesFirePea[NUM_PIEZAS_FIREPEA] = {
 	glm::vec3(0.0000f, 0.5087f, -0.0472f)       //hoja_atras
 };
 
-//cactus, mide como 1.45 de alto y tiene un tallo de dos partes y un brazo de cada lado
+//cactus, mide como 1.45 de alto
 const int NUM_PIEZAS_CACTUS = 6;
 const char* piezasCactus[NUM_PIEZAS_CACTUS] = {
 	"base", "tallo1", "tallo2", "cabeza", "brazo_izq", "brazo_der" };
@@ -471,7 +471,7 @@ glm::vec3 pivotesSunflower[NUM_PIEZAS_SUNFLOWER] = {
 	glm::vec3(-0.0390f, 0.1462f, 0.0450f)       //hoja_tras_der
 };
 
-//girasol mas grande, mide como 1.9 de alto
+//girasol grande, mide como 1.9 de alto
 const int NUM_PIEZAS_SUNFLOWER2 = 12;
 const char* piezasSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
 	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
@@ -492,7 +492,7 @@ glm::vec3 pivotesSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
 	glm::vec3(-0.0652f, 0.2445f, 0.0759f)       //hoja_tras_der
 };
 
-//girasol de peluche, tiene las mismas piezas que los otros girasoles
+//girasol de peluche, con las mismas piezas que los otros
 const int NUM_PIEZAS_STUFFYFLOWER = 12;
 const char* piezasStuffyFlower[NUM_PIEZAS_STUFFYFLOWER] = {
 	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
@@ -513,7 +513,7 @@ glm::vec3 pivotesStuffyFlower[NUM_PIEZAS_STUFFYFLOWER] = {
 	glm::vec3(-0.0659f, 0.2473f, 0.0693f)       //hoja_tras_der
 };
 
-//hypno-shroom, un hongo con tallo, sombrero y boca
+//hypno-shroom
 const int NUM_PIEZAS_HYPNOSHROOM = 4;
 const char* piezasHypnoShroom[NUM_PIEZAS_HYPNOSHROOM] = {
 	"base", "tallo", "sombrero", "boca" };
@@ -526,7 +526,7 @@ glm::vec3 pivotesHypnoShroom[NUM_PIEZAS_HYPNOSHROOM] = {
 	glm::vec3(-0.0024f, 0.1765f, 0.1307f)       //boca
 };
 
-//laser bean, un frijol en maceta; la maceta es la raiz y el cuerpo cuelga de ella
+//laser bean; la maceta es la raiz y el cuerpo cuelga de ella
 const int NUM_PIEZAS_LASERBEAN = 3;
 const char* piezasLaserBean[NUM_PIEZAS_LASERBEAN] = {
 	"maceta", "cuerpo", "pelo" };
@@ -538,7 +538,7 @@ glm::vec3 pivotesLaserBean[NUM_PIEZAS_LASERBEAN] = {
 	glm::vec3(0.0000f, 1.1489f, -0.1837f)       //pelo
 };
 
-//potato mine, una papa enterrada; la tierra es la raiz, el cuerpo cuelga de ella y la antena del cuerpo
+//potato mine; la tierra es la raiz, el cuerpo cuelga de ella y la antena del cuerpo
 const int NUM_PIEZAS_POTATOMINE = 3;
 const char* piezasPotatoMine[NUM_PIEZAS_POTATOMINE] = {
 	"tierra", "cuerpo", "antena" };
@@ -550,7 +550,7 @@ glm::vec3 pivotesPotatoMine[NUM_PIEZAS_POTATOMINE] = {
 	glm::vec3(-0.0042f, 0.4880f, 0.0104f)       //antena
 };
 
-//torchwood, un tronco con cabeza, boca y brazos que mide como 2.7 de alto
+//torchwood, mide como 2.7 de alto
 const int NUM_PIEZAS_TORCHWOOD = 9;
 const char* piezasTorchwood[NUM_PIEZAS_TORCHWOOD] = {
 	"base", "tronco", "cabeza", "fuego", "mandibula", "brazo_izq", "antebrazo_izq", "brazo_der", "antebrazo_der" };
@@ -569,28 +569,27 @@ glm::vec3 pivotesTorchwood[NUM_PIEZAS_TORCHWOOD] = {
 };
 
 //jardin de crazy dave
-//la calle va en linea recta sobre X; cada tramo mide 1 por 1, que con escalaCasa queda de 6.5 por 6.5, y el ultimo es el final de la calle
+//la calle va en linea recta sobre X; cada tramo mide 6.5 ya escalado
 const int NUM_TRAMOS_CALLE = 4;
 float posCalleX[NUM_TRAMOS_CALLE] = { 19.5f, 26.0f, 32.5f, 39.0f };
 float posCalleZ = -27.0f;
 
-//el camino de piedra sigue donde termina la calle, pasa por la puerta de la cerca y entra al jardin
+//el camino de piedra sigue a la calle y entra al jardin por la puerta de la cerca
 const int NUM_PIEDRAS_CAMINO = 9;
 glm::vec3 posCamino[NUM_PIEDRAS_CAMINO] = {
 	glm::vec3(12.0f, 0.0f, -26.5f), glm::vec3(10.0f, 0.0f, -25.8f), glm::vec3(8.0f, 0.0f, -24.8f),
 	glm::vec3(6.5f, 0.0f, -23.4f), glm::vec3(5.5f, 0.0f, -21.8f), glm::vec3(5.2f, 0.0f, -20.0f),
 	glm::vec3(5.4f, 0.0f, -18.2f), glm::vec3(5.9f, 0.0f, -16.4f), glm::vec3(6.6f, 0.0f, -14.7f) };
 
-//la cerca separa el jardin de la casa; la tercera pieza, que es la de en medio del lado derecho, es la puerta, por donde pasa el camino
+//la cerca separa el jardin de la casa; la tercera pieza es la puerta
 const int NUM_CERCAS_JARDIN = 4;
 float posCercaX[NUM_CERCAS_JARDIN] = { -15.6f, -5.2f, 5.2f, 15.6f };
 float posCercaZ = -22.0f;
 int indicePuerta = 2;
-//la puerta mide 1.2 de ancho y las otras cercas 1.6, por eso la puerta se estira en X para que no queden huecos
+//la puerta mide 1.2 de ancho y las otras 1.6, por eso se estira en X para que no queden huecos
 float estiraPuerta = 1.33f;
 
-//de los arboles, arbustos, flores y piedras se guarda la posicion, el tamano y el giro de cada uno; el mismo modelo se repite cambiando el giro
-//y el tamano para que no se vean todos iguales, como los arboles del planeta 2
+//lugar, tamano y giro de cada arbol, arbusto, flor y piedra; cambiarlos hace que el mismo modelo no se vea repetido
 const int NUM_ARBOLES_JARDIN = 4;
 glm::vec3 posArbolesJardin[NUM_ARBOLES_JARDIN] = {
 	glm::vec3(-14.0f, 0.0f, -27.0f), glm::vec3(18.0f, 0.0f, -14.0f), glm::vec3(-20.0f, 0.0f, -4.0f), glm::vec3(16.0f, 0.0f, 7.0f) };
@@ -614,7 +613,7 @@ const int NUM_DETALLES_JARDIN = 8;
 glm::vec3 posDetallesJardin[NUM_DETALLES_JARDIN] = {
 	glm::vec3(-4.0f, 0.0f, 2.0f), glm::vec3(4.0f, 0.0f, 1.0f), glm::vec3(-7.0f, 0.0f, -9.0f), glm::vec3(10.0f, 0.0f, -12.0f),
 	glm::vec3(1.0f, 0.0f, -10.0f), glm::vec3(-12.0f, 0.0f, 2.0f), glm::vec3(13.0f, 0.0f, -8.0f), glm::vec3(-6.0f, 0.0f, 11.0f) };
-//cada tipo de detalle viene de distinto tamano, el trebol mide 1.1, el helecho 9 de ancho y el hongo 0.45, por eso cada uno lleva su escala
+//el trebol mide 1.1, el helecho 9 de ancho y el hongo 0.45, por eso cada uno lleva su escala
 float escalaDetallesJardin[3] = { 0.6f, 0.25f, 2.0f }; //en orden, trebol, helecho y hongo
 
 //--- nave de Among Us y crewmates ---
