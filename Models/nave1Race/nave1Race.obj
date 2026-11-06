@@ -1,6 +1,6 @@
 # Blender 5.2.2 LTS
 # www.blender.org
-mtllib naveRecorrido.mtl
+mtllib nave1Race.mtl
 g nave1Race_nave1Race
 v 36.808807 -1.720000 -68.853699
 v 39.472805 -1.720000 -30.780617

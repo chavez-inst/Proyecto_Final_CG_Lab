@@ -9,16 +9,14 @@ Model::Model()
 void Model::LoadModel(const std::string & fileName)
 {
 	Assimp::Importer importer;
-	//Triangulate pasa los poligonos y quads a triangulos
-	//GenSmoothNormals genera normales si el modelo no las trae
-	//JoinIdenticalVertices junta los vertices repetidos en uno solo
+	//Triangulate pasa los poligonos a triangulos, GenSmoothNormals crea las normales que falten y JoinIdenticalVertices une los vertices repetidos
 	const aiScene *scene = importer.ReadFile(fileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 	if (!scene)
 	{
 		printf("Fallo al cargar el modelo: %s (%s)\n", fileName.c_str(), importer.GetErrorString());
 		return;
 	}
-	//se guarda la carpeta del modelo, que es todo lo que va hasta el ultimo / o \, igual que en LoadMaterials
+	//carpeta del modelo, que LoadMaterials usa para buscar sus texturas
 	carpeta = fileName.substr(0, fileName.find_last_of("\\/") + 1);
 	LoadNode(scene->mRootNode, scene);
 	LoadMaterials(scene);
@@ -76,7 +74,6 @@ Model::~Model()
 {
 }
 
-//recorre el arbol de nodos del archivo y carga todas sus mallas
 void Model::LoadNode(aiNode * node, const aiScene * scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -124,8 +121,7 @@ void Model::LoadMesh(aiMesh * mesh, const aiScene * scene)
 	meshTotex.push_back(mesh->mMaterialIndex);
 }
 
-//carga la textura difusa (map_Kd en el .mtl) de cada material
-//si no tiene o no se encuentra, usa Textures/plain.png
+//carga la textura difusa de cada material
 void Model::LoadMaterials(const aiScene * scene)
 {
 	std::unordered_map<std::string, Texture*> loadedTextures; //para no cargar la misma textura dos veces
@@ -139,20 +135,17 @@ void Model::LoadMaterials(const aiScene * scene)
 			aiString path;
 			if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
 			{
-				//se queda solo con el nombre del archivo y quita las carpetas, que es todo lo que esta antes del ultimo \ o /
 				//si no hay carpeta, idx + 1 vale 0 y se toma el nombre completo
 				std::string fullPath = std::string(path.data);
 				std::size_t idx = fullPath.find_last_of("\\/");
 				std::string filename = fullPath.substr(idx + 1);
 
-				//primero se busca en la carpeta Textures del propio modelo, por ejemplo Models/Carnivora/Textures/
-				//si ahi no esta, se busca en la carpeta Textures/ del proyecto
+				//primero se busca en Textures del propio modelo y si no esta, en Textures/ del proyecto
 				std::string texPath = carpeta + "Textures/" + filename;
 				if (!std::ifstream(texPath).good())
 				{
 					texPath = std::string("Textures/") + filename;
 				}
-				//si ya se cargo esta textura antes, se reutiliza
 				auto it = loadedTextures.find(texPath);
 				if (it != loadedTextures.end())
 				{

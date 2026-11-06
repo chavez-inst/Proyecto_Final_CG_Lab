@@ -16,7 +16,6 @@ public:
 	GLfloat getYChange();
 	bool getpausaAnimaciones() { return pausaAnimaciones; }
 
-	//getters de cada actividad (misma division que main.cpp)
 	//--- personajes ---
 	bool getcaminaHeadcrab() { return caminaHeadcrab; }
 
@@ -69,7 +68,6 @@ private:
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
-	//para agregar otro valor se pone la variable aqui, su getter arriba, su valor inicial en los constructores y la tecla en ManejaTeclado
 	bool pausaAnimaciones; //P pausa o continua todas las animaciones
 
 	//variables de cada actividad

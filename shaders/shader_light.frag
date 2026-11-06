@@ -150,6 +150,5 @@ void main()
 	vec4 finalcolor = CalcDirectionalLight();
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
-	//el color final es la textura por el color del objeto, que es el uniform color, por toda la luz que le llega
 	color = texture(theTexture, TexCoord)*vColor*finalcolor;
 }

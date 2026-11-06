@@ -1,16 +1,10 @@
 #pragma once
-//datos fijos de la escena: piezas de los modelos con jerarquia, puntos de la pista y lugares de los objetos que se repiten
-//estan aparte para que main.cpp quede mas corto; lo que cambia mientras corre el programa se queda en main.cpp
-//solo se incluye en main.cpp, porque los arreglos se crean aqui y en otro .cpp darian simbolos repetidos
-//tiene las mismas secciones que main.cpp
+//los arreglos se crean aqui, asi que solo main.cpp lo incluye; en otro .cpp darian simbolos repetidos
 
 #include <glm.hpp>
 
-//los modelos con jerarquia estan separados en piezas .obj que comparten el mismo origen, todas con Y hacia arriba,
-//los pies en y = 0 y mirando hacia Z positivo; "der" e "izq" son la derecha y la izquierda del modelo, y su derecha
-//queda hacia X negativo
-//por cada pieza se guarda el nombre de su .obj, el padre, que es el indice de la pieza de la que cuelga y vale -1 si es
-//la raiz, y el pivote, que es el punto de la articulacion donde gira; el padre siempre va antes que sus hijos
+//las piezas comparten origen y miran hacia Z positivo, asi que "der" queda hacia X negativo
+//el padre es la pieza de la que cuelga cada una, o -1 si es la raiz, y siempre va antes; el pivote es donde gira
 
 //--- personajes ---
 //la planta carnivora mide como 1.4 de alto
@@ -103,6 +97,19 @@ glm::vec3 pivotesFalcon[NUM_PIEZAS_FALCON] = {
 };
 
 //--- planetas: Xen y planeta 2 ---
+//las 8 patas del bacteriofago cuelgan del cuerpo y giran en el anillo de abajo, donde se juntan
+const int NUM_PIEZAS_BACTERIOFAGO = 9;
+const char* piezasBacteriofago[NUM_PIEZAS_BACTERIOFAGO] = {
+	"cuerpoBac",
+	"pata1Bac", "pata2Bac", "pata3Bac", "pata4Bac",
+	"pata5Bac", "pata6Bac", "pata7Bac", "pata8Bac" };
+int padresBacteriofago[NUM_PIEZAS_BACTERIOFAGO] = {
+	-1, 0, 0, 0, 0, 0, 0, 0, 0 };
+glm::vec3 pivotesBacteriofago[NUM_PIEZAS_BACTERIOFAGO] = {
+	glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 0.42f, 0.0f), glm::vec3(0.0f, 0.42f, 0.0f), glm::vec3(0.0f, 0.42f, 0.0f), glm::vec3(0.0f, 0.42f, 0.0f),
+	glm::vec3(0.0f, 0.42f, 0.0f), glm::vec3(0.0f, 0.42f, 0.0f), glm::vec3(0.0f, 0.42f, 0.0f), glm::vec3(0.0f, 0.42f, 0.0f) };
+
 //el headcrab de Xen mide como 0.3 de alto y 0.6 de largo contando las patas
 const int NUM_PIEZAS_HEADCRAB = 10;
 const char* piezasHeadcrab[NUM_PIEZAS_HEADCRAB] = {
@@ -138,8 +145,7 @@ glm::vec3 pivotesHoundeye[NUM_PIEZAS_HOUNDEYE] = {
 	glm::vec3(0.22f, 0.5f, 0.14f),       //pata_del_izq
 	glm::vec3(0.0f, 0.4f, -0.31f)        //pata_tras
 };
-//el bullsquid mide 0.9 de alto y 2.6 de largo con la cola; el cuerpo y las patas giran en la misma linea de la cadera,
-//asi el cuerpo se puede echar hacia atras mientras las patas se quedan en el piso
+//el bullsquid mide 0.9 de alto y 2.6 de largo; cuerpo y patas giran en la misma linea de la cadera para poder echarse hacia atras
 const int NUM_PIEZAS_BULLSQUID = 5;
 const char* piezasBullsquid[NUM_PIEZAS_BULLSQUID] = {
 	"cuerpo", "tentaculos", "cola", "pata_der", "pata_izq" };
@@ -162,8 +168,7 @@ glm::vec3 pivotesVortigaunt[NUM_PIEZAS_VORTIGAUNT] = {
 	glm::vec3(-0.3f, 0.86f, -0.05f),     //brazo_der, gira en el hombro
 	glm::vec3(0.3f, 0.86f, -0.05f)       //brazo_izq
 };
-//el alien grunt mide 1.9 de alto; trae el arma en el brazo derecho, la garra en el izquierdo y un brazo chico en el pecho
-//el modelo viene a medio paso, con la pierna derecha adelante y la izquierda atras
+//el alien grunt mide 1.9 de alto y el modelo viene a medio paso, con la pierna derecha adelante
 const int NUM_PIEZAS_GRUNT = 6;
 const char* piezasGrunt[NUM_PIEZAS_GRUNT] = {
 	"cuerpo", "arma", "brazo_izq", "brazo_chico", "pierna_der", "pierna_izq" };
@@ -176,8 +181,7 @@ glm::vec3 pivotesGrunt[NUM_PIEZAS_GRUNT] = {
 	glm::vec3(-0.25f, 0.85f, -0.1f),     //pierna_der, gira en la cadera
 	glm::vec3(0.22f, 0.85f, -0.3f)       //pierna_izq
 };
-//el boid es plano y mide 6.2 de punta a punta; cada mitad del ala gira en el centro del cuerpo y la punta cuelga de ella,
-//por eso las dos mitades no tienen padre
+//el boid mide 6.2 de punta a punta; cada mitad del ala gira en el centro y la punta cuelga de ella, por eso las mitades no tienen padre
 const int NUM_PIEZAS_BOID = 4;
 const char* piezasBoid[NUM_PIEZAS_BOID] = {
 	"ala_der", "punta_der", "ala_izq", "punta_izq" };
@@ -226,7 +230,6 @@ float giroCristales[NUM_CRISTALES] = { 0.0f, 70.0f, 150.0f, 0.0f, 30.0f, 200.0f,
 float escalaCristales[NUM_CRISTALES] = { 1.2f, 1.0f, 0.7f, 2.0f, 1.6f, 1.1f, 2.4f, 3.0f, 2.2f, 1.8f, 2.0f, 0.9f };
 
 //islas flotantes de Xen; con cosaIsla en 0 la isla no lleva nada encima, con 1 lleva un cristal y con 2 una planta de luz
-//el crewmate escondido de Xen esta parado en la primera
 const int NUM_ISLAS = 7;
 glm::vec3 posIslas[NUM_ISLAS] = {
 	glm::vec3(-20.0f, 12.0f, -30.0f),
@@ -249,8 +252,7 @@ glm::vec3 posPlantas[NUM_PLANTAS] = {
 	glm::vec3(15.0f, 0.0f, -17.0f),
 	glm::vec3(-4.0f, 0.0f, -21.0f) };
 
-//las colinas del planeta 2 van en las orillas del mapa como paisaje, porque la camara no choca con nada y las atravesaria
-//el modelo mide 1 de radio y 0.4 de alto, y se baja para que la orilla, donde la textura se estira, quede enterrada
+//las colinas van en las orillas porque la camara no choca y las atravesaria; se bajan para enterrar la orilla, donde la textura se estira
 const int NUM_COLINAS = 5;
 glm::vec3 posColinas[NUM_COLINAS] = {
 	glm::vec3(-35.0f, -1.0f, -72.0f),
@@ -261,7 +263,6 @@ glm::vec3 posColinas[NUM_COLINAS] = {
 float giroColinas[NUM_COLINAS] = { 0.0f, 70.0f, 140.0f, 210.0f, 290.0f };
 float escalaColinas[NUM_COLINAS] = { 24.0f, 30.0f, 26.0f, 28.0f, 30.0f };
 
-//el mismo arbol se repite con distinto giro y tamano para que no se vean todos iguales
 const int NUM_ARBOLES = 6;
 glm::vec3 posArboles[NUM_ARBOLES] = {
 	glm::vec3(-15.0f, 0.0f, -20.0f),
@@ -273,7 +274,7 @@ glm::vec3 posArboles[NUM_ARBOLES] = {
 float giroArboles[NUM_ARBOLES] = { 0.0f, 60.0f, 130.0f, 200.0f, 250.0f, 310.0f };
 float escalaArboles[NUM_ARBOLES] = { 1.2f, 1.4f, 1.1f, 1.3f, 1.5f, 1.2f };
 
-//hay dos modelos de nube; tipoNubes dice cual se dibuja en cada lugar
+//tipoNubes elige cual de los dos modelos de nube va en cada lugar
 const int NUM_NUBES = 5;
 glm::vec3 posNubes[NUM_NUBES] = {
 	glm::vec3(-20.0f, 28.0f, -50.0f),
@@ -284,8 +285,7 @@ glm::vec3 posNubes[NUM_NUBES] = {
 int tipoNubes[NUM_NUBES] = { 2, 1, 2, 1, 1 };
 float escalaNubes[NUM_NUBES] = { 3.0f, 3.0f, 4.0f, 3.0f, 2.5f };
 
-//habitantes de Pop Star; los Waddle Dee y el Waddle Doo tienen las mismas piezas que Kirby, cuerpo, manos y pies,
-//y las manos y los pies giran en la parte que toca el cuerpo
+//los Waddle Dee y el Waddle Doo usan las piezas de Kirby, y sus manos y pies giran donde tocan el cuerpo
 //el Waddle Dee mide 0.9 de alto
 const int NUM_PIEZAS_WADDLE = 5;
 const char* piezasWaddle[NUM_PIEZAS_WADDLE] = {
@@ -319,7 +319,7 @@ glm::vec3 pivotesBandana[NUM_PIEZAS_BANDANA] = {
 	glm::vec3(-0.21f, 0.2f, 0.0f),       //pie_der
 	glm::vec3(0.21f, 0.2f, 0.0f)         //pie_izq
 };
-//King Dedede mide 2.4 de alto; el martillo cuelga de la mano derecha y la mano del brazo
+//King Dedede mide 2.4 de alto; el martillo cuelga de la mano derecha
 const int NUM_PIEZAS_DEDEDE = 8;
 const char* piezasDedede[NUM_PIEZAS_DEDEDE] = {
 	"cuerpo", "brazo_der", "mano_der", "martillo", "brazo_izq", "mano_izq", "pie_der", "pie_izq" };
@@ -492,7 +492,7 @@ glm::vec3 pivotesSunflower2[NUM_PIEZAS_SUNFLOWER2] = {
 	glm::vec3(-0.0652f, 0.2445f, 0.0759f)       //hoja_tras_der
 };
 
-//girasol de peluche, con las mismas piezas que los otros
+//girasol de peluche
 const int NUM_PIEZAS_STUFFYFLOWER = 12;
 const char* piezasStuffyFlower[NUM_PIEZAS_STUFFYFLOWER] = {
 	"base", "tallo1", "tallo2", "cabeza", "ala_izq", "ala_der", "brazo_izq", "brazo_der", "hoja_del_izq", "hoja_del_der", "hoja_tras_izq", "hoja_tras_der" };
@@ -526,7 +526,7 @@ glm::vec3 pivotesHypnoShroom[NUM_PIEZAS_HYPNOSHROOM] = {
 	glm::vec3(-0.0024f, 0.1765f, 0.1307f)       //boca
 };
 
-//laser bean; la maceta es la raiz y el cuerpo cuelga de ella
+//laser bean
 const int NUM_PIEZAS_LASERBEAN = 3;
 const char* piezasLaserBean[NUM_PIEZAS_LASERBEAN] = {
 	"maceta", "cuerpo", "pelo" };
@@ -538,7 +538,7 @@ glm::vec3 pivotesLaserBean[NUM_PIEZAS_LASERBEAN] = {
 	glm::vec3(0.0000f, 1.1489f, -0.1837f)       //pelo
 };
 
-//potato mine; la tierra es la raiz, el cuerpo cuelga de ella y la antena del cuerpo
+//potato mine
 const int NUM_PIEZAS_POTATOMINE = 3;
 const char* piezasPotatoMine[NUM_PIEZAS_POTATOMINE] = {
 	"tierra", "cuerpo", "antena" };
@@ -569,12 +569,11 @@ glm::vec3 pivotesTorchwood[NUM_PIEZAS_TORCHWOOD] = {
 };
 
 //jardin de crazy dave
-//la calle va en linea recta sobre X; cada tramo mide 6.5 ya escalado
+//cada tramo de calle mide 6.5 ya escalado
 const int NUM_TRAMOS_CALLE = 4;
 float posCalleX[NUM_TRAMOS_CALLE] = { 19.5f, 26.0f, 32.5f, 39.0f };
 float posCalleZ = -27.0f;
 
-//el camino de piedra sigue a la calle y entra al jardin por la puerta de la cerca
 const int NUM_PIEDRAS_CAMINO = 9;
 glm::vec3 posCamino[NUM_PIEDRAS_CAMINO] = {
 	glm::vec3(12.0f, 0.0f, -26.5f), glm::vec3(10.0f, 0.0f, -25.8f), glm::vec3(8.0f, 0.0f, -24.8f),
@@ -589,7 +588,7 @@ int indicePuerta = 2;
 //la puerta mide 1.2 de ancho y las otras 1.6, por eso se estira en X para que no queden huecos
 float estiraPuerta = 1.33f;
 
-//lugar, tamano y giro de cada arbol, arbusto, flor y piedra; cambiarlos hace que el mismo modelo no se vea repetido
+//lugar, tamano y giro de cada arbol, arbusto, flor y detalle del jardin
 const int NUM_ARBOLES_JARDIN = 4;
 glm::vec3 posArbolesJardin[NUM_ARBOLES_JARDIN] = {
 	glm::vec3(-14.0f, 0.0f, -27.0f), glm::vec3(18.0f, 0.0f, -14.0f), glm::vec3(-20.0f, 0.0f, -4.0f), glm::vec3(16.0f, 0.0f, 7.0f) };
@@ -617,9 +616,7 @@ glm::vec3 posDetallesJardin[NUM_DETALLES_JARDIN] = {
 float escalaDetallesJardin[3] = { 0.6f, 0.25f, 2.0f }; //en orden, trebol, helecho y hongo
 
 //--- nave de Among Us y crewmates ---
-//el lugar de cada crewmate se mide desde el centro de la nave; el primero apenas va saliendo por la puerta y los demas estan
-//cada vez mas lejos, girados en Y hacia distintos lados y ladeados en Z como si dieran vueltas
-//la puerta esta en z = -4.5 y entre los motores, por eso los crewmates cercanos van mas al centro en X que los lejanos
+//lugar desde el centro de la nave; la puerta esta en z -4.5, entre los motores, por eso los cercanos van mas al centro en X
 const int NUM_CREWMATES_NAVE = 6;
 glm::vec3 posCrewmates[NUM_CREWMATES_NAVE] = {
 	glm::vec3(0.0f, -0.9f, -5.4f),
@@ -630,7 +627,6 @@ glm::vec3 posCrewmates[NUM_CREWMATES_NAVE] = {
 	glm::vec3(1.1f, 0.7f, -10.6f) };
 float giroYCrewmates[NUM_CREWMATES_NAVE] = { 180.0f, 150.0f, 220.0f, 110.0f, 190.0f, 250.0f };
 float ladeoCrewmates[NUM_CREWMATES_NAVE] = { 0.0f, 25.0f, -40.0f, 150.0f, 70.0f, -110.0f };
-//rojo, azul, verde, rosa, naranja y amarillo, como en el juego
 glm::vec3 colorCrewmates[NUM_CREWMATES_NAVE] = {
 	glm::vec3(0.77f, 0.07f, 0.07f),
 	glm::vec3(0.07f, 0.18f, 0.82f),
@@ -639,25 +635,20 @@ glm::vec3 colorCrewmates[NUM_CREWMATES_NAVE] = {
 	glm::vec3(0.94f, 0.49f, 0.05f),
 	glm::vec3(0.96f, 0.96f, 0.34f) };
 
-//hay un crewmate escondido en cada planeta, en Xen arriba de la isla flotante mas baja, en el planeta 2 atras de la
-//colina del fondo a la izquierda y en Verdania atras de la casa de crazy dave
-//su lugar se mide desde el centro de la superficie de su planeta; el de Xen esta en la altura de la isla mas lo que
-//sale la isla hacia arriba, que con su escala de 3 es 0.6
+//lugar desde el centro de la superficie; el de Xen va a la altura de la isla mas 0.6, lo que sale con escala 3
 const int NUM_CREWMATES_ESCONDIDOS = 3;
 glm::vec3 posEscondidos[NUM_CREWMATES_ESCONDIDOS] = {
 	glm::vec3(-20.0f, 12.6f, -30.0f),
 	glm::vec3(-35.0f, 0.0f, -97.0f),
 	glm::vec3(2.5f, 0.0f, -39.5f) };
 float giroEscondidos[NUM_CREWMATES_ESCONDIDOS] = { 30.0f, 0.0f, 200.0f };
-//blanco, morado y cian
 glm::vec3 colorEscondidos[NUM_CREWMATES_ESCONDIDOS] = {
 	glm::vec3(0.84f, 0.88f, 0.94f),
 	glm::vec3(0.42f, 0.18f, 0.73f),
 	glm::vec3(0.22f, 0.95f, 0.86f) };
 
 //--- pista de carreras y naves ---
-//puntos del centro de la pista, en el orden en que avanzan las naves
-//cada punto tiene la normal del piso en ese lugar, que dice hacia donde esta arriba para la nave
+//puntos del centro de la pista en orden de avance, cada uno con la normal del piso para que la nave quede derecha
 const int NUM_PUNTOS_PISTA = 148;
 glm::vec3 posRutaPista[NUM_PUNTOS_PISTA] = {
 	glm::vec3(27.000f, 0.000f, -0.542f),
@@ -963,8 +954,7 @@ glm::vec3 normalRutaPista[NUM_PUNTOS_PISTA] = {
 //--- satelites y cuerpos espaciales ---
 
 //--- plataforma de lanzamiento y cohete ---
-//el cohete son 5 piezas que van una encima de otra; armado mide 4.6 de alto
-//cada pieza cuelga de la de abajo, asi al mover la base se mueve todo el cohete
+//el cohete mide 4.6 de alto armado; cada pieza cuelga de la de abajo, asi al mover la base se mueve todo
 const int NUM_PIEZAS_COHETE = 5;
 const char* piezasCohete[NUM_PIEZAS_COHETE] = {
 	"base", "tanque", "cuerpo", "anillo", "punta" };
@@ -979,10 +969,7 @@ glm::vec3 pivotesCohete[NUM_PIEZAS_COHETE] = {
 };
 
 //--- estacion espacial y naves ---
-//las naves de un mismo pad estan en tres niveles, una arriba de otra, y el pad de X negativo solo tiene dos
-//de cada nave se guarda el lugar donde se posa, medido desde el centro de la estacion, hacia donde sale, que siempre es
-//hacia afuera de la estacion, el giro en Y con el que queda viendo hacia la estacion y el modelo que usa, que es 0 para
-//la nave dorada, 1 para la blanca y 2 para la caza
+//lugar donde se posa cada nave, desde el centro de la estacion; el modelo 0 es la dorada, 1 la blanca y 2 la caza
 const int NUM_NAVES_ESTACION = 11;
 glm::vec3 posNavesEstacion[NUM_NAVES_ESTACION] = {
 	//pad de Z negativo
@@ -1015,17 +1002,14 @@ int modeloNavesEstacion[NUM_NAVES_ESTACION] = {
 	2, 0, 1,
 	1, 2, 0,
 	0, 2 };
-//segundos que se le suman a cada espera; cada nave va tomando el siguiente de la lista, empezando en un lugar distinto,
-//para que no salgan ni regresen todas al mismo tiempo
+//segundos de espera de cada nave; cada una toma el siguiente de la lista para que no salgan todas al mismo tiempo
 const int NUM_ESPERAS_NAVES = 16;
 float esperasNaves[NUM_ESPERAS_NAVES] = {
 	0.0f, 10.0f, 5.0f, 20.0f, 15.0f, 0.0f, 10.0f, 20.0f,
 	5.0f, 15.0f, 10.0f, 0.0f, 20.0f, 5.0f, 15.0f, 10.0f };
 
 //--- avatar ---
-//pivotes del avatar, que usa las piezas de Kirby; los pies giran desde la cadera, mas arriba que en las de Kirby, para que
-//se balanceen hacia adelante y hacia atras al caminar, y las manos giran en Y alrededor del centro del cuerpo para que
-//se muevan pegadas a el
+//pivotes del avatar; los pies giran mas arriba que en Kirby para balancearse al caminar, y las manos giran alrededor del cuerpo
 glm::vec3 pivotesAvatar[NUM_PIEZAS_KIRBY] = {
 	glm::vec3(0.0f, 0.4158f, 0.0f),  //cuerpo
 	glm::vec3(0.0f, 0.34f, 0.02f),   //mano_der
@@ -1035,12 +1019,10 @@ glm::vec3 pivotesAvatar[NUM_PIEZAS_KIRBY] = {
 };
 
 //--- camaras y recorridos ---
-//recorrido de la camara 5 en el espacio; el cohete sale de Pop Star en linea recta, pasa por arriba de la nave nodriza y
-//de la estacion y sigue de largo; la camara lo sigue hasta finCoheteEspacio, que esta arriba de la estacion
+//recorrido de la camara 5 en el espacio; el cohete sigue en linea recta hasta finCoheteEspacio
 glm::vec3 inicioCoheteEspacio = glm::vec3(-800.0f, 250.0f, 480.0f);
 glm::vec3 finCoheteEspacio = glm::vec3(613.0f, 600.0f, -350.0f);
-//de inicioCoheteEspacio a finCoheteEspacio hay 1676 unidades; frenteCoheteEspacio es la direccion del camino con largo 1
-//y ladoCoheteEspacio queda acostado y a su derecha, por ahi va la camara para ver al cohete de lado
+//el camino mide 1676 unidades; frenteCoheteEspacio es su direccion y ladoCoheteEspacio sirve para ver el cohete de lado
 float largoCaminoCohete = 1676.0f;
 glm::vec3 frenteCoheteEspacio = glm::vec3(0.843f, 0.209f, -0.495f);
 glm::vec3 ladoCoheteEspacio = glm::vec3(0.507f, 0.0f, 0.862f);
@@ -1048,28 +1030,22 @@ glm::vec3 ladoCoheteEspacio = glm::vec3(0.507f, 0.0f, 0.862f);
 glm::vec3 ejeGiroCoheteEspacio = glm::vec3(-0.507f, 0.0f, -0.862f);
 float inclinaCoheteEspacio = 77.9f;
 
-//recorrido de la camara 4; cada viaje va de la estacion a un planeta y en todos los arreglos el 0 es Xen, el 1 Pop Star
-//y el 2 Verdania, en el orden de las teclas G, H y J
+//recorrido de la camara 4; en todos los arreglos de viajes el 0 es Xen, el 1 Pop Star y el 2 Verdania, como las teclas G, H y J
 const int NUM_VIAJES = 3;
 //zona del planeta a donde va, como las de Window
 int zonaViajes[NUM_VIAJES] = { 1, 2, 3 };
-//lo que sube en diagonal antes de girar; para ir a Verdania la nave pasa junto a la estacion, y con 60 ya va
-//mas arriba que las naves de los pads
+//altura que sube en diagonal antes de girar; con 60 la nave a Verdania ya pasa arriba de las naves de los pads
 float subidaViajes[NUM_VIAJES] = { 60.0f, 40.0f, 60.0f };
-//rumbo con el que apunta al planeta en el espacio; sale del arco tangente del camino de donde termina de subir al planeta,
-//sin contar la altura, y se le resto una vuelta a los que asi giran por el lado corto desde -90, que es como esta en el pad
+//rumbo con que apunta al planeta en el espacio; los que giran por el lado corto desde -90 llevan una vuelta restada
 float rumboViajes[NUM_VIAJES] = { 0.7f, -237.1f, -123.8f };
-//lo que vuela antes de que la camara pase al planeta; es la distancia al planeta menos unas dos veces y media su radio,
-//asi se ve muy lejos pero no lo toca
+//distancia que vuela antes de pasar la camara al planeta; es la distancia al planeta menos unas dos veces y media su radio
 float distanciaViajes[NUM_VIAJES] = { 1600.0f, 2330.0f, 2360.0f };
 //camara en la estacion, medida desde su centro; cada una ve el pad y hacia donde se va la nave en ese viaje
 glm::vec3 camaraEstacionViajes[NUM_VIAJES] = {
 	glm::vec3(-265.0f, 8.0f, 45.0f),
 	glm::vec3(-265.0f, 8.0f, -45.0f),
 	glm::vec3(-320.0f, 65.0f, 0.0f) };
-//en el planeta, donde se estaciona la nave, el rumbo con el que llega y donde esta la camara, medidos desde el centro del piso
-//son lugares libres: en Xen adelante de donde se llega, en Pop Star entre las dos colinas de Z positivo y en Verdania
-//del lado contrario al jardin
+//lugar de llegada en cada planeta, medido desde el centro del piso y en un espacio libre de objetos
 glm::vec3 lugarLlegadaViajes[NUM_VIAJES] = {
 	glm::vec3(6.0f, 5.0f, 22.0f),
 	glm::vec3(45.0f, 5.0f, 50.0f),

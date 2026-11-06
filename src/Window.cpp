@@ -13,7 +13,6 @@ Window::Window()
 	yChange = 0.0f;
 	pausaAnimaciones = false;
 
-	//valor inicial de las variables de cada actividad (va en los dos constructores)
 	//--- personajes ---
 	caminaHeadcrab = false;
 
@@ -67,7 +66,6 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	yChange = 0.0f;
 	pausaAnimaciones = false;
 
-	//valor inicial de las variables de cada actividad (va en los dos constructores)
 	//--- personajes ---
 	caminaHeadcrab = false;
 
@@ -184,8 +182,7 @@ GLfloat Window::getYChange()
 }
 
 //--- planetas: Xen y planeta 2 ---
-//lo usan las teclas X, C y V; si ya se esta en ese planeta, se regresa al punto de llegada
-//la camara del avatar se queda si ya se estaba usando y cualquier otra cambia a la libre, porque las de las naves solo sirven en el espacio
+//lo usan X, C y V; si ya se esta en ese planeta se regresa al punto de llegada, y si no es la camara 2 pasa a la libre
 void Window::IrAPlaneta(int planeta)
 {
 	if (zonaPlaneta == planeta)
@@ -203,7 +200,6 @@ void Window::IrAPlaneta(int planeta)
 }
 
 //se llama una vez por cada evento de teclado, ya sea al presionar, mantener o soltar una tecla
-//aqui se agregan las teclas nuevas
 void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode)
 {
 	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
@@ -216,15 +212,13 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 	{
 		theWindow->pausaAnimaciones = !theWindow->pausaAnimaciones;
-		//se avisa en la consola para saber en que estado quedaron las animaciones
 		if (theWindow->pausaAnimaciones)
 			printf("animaciones en pausa\n");
 		else
 			printf("animaciones corriendo\n");
 	}
 
-	//teclas de cada actividad (la tabla de que tecla es de quien esta en README.md)
-	//la F prende o apaga la animacion basica de la escena donde se esta, por eso cada actividad revisa su zona
+	//la F prende o apaga la animacion basica de la zona donde se esta
 	//--- personajes ---
 	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 1)
 	{
@@ -236,9 +230,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 
 	//--- planetas: Xen y planeta 2 ---
-	//Z va al espacio, X a Xen, C al planeta 2 y V a Verdania
-	//estando en el espacio, la Z lleva al siguiente punto de interes; el contador se reinicia al llegar desde un planeta
-	//la camara del avatar solo sirve en los planetas, por eso al ir al espacio se cambia a la camara libre
+	//en el espacio la Z pasa al siguiente punto de interes; desde un planeta regresa al espacio y pasa a la camara libre
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
 		if (theWindow->zonaPlaneta == 0)
@@ -266,7 +258,6 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 
 	//--- planeta 3: Verdania ---
-	//F prende o apaga las animaciones de las plantas cuando se esta en Verdania, igual que con el headcrab en Xen
 	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 3)
 	{
 		theWindow->animaVerdania = !theWindow->animaVerdania;
@@ -281,8 +272,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
-	//F prende o apaga los despegues del cohete cuando se esta en el planeta 2, igual que las otras animaciones basicas;
-	//mientras este prendida el cohete despega, sube, regresa a la plataforma y vuelve a despegar
+	//la F prende o apaga los despegues del cohete en el planeta 2, que se repiten mientras esta prendido
 	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 2)
 	{
 		theWindow->despegaCohete = !theWindow->despegaCohete;
@@ -295,8 +285,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
-	//la T cambia el personaje que se controla con la camara 2 entre Kirby, que es el 0, y la carnivora, que es el 1;
-	//al pasar del ultimo personaje se regresa al primero
+	//la T cambia el personaje de la camara 2 entre Kirby y la carnivora, y despues del ultimo regresa al primero
 	if (key == GLFW_KEY_T && action == GLFW_PRESS)
 	{
 		theWindow->personajeAvatar += 1;
@@ -309,12 +298,8 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 
 	//--- camaras y recorridos ---
-	//1 es la camara libre, 2 la del avatar, 3 la de una nave de la carrera, 4 la de la nave que viaja entre planetas
-	//y 5 el recorrido del lanzamiento y la estacion; los codigos de las teclas 1 a 5 van seguidos, asi que al restarles
-	//el de la 1 y sumar 1 sale el numero de la camara
-	//la tecla 4 no hace nada porque a la camara 4 se entra con G, H o J, que dicen a que planeta va el viaje
-	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y la 3 empieza en el espacio
-	//el recorrido de la 5 empieza en el planeta 2 viendo despegar el cohete, y main.cpp lo pasa al espacio cuando el cohete ya subio
+	//los codigos de las teclas 1 a 5 van seguidos, asi que restar el de la 1 y sumar 1 da el numero de la camara
+	//la 4 solo se entra con G, H o J; la 2 lleva a Xen desde el espacio, la 3 al espacio y la 5 al planeta 2 para ver el despegue
 	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5 && key != GLFW_KEY_4 && action == GLFW_PRESS)
 	{
 		int modo = key - GLFW_KEY_1 + 1;
@@ -346,9 +331,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		theWindow->objetivoCamara += 1;
 	}
-	//G, H y J ponen la camara 4 con el viaje a Xen, a Pop Star o a Verdania, en el mismo orden que X, C y V
-	//como el viaje empieza en la estacion, regresan al espacio, y main.cpp lo pasa al planeta cuando la nave ya se alejo;
-	//si ya se estaba en ese viaje, empieza otra vez
+	//G, H y J ponen la camara 4 en el viaje a Xen, Pop Star o Verdania; si ya se iba en ese viaje, empieza otra vez
 	if ((key == GLFW_KEY_G || key == GLFW_KEY_H || key == GLFW_KEY_J) && action == GLFW_PRESS)
 	{
 		if (key == GLFW_KEY_G)
@@ -390,8 +373,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 			printf("en el espacio el sol esta fijo, la N solo cambia el dia y la noche en los planetas\n");
 	}
 
-	//guarda que teclas estan presionadas, la camara libre y el avatar lo leen con getsKeys()
-	//las teclas WASD ya las usan la camara libre y el avatar
+	//guarda las teclas presionadas para getsKeys(); WASD ya las usan la camara libre y el avatar
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)

@@ -80,16 +80,13 @@ Skybox::Skybox(std::vector<std::string> faceLocations)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-//se dibuja antes que el resto de la escena
-//gira dice si el skybox da vueltas en los tres ejes, como el del espacio, que no tiene horizonte
-//si es false solo gira sobre Y, que es lo que usan los planetas para que el horizonte nunca se incline
+//se dibuja antes que el resto; con gira en true da vueltas en los tres ejes, como en el espacio, y en false solo en Y
 void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloat deltaTime, bool gira)
 {
 	//se le quita la traslacion a la vista para que el skybox gire con la camara pero no se mueva con ella
 	viewMatrix = glm::mat4(glm::mat3(viewMatrix));
 
-	//angulos que crecen cada frame para que el skybox gire solo; son static para que no regresen a 0 en cada llamada,
-	//y como los comparten todos los skybox, el giro sigue igual al cambiar de zona
+	//angulos static para que el giro no se reinicie en cada llamada ni al cambiar de zona, porque los comparten todos los skybox
 	static float angleY = 0.0f;
 	static float angleX = 0.0f;
 	static float angleZ = 0.0f;

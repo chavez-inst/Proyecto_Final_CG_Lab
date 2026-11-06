@@ -51,14 +51,11 @@ bool Texture::LoadTextureFile(bool useAlpha)
 	glGenTextures(1, &textureID); //igual que con el VAO, se crea la textura y se le da un id
 	glBindTexture(GL_TEXTURE_2D, textureID); //textura 2D, para superficies es suficiente
 
-	//si las UV se salen de 0 a 1, GL_REPEAT repite la imagen, GL_MIRRORED_REPEAT la repite en espejo
-	//y GL_CLAMP_TO_EDGE estira el borde
+	//si las UV salen de 0 a 1, GL_REPEAT repite la imagen, GL_MIRRORED_REPEAT la hace en espejo y GL_CLAMP_TO_EDGE estira el borde
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //eje S, que es como X
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); //eje T, que es como Y
-	//MIN_FILTER se usa cuando la textura se ve mas chica porque esta lejos y MAG_FILTER cuando se ve mas grande porque esta cerca
-	//GL_LINEAR mezcla los texels cercanos y se ve suave, GL_NEAREST toma el mas cercano y se ve pixeleado
-	//al alejarse se usan los mipmaps que crea glGenerateMipmap, que son copias mas chicas de la textura; sin ellos
-	//las texturas con mucho detalle parpadean al mover la camara porque cada pixel salta de un texel a otro
+	//MIN_FILTER es para cuando la textura se ve chica y MAG_FILTER para cuando se ve grande
+	//GL_LINEAR mezcla los texels y se ve suave, GL_NEAREST se ve pixeleado; los mipmaps evitan el parpadeo de lejos
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, formato, width, height, 0, formato, GL_UNSIGNED_BYTE, texData);
@@ -78,8 +75,7 @@ void Texture::ClearTexture()
 }
 void Texture::UseTexture()
 {
-	//texture unit 0, es la que lee el sampler theTexture del shader
-	//si algun dia se usan varias texturas al mismo tiempo hay que usar GL_TEXTURE1, etc. y un uniform para cada una
+	//texture unit 0, la que lee theTexture; para varias texturas a la vez hay que usar GL_TEXTURE1 y mas uniforms
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
