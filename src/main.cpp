@@ -545,6 +545,13 @@ glm::mat4 ObtenerMatrizNavePista(float distancia, float carrilX, float alturaFlo
 
 //--- satelites y cuerpos espaciales ---
 Model Satelite_M;
+Model asteroides_M;
+Model luna_M;
+
+
+const int totalAsteroides = 16;
+const float radio = 1000.0f;
+const float pasoAngulo = 360.0f / totalAsteroides;
 
 //--- plataforma de lanzamiento y cohete ---
 //la plataforma esta en la superficie de Pop Star, el planeta 2, y en ella estan el cohete y su torre
@@ -1373,6 +1380,10 @@ int main()
 	//--- satelites y cuerpos espaciales ---
 	Satelite_M = Model();
 	Satelite_M.LoadModel("Models/sateliteRace/sateliteRace.obj");
+	asteroides_M = Model();
+	asteroides_M.LoadModel("Models/asteroides/asteroides.obj");
+	Luna_M = Model();
+	luna_M.LoadModel("Models/luna/luna.obj");
 
 	//--- plataforma de lanzamiento y cohete ---
 	//las rutas de las piezas del cohete se arman con su nombre, igual que las de las plantas, como Models/Cohete/cohete_base.obj
@@ -2048,6 +2059,7 @@ int main()
 		//--- personajes ---
 
 		//--- planetas: Xen y planeta 2 ---
+		//glm::vec3 posPlanetaXen = glm::vec3(300.0f, 625.0f, -3600.0f);
 		//Xen
 		//el planeta Xen en el espacio es una esfera de radio 1, asi que con escala 660 queda de radio 660; gira despacio sobre Y
 		giroPlanetaXen += giroPlanetaXenOffset * deltaTime;
@@ -2059,6 +2071,40 @@ int main()
 		model = glm::scale(model, glm::vec3(660.0f, 660.0f, 660.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		XenPlaneta_M.RenderModel();
+
+		//luna
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlanetaXen);
+		model = glm::translate(model, glm::vec3(1300.0f, 1300.0f, 0.0f));
+		model = glm::rotate(model, giroPlanetaXen * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		luna_M.RenderModel();
+
+		//asteroides
+
+		for (int i = 0; i < totalAsteroides; i++) {
+			float anguloGrados = i * pasoAngulo;
+			float anguloRads = anguloGrados * toRadians;
+
+			// Posición en la circunferencia (X, Z) alrededor del planeta
+			float x = radio * cos(anguloRads);
+			float z = radio * sin(anguloRads);
+
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, posPlanetaXen); 
+				model = glm::translate(model, glm::vec3(x, 0.0f, z));
+			model = glm::rotate(model, giroPlanetaXen * toRadians, glm::vec3(0.0f, 1.0f, 0.0f)); 
+
+				model = glm::rotate(model, (i * 22.5f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+
+				model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f)); 
+
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model)); 
+				asteroides_M.RenderModel(); 
+		}
+
+		
 
 		//el suelo es una isla con la cara de arriba en y = 0 y la orilla entre 36 y 50 del centro; arriba repite la textura del suelo
 		//cada 20 unidades y abajo lleva roca, asi se ve como las islas que flotan
