@@ -1,0 +1,11 @@
+Model Information:
+* title:	Waddle Dee
+* source:	https://sketchfab.com/3d-models/waddle-dee-df32e22603394839993c6dfaf39affb2
+* author:	a48670784 (https://sketchfab.com/Pofdpoi)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Waddle Dee" (https://sketchfab.com/3d-models/waddle-dee-df32e22603394839993c6dfaf39affb2) by a48670784 (https://sketchfab.com/Pofdpoi) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

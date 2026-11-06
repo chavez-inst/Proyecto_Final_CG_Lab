@@ -22,7 +22,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 |---|---|---|
 | Z | 0, espacio | nave nodriza, pista de carreras, estacion espacial, satelite, los planetas vistos desde lejos y la nave de Among Us |
 | X | 1, Xen | planeta de Half-Life: islas flotantes, cristales, plantas de luz, headcrab y especies de Xen |
-| C | 2, Pop Star | planeta de Kirby: colinas, arboles, nubes, warp star y la plataforma del cohete con Gordon y el Capitan Falcon |
+| C | 2, Pop Star | planeta de Kirby: colinas, arboles, nubes, warp star, Waddle Dee, Waddle Doo, Bandana Waddle Dee, King Dedede, el Halberd volando y la plataforma del cohete con Gordon y el Capitan Falcon |
 | V | 3, Verdania | planeta de Plants vs. Zombies: jardin de Crazy Dave, plantas y NPCs caminando |
 
 ## Elementos del escenario (60%, 410 pts + 60 extra)
@@ -37,7 +37,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Plataforma de lanzamiento con cohete | 20 | Abraham | hecho | en Pop Star, con su torre; el cohete despega con la F, deja una estela de humo y en el recorrido 4 llega al espacio |
 | Estacion espacial (entran y salen naves) | 20 | Dylan | hecho | cuatro landing pads; las naves salen a hipervelocidad y regresan solas |
 | Satelites y cuerpos espaciales | 10 | Dylan | en proceso | hay un satelite; faltan lunas o asteroides |
-| Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | Xen, Pop Star y Verdania; falta la cadena de evolucion de Pop Star |
+| Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | Xen, Pop Star y Verdania; cadena de Pop Star: Waddle Dee, Waddle Doo, Bandana Waddle Dee y King Dedede |
 | Texturizado de todo | 20 | todos | en proceso | |
 | Avatar jerarquico **no humanoide** | 10 | Alejandro y Abraham | hecho | Kirby o la carnivora, los dos por piezas; la T cambia de personaje y sirve en todos los planetas |
 | Avatar con textura y material | 10 | Alejandro | hecho | su textura y `Material_avatar` |
@@ -52,7 +52,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio y uno de dia y otro de noche para cada planeta |
 | Spotlights que se prenden/apagan con teclado | 10 | Alejandro | hecho | K prende o apaga los de la zona y L la linterna (empieza apagada) |
 | 3 animaciones basicas (se inician con teclado) | 30 | Alejandro y Abraham | hecho | con la F: headcrab en Xen, plantas en Verdania y despegue del cohete en Pop Star |
-| 3 animaciones complejas (ciclo continuo con funciones) | 30 | todos | hecho | naves de la pista, naves de la estacion, islas flotantes y plantas de luz de Xen, Pop Star girando y NPCs caminando |
+| 3 animaciones complejas (ciclo continuo con funciones) | 30 | todos | hecho | naves de la pista, naves de la estacion, islas flotantes y plantas de luz de Xen, Pop Star girando, el Halberd volando en circulo y NPCs caminando |
 | Estilo visual | 30 | todos | en proceso | |
 | Extra: originalidad | +30 | todos | en proceso | nave de Among Us con crewmates escondidos, carnivora como segundo avatar |
 | Extra: animaciones complejas adicionales | +30 | todos | en proceso | las complejas que pasan de 3 |

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Kirby's Battleship, The Halberd
+* source:	https://sketchfab.com/3d-models/kirbys-battleship-the-halberd-aced83dc20fe4708a8d61be665917a85
+* author:	AntasmaKingOfBatz777 (https://sketchfab.com/AntasmaKingOfBatz777)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Kirby's Battleship, The Halberd" (https://sketchfab.com/3d-models/kirbys-battleship-the-halberd-aced83dc20fe4708a8d61be665917a85) by AntasmaKingOfBatz777 (https://sketchfab.com/AntasmaKingOfBatz777) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
