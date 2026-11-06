@@ -148,6 +148,12 @@ float cargaVortigaunt = 0.0f;
 float esperaVortigaunt = 0.0f;
 float tiempoEsperaVortigaunt = 120.0f;
 glm::vec3 posVortigaunt = glm::vec3(0.5f, 0.0f, -6.0f); //se mide desde posXen
+//mientras espera voltea la cabeza de un lado a otro entre -limiteCabezaVortigaunt y limiteCabezaVortigaunt,
+//y mientras carga o suelta la energia la regresa al frente
+float cabezaVortigaunt = 0.0f;
+float cabezaVortigauntOffset = 0.6f;
+float limiteCabezaVortigaunt = 25.0f;
+bool cabezaVortigauntIzq = true;
 //el alien grunt patrulla de ida y vuelta en X entre -limiteGrunt y limiteGrunt alrededor de su centro;
 //al llegar a cada limite levanta el arma, apunta un rato, la baja y se voltea poco a poco hacia el otro lado
 //estadoGrunt vale 0 caminando, 1 levantando el arma, 2 apuntando y 3 bajandola, y apuntaGrunt va de 0 a 1
@@ -527,6 +533,7 @@ float aceleracionCohete = 0.002f; //lo que crece la velocidad cada frame, asi su
 float alturaMaxCohete = 60.0f;    //al llegar aqui deja de subir y regresa
 float velBajadaCohete = 0.15f;    //regresa a velocidad constante y despacio, como aterrizando
 float fuegoCohete = 0.0f;         //tamano de la llama: 0 apagada y 1 completa
+float fuegoCuentaOffset = 0.0027f; //en la cuenta la llama crece esto cada frame; en 3 segundos llega a la mitad
 //humo del cohete: mientras la llama esta prendida, cada intervaloHumo segundos sale una nube de abajo del motor y se queda
 //donde salio aunque el cohete siga subiendo, asi se va formando la estela; cada nube crece, se encoge y desaparece en duracionHumo
 //las nubes se guardan en arreglos y la nueva ocupa el lugar de la mas vieja, por eso caben MAX_HUMO al mismo tiempo
@@ -649,6 +656,7 @@ float giroAvatarOffset = 2.5f;
 //como el piso mide 200 por 200 y llega a 100, el avatar se detiene un poco antes de la orilla
 float limitePisoAvatar = 95.0f;
 //en Xen el suelo es una isla con la orilla irregular que nunca queda a menos de 36 del centro, asi que ahi el limite es un circulo un poco mas chico
+//y el avatar no puede dar un paso que lo saque de el
 float limiteIslaXen = 32.0f;
 //mientras camina, los pies y las manos van y vienen entre -limitePasoAvatar y limitePasoAvatar, como las patas del headcrab
 float pasoAvatar = 0.0f;
@@ -740,11 +748,11 @@ glm::vec3 camaraPlataforma = glm::vec3(30.0f, 6.0f, 45.0f);
 float distanciaCamaraCohete = 30.0f;
 float ladoCamaraCohete = 30.0f;
 float alturaCamaraCohete = 12.0f;
-//avance del cohete en el espacio: vale 0 al salir de Pop Star y 1 al llegar arriba de la estacion; despues sigue creciendo,
-//porque el cohete sigue de largo, y deja de dibujarse en avanceMaxCohete, cuando ya esta muy lejos
+//lo que ha avanzado el cohete en el espacio desde que salio de Pop Star; al llegar a largoCaminoCohete pasa arriba de la
+//estacion, pero sigue de largo y deja de dibujarse en avanceMaxCohete, cuando ya esta muy lejos
 float avanceCoheteEspacio = 0.0f;
 float velCoheteEspacio = 4.0f;
-float avanceMaxCohete = 2.5f;
+float avanceMaxCohete = 4190.0f;
 //cuando el cohete pasa arriba de la estacion la camara se queda quieta y lo ve alejarse durante estos segundos
 float tiempoAlejamiento = 3.5f;
 float tiempoEtapa = 0.0f;
@@ -1724,6 +1732,8 @@ int main()
 				rumboAvatar -= giroAvatarOffset * deltaReal;
 			glm::vec3 frenteAvatar = glm::vec3(sin(rumboAvatar * toRadians), 0.0f, cos(rumboAvatar * toRadians));
 
+			//se guarda donde estaba por si el paso lo saca de la isla de Xen
+			glm::vec3 posAnteriorAvatar = posAvatar;
 			if (teclas[GLFW_KEY_W])
 			{
 				posAvatar += frenteAvatar * velocidad;
@@ -1744,16 +1754,10 @@ int main()
 				posAvatar.z = limitePisoAvatar;
 			if (posAvatar.z < -limitePisoAvatar)
 				posAvatar.z = -limitePisoAvatar;
-			//si se pasa del circulo, se regresa a la orilla sobre la misma linea que va al centro de la isla
-			if (zonaAvatar == 1)
-			{
-				float distancia = sqrt(posAvatar.x * posAvatar.x + posAvatar.z * posAvatar.z);
-				if (distancia > limiteIslaXen)
-				{
-					posAvatar.x = posAvatar.x * limiteIslaXen / distancia;
-					posAvatar.z = posAvatar.z * limiteIslaXen / distancia;
-				}
-			}
+			//en Xen, si el paso lo saca del circulo, se queda donde estaba; se comparan los cuadrados de la distancia
+			//al centro y del radio, que da lo mismo que comparar la distancia y el radio pero sin sacar la raiz
+			if (zonaAvatar == 1 && posAvatar.x * posAvatar.x + posAvatar.z * posAvatar.z > limiteIslaXen * limiteIslaXen)
+				posAvatar = posAnteriorAvatar;
 
 			//la camara 2 va atras del avatar y a una altura fija, asi que se mueve en un plano paralelo al piso
 			glm::vec3 posAvatarMundo = centroAvatar + posAvatar;
@@ -1939,11 +1943,8 @@ int main()
 		{
 			//primero se ve si el recorrido cambia de etapa y despues se pone la camara segun la etapa en la que queda,
 			//asi el frame en el que cambia ya usa la camara y el skybox de la etapa nueva
-			//el avance del cohete se divide entre el largo del camino para que vaya a la misma velocidad sin importar lo que mida
-			glm::vec3 caminoCohete = finCoheteEspacio - inicioCoheteEspacio;
-			float largoCamino = sqrt(caminoCohete.x * caminoCohete.x + caminoCohete.y * caminoCohete.y + caminoCohete.z * caminoCohete.z);
 			if (etapaRecorrido >= 1)
-				avanceCoheteEspacio += velCoheteEspacio * deltaTime / largoCamino;
+				avanceCoheteEspacio += velCoheteEspacio * deltaTime;
 
 			if (etapaRecorrido == 0 && estadoCohete == 3)
 			{
@@ -1958,7 +1959,7 @@ int main()
 				mainWindow.setzonaPlaneta(0);
 				zonaActual = 0;
 			}
-			else if (etapaRecorrido == 1 && avanceCoheteEspacio >= 1.0f)
+			else if (etapaRecorrido == 1 && avanceCoheteEspacio >= largoCaminoCohete)
 			{
 				etapaRecorrido = 2;
 				tiempoEtapa = 0.0f;
@@ -1994,16 +1995,13 @@ int main()
 			}
 			else if (etapaRecorrido == 1 || etapaRecorrido == 2)
 			{
-				//el lado sale del producto cruz del frente del cohete con Y, que da un vector perpendicular a los dos
 				//en la etapa 2 la camara se queda donde estaba cuando el cohete llego a finCoheteEspacio y solo sigue mirandolo
-				glm::vec3 frenteCohete = glm::normalize(caminoCohete);
-				glm::vec3 ladoCohete = glm::normalize(glm::cross(frenteCohete, glm::vec3(0.0f, 1.0f, 0.0f)));
-				glm::vec3 posCoheteEspacio = inicioCoheteEspacio + caminoCohete * avanceCoheteEspacio;
+				glm::vec3 posCoheteEspacio = inicioCoheteEspacio + frenteCoheteEspacio * avanceCoheteEspacio;
 				glm::vec3 seguirCohete = posCoheteEspacio;
 				if (etapaRecorrido == 2)
 					seguirCohete = finCoheteEspacio;
-				posVista = seguirCohete - frenteCohete * distanciaCamaraCohete + ladoCohete * ladoCamaraCohete + glm::vec3(0.0f, alturaCamaraCohete, 0.0f);
-				puntoMira = posCoheteEspacio + frenteCohete * 9.0f;
+				posVista = seguirCohete - frenteCoheteEspacio * distanciaCamaraCohete + ladoCoheteEspacio * ladoCamaraCohete + glm::vec3(0.0f, alturaCamaraCohete, 0.0f);
+				puntoMira = posCoheteEspacio + frenteCoheteEspacio * 9.0f;
 			}
 			else
 			{
@@ -2366,13 +2364,40 @@ int main()
 			if (esperaVortigaunt > tiempoEsperaVortigaunt)
 				estadoVortigaunt = 0;
 		}
-		//con la carga los brazos suben hacia el frente y se abren un poco, y la cabeza deja de voltear para ver hacia arriba
+		if (estadoVortigaunt == 2)
+		{
+			if (cabezaVortigauntIzq)
+			{
+				cabezaVortigaunt += cabezaVortigauntOffset * deltaTime;
+				if (cabezaVortigaunt > limiteCabezaVortigaunt)
+					cabezaVortigauntIzq = false;
+			}
+			else
+			{
+				cabezaVortigaunt -= cabezaVortigauntOffset * deltaTime;
+				if (cabezaVortigaunt < -limiteCabezaVortigaunt)
+					cabezaVortigauntIzq = true;
+			}
+		}
+		else if (cabezaVortigaunt > 0.0f)
+		{
+			cabezaVortigaunt -= cabezaVortigauntOffset * deltaTime;
+			if (cabezaVortigaunt < 0.0f)
+				cabezaVortigaunt = 0.0f;
+		}
+		else if (cabezaVortigaunt < 0.0f)
+		{
+			cabezaVortigaunt += cabezaVortigauntOffset * deltaTime;
+			if (cabezaVortigaunt > 0.0f)
+				cabezaVortigaunt = 0.0f;
+		}
+		//con la carga los brazos suben hacia el frente y se abren un poco, y la cabeza ve hacia arriba
 		float meceVortigaunt = 3.0f * sin(anguloXen * 2.0f * toRadians);
 		rotVortigaunt[2].x = -45.0f * cargaVortigaunt + meceVortigaunt; //brazo_der
 		rotVortigaunt[2].z = -20.0f * cargaVortigaunt;
 		rotVortigaunt[3].x = -45.0f * cargaVortigaunt - meceVortigaunt; //brazo_izq
 		rotVortigaunt[3].z = 20.0f * cargaVortigaunt;
-		rotVortigaunt[1].y = 25.0f * sin(anguloXen * toRadians) * (1.0f - cargaVortigaunt); //cabeza
+		rotVortigaunt[1].y = cabezaVortigaunt; //cabeza
 		rotVortigaunt[1].x = -15.0f * cargaVortigaunt;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posXen + posVortigaunt);
@@ -3458,7 +3483,9 @@ int main()
 			//cuenta regresiva: la llama crece hasta la mitad y el cohete tiembla cada vez mas desde la base,
 			//que es la raiz de su jerarquia, asi tiembla todo junto; el seno da unas 5 sacudidas por segundo
 			cuentaCohete -= deltaTime / 61.0f;
-			fuegoCohete = 0.5f * (1.0f - cuentaCohete / tiempoCuentaCohete);
+			fuegoCohete += fuegoCuentaOffset * deltaTime;
+			if (fuegoCohete > 0.5f)
+				fuegoCohete = 0.5f;
 			rotCohete[0].z = 3.0f * fuegoCohete * sin(cuentaCohete * 2000.0f * toRadians);
 			if (cuentaCohete <= 0.0f)
 			{
@@ -3901,17 +3928,12 @@ int main()
 		//y sigue de largo aunque la camara ya no lo siga; se usan las mismas piezas y la misma escala que en la plataforma
 		if (mainWindow.getmodoCamara() == 5 && etapaRecorrido >= 1 && avanceCoheteEspacio < avanceMaxCohete)
 		{
-			//la punta del cohete apunta hacia Y positivo, asi que para que vea hacia donde va se gira alrededor del eje que es
-			//perpendicular a Y y al camino; el angulo sale del arco coseno de la parte en Y de la direccion
-			glm::vec3 caminoCohete = finCoheteEspacio - inicioCoheteEspacio;
-			glm::vec3 frenteCohete = glm::normalize(caminoCohete);
-			glm::vec3 ejeGiroCohete = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), frenteCohete));
-			float anguloCohete = acos(frenteCohete.y);
+			//se inclina sobre ejeGiroCoheteEspacio para que la punta vea hacia donde va
 			model = glm::mat4(1.0f);
 			color = glm::vec3(1.0f, 1.0f, 1.0f);
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-			model = glm::translate(model, inicioCoheteEspacio + caminoCohete * avanceCoheteEspacio);
-			model = glm::rotate(model, anguloCohete, ejeGiroCohete);
+			model = glm::translate(model, inicioCoheteEspacio + frenteCoheteEspacio * avanceCoheteEspacio);
+			model = glm::rotate(model, inclinaCoheteEspacio * toRadians, ejeGiroCoheteEspacio);
 			model = glm::scale(model, glm::vec3(escalaPlataforma, escalaPlataforma, escalaPlataforma));
 			glm::mat4 raizCoheteEspacio = model;
 			Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -3936,7 +3958,7 @@ int main()
 				glm::vec3 salidaHumo = glm::vec3(raizCoheteEspacio * glm::vec4(0.0f, -0.6f, 0.0f, 1.0f));
 				float recorridoHumo = velCoheteEspacio * 61.0f * esperaHumo;
 				for (int k = 0; k < 3; k++)
-					SueltaHumo(salidaHumo - frenteCohete * (recorridoHumo * k / 3.0f));
+					SueltaHumo(salidaHumo - frenteCoheteEspacio * (recorridoHumo * k / 3.0f));
 				esperaHumo = 0.0f;
 			}
 		}

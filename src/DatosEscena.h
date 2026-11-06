@@ -1040,6 +1040,14 @@ glm::vec3 pivotesAvatar[NUM_PIEZAS_KIRBY] = {
 //de la estacion y sigue de largo; la camara lo sigue hasta finCoheteEspacio, que esta arriba de la estacion
 glm::vec3 inicioCoheteEspacio = glm::vec3(-800.0f, 250.0f, 480.0f);
 glm::vec3 finCoheteEspacio = glm::vec3(613.0f, 600.0f, -350.0f);
+//de inicioCoheteEspacio a finCoheteEspacio hay 1676 unidades; frenteCoheteEspacio es la direccion del camino con largo 1
+//y ladoCoheteEspacio queda acostado y a su derecha, por ahi va la camara para ver al cohete de lado
+float largoCaminoCohete = 1676.0f;
+glm::vec3 frenteCoheteEspacio = glm::vec3(0.843f, 0.209f, -0.495f);
+glm::vec3 ladoCoheteEspacio = glm::vec3(0.507f, 0.0f, 0.862f);
+//la punta del cohete ve hacia Y positivo; girado 77.9 grados sobre este eje acostado queda apuntando hacia el camino
+glm::vec3 ejeGiroCoheteEspacio = glm::vec3(-0.507f, 0.0f, -0.862f);
+float inclinaCoheteEspacio = 77.9f;
 
 //recorrido de la camara 4; cada viaje va de la estacion a un planeta y en todos los arreglos el 0 es Xen, el 1 Pop Star
 //y el 2 Verdania, en el orden de las teclas G, H y J
