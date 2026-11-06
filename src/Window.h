@@ -43,7 +43,9 @@ public:
 	int getmodoCamara() { return modoCamara; }
 	int getobjetivoCamara() { return objetivoCamara; }
 	int getpuntoEspacio() { return puntoEspacio; }
-	//el recorrido de la camara 5 empieza en el planeta 2 y sigue en el espacio, por eso cambia la zona desde main.cpp
+	int getviajeCamara() { return viajeCamara; }
+	int getreinicioViaje() { return reinicioViaje; }
+	//los recorridos de las camaras 4 y 5 pasan del espacio a un planeta o al reves, por eso cambian la zona desde main.cpp
 	void setzonaPlaneta(int zona) { zonaPlaneta = zona; }
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
@@ -98,6 +100,8 @@ private:
 	int modoCamara; //camara que se esta usando, de la 1 a la 5, y se cambia con las teclas 1 a 5
 	int objetivoCamara; //nave o vista que sigue la camara; Q le resta 1 y E le suma 1
 	int puntoEspacio; //cuantas veces se ha presionado la Z estando en el espacio, para ir al siguiente punto de interes
+	int viajeCamara; //planeta a donde va la nave de la camara 4, 0 Xen, 1 Pop Star y 2 Verdania, y lo cambian G, H y J
+	int reinicioViaje; //cuantas veces se ha presionado G, H o J, para empezar el viaje desde la estacion
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 	bool linterna; //L prende o apaga la linterna de la camara, empieza apagada

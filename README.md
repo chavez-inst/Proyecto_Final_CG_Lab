@@ -39,6 +39,7 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 | T           | Cambiar el avatar entre Kirby y la planta carnivora |
 | 1 2 3 4 5   | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 4 nave entre planetas, 5 recorrido del lanzamiento y la estacion |
 | Q / E       | Nave anterior o siguiente en la camara 3 |
+| G / H / J   | Camara 4 con el viaje de la nave a Xen, a Pop Star o a Verdania |
 | Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
 | X / C / V   | Ir a Xen, al planeta 2 o a Verdania; si ya se esta ahi, regresar al punto de llegada |
 | F           | Prender o apagar la animacion basica de la escena (headcrab en Xen, despegue del cohete en Pop Star, plantas en Verdania) |
@@ -48,9 +49,11 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 | N           | En un planeta, saltar a la manana o a la noche (el ciclo sigue desde ahi) |
 | ESC         | Cerrar                       |
 
-La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y la 3 y la 4 solo en el
-espacio (desde un planeta llevan al espacio). La 4 se comporta como la libre mientras no exista su
-recorrido (la nave entre planetas). La 5 es un recorrido que se repite solo: ve despegar el cohete en Pop Star,
+La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y la 3 y la 4 empiezan en el
+espacio (desde un planeta llevan al espacio). La 4 es un recorrido que se repite solo: una nave despega del pad
+de la estacion que da hacia X negativo, gira hacia un planeta y se va con su estela prendida; la camara se queda quieta
+y solo voltea a verla, y cuando ya esta muy lejos pasa al planeta para verla llegar y estacionarse. G, H y J escogen
+el planeta (Xen, Pop Star o Verdania) y la 4 repite el ultimo que se escogio, que al inicio es Pop Star. La 5 es un recorrido que se repite solo: ve despegar el cohete en Pop Star,
 lo sigue en el espacio hasta que pasa por arriba de la estacion, se queda quieta viendolo alejarse con su estela de humo
 y luego da una vuelta en circulo alrededor de la pista, la estacion y el satelite. Al regresar a la libre, aparece donde
 estaba la camara anterior.
@@ -171,11 +174,11 @@ agrega a esta tabla.
 | T | avatar | cambiar el avatar entre Kirby y la carnivora |
 | ESC | base | cerrar |
 | P | base | pausar o continuar todas las animaciones |
-| 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave que se sigue |
+| 1 2 3 4 5, Q / E, G H J | camaras y recorridos | cambiar de camara; Q y E cambian la nave que se sigue; G, H y J escogen el viaje de la camara 4 |
 | Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
 | F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, despegue del cohete en el planeta 2 y plantas en Verdania |
 | K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |
-| G H J B M R I O Y U | libres | se piden en el grupo |
+| B M R I O Y U | libres | se piden en el grupo |
 
 - La **F** es la tecla de las animaciones basicas (las que se inician con teclado). Cada actividad
   revisa en `ManejaTeclado` que se este en su zona (0 espacio, 1 Xen, 2 planeta 2, 3 Verdania),

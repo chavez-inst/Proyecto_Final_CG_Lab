@@ -684,6 +684,52 @@ float alturaMiraAvatar = 0.8f;
 //asi que la camara va hacia Z positivo, que es atras de la nave, y mira hacia enfrente de ella
 glm::vec3 camaraNaveAtras = glm::vec3(0.0f, 3.5f, 10.0f);
 glm::vec3 camaraNaveMira = glm::vec3(0.0f, 1.5f, -8.0f);
+//camara 4, el recorrido de una nave que viaja de la estacion a un planeta; G la manda a Xen, H a Pop Star y J a Verdania,
+//y la 4 repite el ultimo viaje que se escogio; el viaje se repite mientras se use la camara
+//la nave sale del pad de la estacion que da hacia X negativo, en el nivel de abajo, que es el que esta libre
+//etapaViaje dice en que parte va: 0 estacionada en la estacion, 1 se eleva en diagonal hacia atras, 2 gira hasta
+//apuntar al planeta, 3 se va volando hacia el, 4 llega al planeta, 5 baja hasta posarse y 6 se queda estacionada
+//todo avanza a velocidad fija, como las naves de la estacion; los datos de cada viaje estan en DatosEscena.h
+//la camara no se mueve en cada parte del viaje, solo voltea a ver a la nave con lookAt
+Model NaveViaje_M;
+Model EstelaViaje_M;
+int etapaViaje = 0;
+//se compara con el contador de Window para saber cuando se presiono G, H o J y empezar el viaje otra vez
+int reinicioViajeActual = 0;
+//el modelo mide 160 de largo, tiene la nariz hacia Z negativo y su centro en z = -76.5; se recorre eso para que el centro
+//quede en el origen, y con escala 0.15 queda del tamano de las naves de la estacion
+float escalaNaveViaje = 0.15f;
+float centroNaveViaje = 76.5f;
+//lugar de la nave en el pad, medido desde el centro de la estacion; su parte de abajo llega a y = -33, que con la escala son 5
+//abajo de su centro, por eso va 5 arriba del piso del pad, que esta en y = -8.05
+//queda hacia la orilla del pad para que al subir no le pegue a la nave del nivel de arriba
+glm::vec3 padViaje = glm::vec3(-212.5f, -3.05f, 0.0f);
+float rumboPadViaje = -90.0f; //asi la nariz ve hacia X positivo, hacia la estacion
+//segundos que se queda estacionada antes de salir y despues de llegar
+float esperaViaje = 2.0f;
+float tiempoViaje = 0.0f;
+//lo que ha subido; como al mismo tiempo se aleja lo mismo hacia X negativo, sube en diagonal
+float subidaViaje = 0.0f;
+float velSubidaViaje = 0.5f;
+//rumbo de la nave en grados; en la etapa 2 cambia poco a poco hasta llegar al del viaje
+float rumboViaje = -90.0f;
+float velGiroViaje = 1.5f;
+//lo que ha volado desde que termino de girar
+float avanceViaje = 0.0f;
+float velVueloViaje = 8.0f;
+//en el planeta llega derecha, a alturaPosadoViaje arriba de donde se estaciona, desde distanciaLlegadaViaje de distancia,
+//y luego baja; llegadaViaje es lo que le falta para quedar arriba de su lugar y bajadaViaje lo que le falta para posarse
+float alturaPosadoViaje = 25.0f;
+float distanciaLlegadaViaje = 150.0f;
+float llegadaViaje = 0.0f;
+float velLlegadaViaje = 1.0f;
+float bajadaViaje = 0.0f;
+float velBajadaViaje = 0.15f;
+//tamano de la estela: 0 apagada y 1 completa; mientras esta prendida lleva una luz azul adentro
+float fuegoViaje = 0.0f;
+PointLight luzEstelaViaje;
+//lugar y giro de la nave en el frame actual; se calculan con la camara y se usan para dibujarla
+glm::mat4 matrizNaveViaje(1.0);
 //camara 5, el recorrido del lanzamiento, la estacion y los objetos del espacio, que se repite mientras se use la camara
 //etapaRecorrido dice en que parte va: 0 viendo despegar el cohete en Pop Star, 1 siguiendo al cohete en el espacio,
 //2 viendo como se aleja y 3 dando una vuelta alrededor de la pista, la estacion y el satelite
@@ -723,6 +769,19 @@ void ReiniciaRecorrido()
 	rotCohete[0].z = 0.0f;
 	cuentaCohete = tiempoCuentaCohete;
 	estadoCohete = 1;
+}
+
+//pone la nave de la camara 4 estacionada en la estacion, con el motor apagado
+void ReiniciaViaje()
+{
+	etapaViaje = 0;
+	tiempoViaje = 0.0f;
+	subidaViaje = 0.0f;
+	rumboViaje = rumboPadViaje;
+	avanceViaje = 0.0f;
+	llegadaViaje = distanciaLlegadaViaje;
+	bajadaViaje = alturaPosadoViaje;
+	fuegoViaje = 0.0f;
 }
 
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
@@ -1360,7 +1419,11 @@ int main()
 	//las piezas de Kirby se cargan en la seccion de personajes
 
 	//--- camaras y recorridos ---
-
+	//la nave y su estela son dos modelos para poder dibujar la estela solo cuando el motor esta prendido
+	NaveViaje_M = Model();
+	NaveViaje_M.LoadModel("Models/naveRecorrido/naveRecorrido.obj");
+	EstelaViaje_M = Model();
+	EstelaViaje_M.LoadModel("Models/naveRecorrido/estelaNaveR.obj");
 
 	// ---------- luces ----------
 	//los parametros van en este orden:
@@ -1539,9 +1602,9 @@ int main()
 
 		//eventos de teclado y mouse
 		glfwPollEvents();
-		//la camara libre solo se mueve cuando es la que se esta usando; la 4 la usa mientras no exista su recorrido
+		//la camara libre solo se mueve cuando es la que se esta usando
 		//con las demas camaras el mouse se lee igual y no se usa, para que la libre no brinque al regresar a ella
-		if (mainWindow.getmodoCamara() == 1 || mainWindow.getmodoCamara() == 4)
+		if (mainWindow.getmodoCamara() == 1)
 		{
 			camera.keyControl(mainWindow.getsKeys(), deltaTime);
 			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
@@ -1564,12 +1627,14 @@ int main()
 		//--- camaras y recorridos ---
 		//al regresar a la camara libre desde la del avatar, la de la nave o el recorrido, la libre aparece donde estaba la otra y viendo hacia lo mismo
 		//el yaw y el pitch salen de la direccion con atan2 y asin, al reves de como Camera::update saca la direccion a partir de ellos
-		//al entrar a la camara 5 su recorrido empieza desde el despegue del cohete
+		//al entrar a la camara 4 la nave empieza estacionada en la estacion y al entrar a la 5 su recorrido empieza desde el despegue del cohete
 		if (mainWindow.getmodoCamara() != modoCamaraActual)
 		{
+			if (mainWindow.getmodoCamara() == 4)
+				ReiniciaViaje();
 			if (mainWindow.getmodoCamara() == 5)
 				ReiniciaRecorrido();
-			if (mainWindow.getmodoCamara() == 1 && (modoCamaraActual == 2 || modoCamaraActual == 3 || modoCamaraActual == 5))
+			if (mainWindow.getmodoCamara() == 1 && modoCamaraActual != 1)
 			{
 				float yaw = atan2(dirVista.z, dirVista.x) / toRadians;
 				float pitch = asin(dirVista.y) / toRadians;
@@ -1720,6 +1785,151 @@ int main()
 			glm::vec3 arribaNave = glm::normalize(glm::vec3(matrizNave[1]));
 			dirVista = glm::normalize(puntoMira - posVista);
 			view = glm::lookAt(posVista, puntoMira, arribaNave);
+		}
+
+		//la camara 4 hace el recorrido de la nave que viaja de la estacion a un planeta; desde la estacion la ve despegar e irse
+		//hasta que se ve muy lejos, luego pasa al planeta y la ve llegar y estacionarse; al terminar regresa a la estacion
+		//como todo avanza con deltaTime, la P tambien pausa el recorrido
+		if (mainWindow.getmodoCamara() == 4)
+		{
+			//G, H y J escogen el viaje; si se presiona otra vez, empieza de nuevo
+			int viaje = mainWindow.getviajeCamara();
+			if (mainWindow.getreinicioViaje() != reinicioViajeActual)
+			{
+				reinicioViajeActual = mainWindow.getreinicioViaje();
+				ReiniciaViaje();
+			}
+
+			//centro del piso del planeta a donde va
+			glm::vec3 centroDestino = posXen;
+			if (zonaViajes[viaje] == 2)
+				centroDestino = posPlaneta2;
+			else if (zonaViajes[viaje] == 3)
+				centroDestino = posVerdania;
+
+			//primero se avanza la etapa en la que va la nave
+			if (etapaViaje == 0)
+			{
+				//estacionada en la estacion
+				tiempoViaje += deltaTime / 61.0f;
+				if (tiempoViaje >= esperaViaje)
+					etapaViaje = 1;
+			}
+			else if (etapaViaje == 1)
+			{
+				//sube en diagonal
+				subidaViaje += velSubidaViaje * deltaTime;
+				if (subidaViaje >= subidaViajes[viaje])
+				{
+					subidaViaje = subidaViajes[viaje];
+					etapaViaje = 2;
+				}
+			}
+			else if (etapaViaje == 2)
+			{
+				//gira hacia el planeta por el lado que le toque
+				if (rumboViajes[viaje] > rumboPadViaje)
+				{
+					rumboViaje += velGiroViaje * deltaTime;
+					if (rumboViaje >= rumboViajes[viaje])
+					{
+						rumboViaje = rumboViajes[viaje];
+						etapaViaje = 3;
+					}
+				}
+				else
+				{
+					rumboViaje -= velGiroViaje * deltaTime;
+					if (rumboViaje <= rumboViajes[viaje])
+					{
+						rumboViaje = rumboViajes[viaje];
+						etapaViaje = 3;
+					}
+				}
+			}
+			else if (etapaViaje == 3)
+			{
+				//se prende la estela y vuela; al llegar a su distancia la camara pasa al planeta
+				//zonaActual tambien se cambia aqui para que el skybox ya sea el del planeta en este mismo frame
+				fuegoViaje += 0.03f * deltaTime;
+				if (fuegoViaje > 1.0f)
+					fuegoViaje = 1.0f;
+				avanceViaje += velVueloViaje * deltaTime;
+				if (avanceViaje >= distanciaViajes[viaje])
+				{
+					rumboViaje = rumboLlegadaViajes[viaje];
+					etapaViaje = 4;
+					mainWindow.setzonaPlaneta(zonaViajes[viaje]);
+					zonaActual = zonaViajes[viaje];
+				}
+			}
+			else if (etapaViaje == 4)
+			{
+				//se acerca derecho hasta quedar arriba de su lugar
+				llegadaViaje -= velLlegadaViaje * deltaTime;
+				if (llegadaViaje <= 0.0f)
+				{
+					llegadaViaje = 0.0f;
+					etapaViaje = 5;
+				}
+			}
+			else if (etapaViaje == 5)
+			{
+				//baja derecho y la estela se va apagando conforme se acerca al piso
+				bajadaViaje -= velBajadaViaje * deltaTime;
+				if (bajadaViaje <= 0.0f)
+				{
+					bajadaViaje = 0.0f;
+					tiempoViaje = 0.0f;
+					etapaViaje = 6;
+				}
+				fuegoViaje = bajadaViaje / alturaPosadoViaje;
+			}
+			else
+			{
+				//estacionada en el planeta; al acabar su tiempo regresa a la estacion y el viaje empieza otra vez
+				tiempoViaje += deltaTime / 61.0f;
+				if (tiempoViaje >= esperaViaje)
+				{
+					ReiniciaViaje();
+					mainWindow.setzonaPlaneta(0);
+					zonaActual = 0;
+				}
+			}
+
+			//la nariz ve hacia Z negativo, asi que con un rumbo en Y apunta hacia (-seno, 0, -coseno) de ese rumbo
+			glm::vec3 frenteNave = glm::vec3(-sin(rumboViaje * toRadians), 0.0f, -cos(rumboViaje * toRadians));
+
+			//despues se pone la nave segun la etapa
+			glm::vec3 posNave;
+			if (etapaViaje <= 3)
+			{
+				//en el espacio sale del pad, se aleja hacia X negativo lo mismo que sube y despues vuela hacia enfrente
+				posNave = posEstacion + padViaje + glm::vec3(-subidaViaje, subidaViaje, 0.0f) + frenteNave * avanceViaje;
+				posVista = posEstacion + camaraEstacionViajes[viaje];
+			}
+			else
+			{
+				//en el planeta queda atras de su lugar lo que le falta por llegar y arriba lo que le falta por bajar
+				posNave = centroDestino + lugarLlegadaViajes[viaje] - frenteNave * llegadaViaje + glm::vec3(0.0f, bajadaViaje, 0.0f);
+				posVista = centroDestino + camaraLlegadaViajes[viaje];
+			}
+
+			matrizNaveViaje = glm::mat4(1.0f);
+			matrizNaveViaje = glm::translate(matrizNaveViaje, posNave);
+			matrizNaveViaje = glm::rotate(matrizNaveViaje, rumboViaje * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			matrizNaveViaje = glm::scale(matrizNaveViaje, glm::vec3(escalaNaveViaje, escalaNaveViaje, escalaNaveViaje));
+			matrizNaveViaje = glm::translate(matrizNaveViaje, glm::vec3(0.0f, 0.0f, centroNaveViaje));
+
+			//la luz de la estela va atras del motor, en z = 30 del modelo, y brilla mas entre mas grande es la estela
+			glm::vec3 posLuz = glm::vec3(matrizNaveViaje * glm::vec4(0.0f, 0.0f, 30.0f, 1.0f));
+			luzEstelaViaje = PointLight(0.3f, 0.5f, 1.0f,
+				0.0f, 3.0f * fuegoViaje,
+				posLuz.x, posLuz.y, posLuz.z,
+				1.0f, 0.05f, 0.01f);
+
+			dirVista = glm::normalize(posNave - posVista);
+			view = glm::lookAt(posVista, posNave, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
 		//la camara 5 hace el recorrido del lanzamiento: ve despegar el cohete en Pop Star, lo sigue en el espacio hasta la estacion
@@ -1978,6 +2188,12 @@ int main()
 				spotLights[spotLightCount] = spotVerdania;
 				spotLightCount++;
 			}
+		}
+		//la estela de la nave de la camara 4 lleva su luz en cualquier zona mientras esta prendida
+		if (mainWindow.getmodoCamara() == 4 && fuegoViaje > 0.0f)
+		{
+			pointLights[pointLightCount] = luzEstelaViaje;
+			pointLightCount++;
 		}
 
 		//mandar todas las luces al shader
@@ -3670,6 +3886,17 @@ int main()
 		}
 
 		//--- camaras y recorridos ---
+		//nave del recorrido de la camara 4; su matriz se arma al principio del while, junto con la camara
+		if (mainWindow.getmodoCamara() == 4)
+		{
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(matrizNaveViaje));
+			NaveViaje_M.RenderModel();
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		}
+
 		//en el recorrido de la camara 5, el cohete que despego de Pop Star aparece en el espacio, pasa por arriba de la estacion
 		//y sigue de largo aunque la camara ya no lo siga; se usan las mismas piezas y la misma escala que en la plataforma
 		if (mainWindow.getmodoCamara() == 5 && etapaRecorrido >= 1 && avanceCoheteEspacio < avanceMaxCohete)
@@ -3784,6 +4011,23 @@ int main()
 		//--- estacion espacial y naves ---
 
 		//--- avatar ---
+
+		//--- camaras y recorridos ---
+		//estela de la nave de la camara 4; sale del motor hacia Z positivo, asi que al escalarla en Z con fuegoViaje se alarga
+		//hacia atras; como el humo, no escribe su profundidad y su color va arriba de 1 para que brille
+		if (mainWindow.getmodoCamara() == 4 && fuegoViaje > 0.0f)
+		{
+			glDepthMask(GL_FALSE);
+			color = glm::vec3(2.0f, 2.0f, 2.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			model = glm::scale(matrizNaveViaje, glm::vec3(1.0f, 1.0f, fuegoViaje));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			EstelaViaje_M.RenderModel();
+			glDepthMask(GL_TRUE);
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		}
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 
