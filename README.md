@@ -37,7 +37,7 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 | Espacio / Ctrl | Subir y bajar la camara libre |
 | Shift       | Ir al doble de rapido (camara libre o avatar) |
 | T           | Cambiar el avatar entre Kirby y la planta carnivora |
-| 1 2 3 4 5   | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 4 nave entre planetas, 5 recorrido del lanzamiento y la estacion |
+| 1 2 3 5     | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 5 recorrido del lanzamiento y la estacion (a la 4 se entra con G, H o J) |
 | Q / E       | Nave anterior o siguiente en la camara 3 |
 | G / H / J   | Camara 4 con el viaje de la nave a Xen, a Pop Star o a Verdania |
 | Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
@@ -174,7 +174,7 @@ agrega a esta tabla.
 | T | avatar | cambiar el avatar entre Kirby y la carnivora |
 | ESC | base | cerrar |
 | P | base | pausar o continuar todas las animaciones |
-| 1 2 3 4 5, Q / E, G H J | camaras y recorridos | cambiar de camara; Q y E cambian la nave que se sigue; G, H y J escogen el viaje de la camara 4 |
+| 1 2 3 5, Q / E, G H J | camaras y recorridos | cambiar de camara; Q y E cambian la nave que se sigue; G, H y J escogen el viaje de la camara 4 |
 | Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
 | F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, despegue del cohete en el planeta 2 y plantas en Verdania |
 | K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |

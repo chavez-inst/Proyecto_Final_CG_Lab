@@ -312,10 +312,10 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//1 es la camara libre, 2 la del avatar, 3 la de una nave de la carrera, 4 la de la nave que viaja entre planetas
 	//y 5 el recorrido del lanzamiento y la estacion; los codigos de las teclas 1 a 5 van seguidos, asi que al restarles
 	//el de la 1 y sumar 1 sale el numero de la camara
-	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y la 3 y la 4 empiezan en el espacio
-	//el recorrido de la 4 empieza en la estacion, y main.cpp lo pasa al planeta cuando la nave ya se alejo
+	//la tecla 4 no hace nada porque a la camara 4 se entra con G, H o J, que dicen a que planeta va el viaje
+	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y la 3 empieza en el espacio
 	//el recorrido de la 5 empieza en el planeta 2 viendo despegar el cohete, y main.cpp lo pasa al espacio cuando el cohete ya subio
-	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5 && action == GLFW_PRESS)
+	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5 && key != GLFW_KEY_4 && action == GLFW_PRESS)
 	{
 		int modo = key - GLFW_KEY_1 + 1;
 		if (modo != theWindow->modoCamara)
@@ -327,7 +327,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		{
 			theWindow->zonaPlaneta = 1;
 		}
-		if ((modo == 3 || modo == 4) && theWindow->zonaPlaneta != 0)
+		if (modo == 3 && theWindow->zonaPlaneta != 0)
 		{
 			theWindow->zonaPlaneta = 0;
 			theWindow->puntoEspacio = 0;
@@ -347,7 +347,8 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		theWindow->objetivoCamara += 1;
 	}
 	//G, H y J ponen la camara 4 con el viaje a Xen, a Pop Star o a Verdania, en el mismo orden que X, C y V
-	//como el viaje empieza en la estacion, regresan al espacio; si ya se estaba en ese viaje, empieza otra vez
+	//como el viaje empieza en la estacion, regresan al espacio, y main.cpp lo pasa al planeta cuando la nave ya se alejo;
+	//si ya se estaba en ese viaje, empieza otra vez
 	if ((key == GLFW_KEY_G || key == GLFW_KEY_H || key == GLFW_KEY_J) && action == GLFW_PRESS)
 	{
 		if (key == GLFW_KEY_G)
