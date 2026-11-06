@@ -11,7 +11,6 @@ Window::Window()
 	lastY = 0.0f;
 	xChange = 0.0f;
 	yChange = 0.0f;
-	muevex = 2.0f;
 	pausaAnimaciones = false;
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
@@ -64,7 +63,6 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	lastY = 0.0f;
 	xChange = 0.0f;
 	yChange = 0.0f;
-	muevex = 2.0f;
 	pausaAnimaciones = false;
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
@@ -210,15 +208,6 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	//Y y U cambian muevex al presionar la tecla y mientras se deja presionada
-	if (key == GLFW_KEY_Y && action != GLFW_RELEASE)
-	{
-		theWindow->muevex += 1.0;
-	}
-	if (key == GLFW_KEY_U && action != GLFW_RELEASE)
-	{
-		theWindow->muevex -= 1.0;
-	}
 	//P pausa o continua todas las animaciones; en main.cpp se pone deltaTime en 0 mientras dure la pausa
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 	{
@@ -317,9 +306,10 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 
 	//--- camaras y recorridos ---
 	//1 es la camara libre, 2 la del avatar, 3 la de una nave de la carrera, 4 la de la nave que viaja entre planetas
-	//y 5 la del lanzamiento y la estacion; los codigos de las teclas 1 a 5 van seguidos, asi que al restarles
+	//y 5 el recorrido del lanzamiento y la estacion; los codigos de las teclas 1 a 5 van seguidos, asi que al restarles
 	//el de la 1 y sumar 1 sale el numero de la camara
-	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y de la 3 a la 5 solo sirven en el espacio
+	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y la 3 y la 4 solo sirven en el espacio
+	//el recorrido de la 5 empieza en el planeta 2 viendo despegar el cohete, y main.cpp lo pasa al espacio cuando el cohete ya subio
 	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5 && action == GLFW_PRESS)
 	{
 		int modo = key - GLFW_KEY_1 + 1;
@@ -332,13 +322,17 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		{
 			theWindow->zonaPlaneta = 1;
 		}
-		if (modo >= 3 && theWindow->zonaPlaneta != 0)
+		if ((modo == 3 || modo == 4) && theWindow->zonaPlaneta != 0)
 		{
 			theWindow->zonaPlaneta = 0;
 			theWindow->puntoEspacio = 0;
 		}
+		if (modo == 5)
+		{
+			theWindow->zonaPlaneta = 2;
+		}
 	}
-	//Q y E cambian a la nave anterior o a la siguiente en la camara 3, y a la vista anterior o a la siguiente en la 5
+	//Q y E cambian a la nave anterior o a la siguiente en la camara 3
 	if (key == GLFW_KEY_Q && action == GLFW_PRESS)
 	{
 		theWindow->objetivoCamara -= 1;

@@ -14,7 +14,6 @@ public:
 	GLfloat getBufferHeight() { return bufferHeight; }
 	GLfloat getXChange();
 	GLfloat getYChange();
-	GLfloat getmuevex() { return muevex; }
 	bool getpausaAnimaciones() { return pausaAnimaciones; }
 
 	//getters de cada actividad (misma division que main.cpp)
@@ -44,6 +43,8 @@ public:
 	int getmodoCamara() { return modoCamara; }
 	int getobjetivoCamara() { return objetivoCamara; }
 	int getpuntoEspacio() { return puntoEspacio; }
+	//el recorrido de la camara 5 empieza en el planeta 2 y sigue en el espacio, por eso cambia la zona desde main.cpp
+	void setzonaPlaneta(int zona) { zonaPlaneta = zona; }
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 	bool getlinterna() { return linterna; }
@@ -66,9 +67,7 @@ private:
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
-	//valor que cambia con Y y U
 	//para agregar otro valor se pone la variable aqui, su getter arriba, su valor inicial en los constructores y la tecla en ManejaTeclado
-	GLfloat muevex;
 	bool pausaAnimaciones; //P pausa o continua todas las animaciones
 
 	//variables de cada actividad

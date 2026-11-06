@@ -787,7 +787,7 @@ glm::vec3 normalRutaPista[NUM_PUNTOS_PISTA] = {
 //--- satelites y cuerpos espaciales ---
 
 //--- plataforma de lanzamiento y cohete ---
-//el cohete son 5 piezas de Kenney que van una encima de otra; armado mide 4.6 de alto
+//el cohete son 5 piezas que van una encima de otra; armado mide 4.6 de alto
 //cada pieza cuelga de la de abajo, asi al mover la base se mueve todo el cohete
 const int NUM_PIEZAS_COHETE = 5;
 const char* piezasCohete[NUM_PIEZAS_COHETE] = {
@@ -859,5 +859,9 @@ glm::vec3 pivotesAvatar[NUM_PIEZAS_KIRBY] = {
 };
 
 //--- camaras y recorridos ---
+//recorrido de la camara 5 en el espacio; el cohete sale de Pop Star en linea recta, pasa por arriba de la nave nodriza y
+//de la estacion y sigue de largo; la camara lo sigue hasta finCoheteEspacio, que esta arriba de la estacion
+glm::vec3 inicioCoheteEspacio = glm::vec3(-800.0f, 250.0f, 480.0f);
+glm::vec3 finCoheteEspacio = glm::vec3(613.0f, 600.0f, -350.0f);
 
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---

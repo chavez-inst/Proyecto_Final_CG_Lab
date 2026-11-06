@@ -69,10 +69,10 @@ static const char* vShader = "shaders/shader_light.vert";
 static const char* fShader = "shaders/shader_light.frag";
 
 //la superficie de cada planeta es un piso aparte de 200 por 200 y muy lejos del espacio; como el plano lejano
-//de la perspectiva esta en 3000, nunca se ven juntos
-glm::vec3 posXen = glm::vec3(6000.0f, 0.0f, 0.0f);
-glm::vec3 posPlaneta2 = glm::vec3(-6000.0f, 0.0f, 0.0f);
-glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 6000.0f);
+//de la perspectiva esta en 7000 y lo mas lejano del espacio queda a menos de 5000 del centro, nunca se ven juntos
+glm::vec3 posXen = glm::vec3(15000.0f, 0.0f, 0.0f);
+glm::vec3 posPlaneta2 = glm::vec3(-15000.0f, 0.0f, 0.0f);
+glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 15000.0f);
 
 //--- personajes ---
 //modelos de los personajes; Kirby y la carnivora se dibujan como el avatar y los demas todavia no salen en la escena
@@ -87,9 +87,9 @@ Model Kirby_M[NUM_PIEZAS_KIRBY];
 glm::vec3 rotKirby[NUM_PIEZAS_KIRBY];
 
 //--- planetas: Xen y planeta 2 ---
-//los tres planetas que se ven desde el espacio estan en un circulo de radio 1400 alrededor del centro de la escena,
-//que esta como en 300, 0, -100, separados 120 grados y a distinta altura, para que se sienta que estan muy lejos
-//aunque la camara se mueva
+//los tres planetas que se ven desde el espacio estan en un circulo de radio 3500 alrededor del centro de la escena,
+//que esta como en 300, 0, -100, separados 120 grados y a distinta altura; son muy grandes y estan mucho mas lejos
+//que todo lo demas, asi casi no cambian de lugar ni de tamano cuando la camara se mueve y se sienten como planetas gigantes
 
 //Xen
 Skybox skyboxXenDia;
@@ -97,7 +97,7 @@ Skybox skyboxXenNoche;
 Texture xenSueloTexture;
 //el planeta que se ve desde el espacio es una esfera que gira sobre su eje
 Model XenPlaneta_M;
-glm::vec3 posPlanetaXen = glm::vec3(300.0f, 250.0f, -1500.0f);
+glm::vec3 posPlanetaXen = glm::vec3(300.0f, 625.0f, -3600.0f);
 float giroPlanetaXen = 0.0f;
 float giroPlanetaXenOffset = 0.05f;
 //objetos de la superficie
@@ -142,7 +142,7 @@ Texture planeta2SueloTexture;
 //desde el espacio tiene forma de estrella; se gira para que su frente vea hacia el centro de la escena
 //y da vueltas sobre ese frente como rehilete
 Model Planeta2Espacio_M;
-glm::vec3 posPlaneta2Espacio = glm::vec3(-912.0f, -150.0f, 600.0f);
+glm::vec3 posPlaneta2Espacio = glm::vec3(-2730.0f, -375.0f, 1650.0f);
 float giroPlaneta2 = 0.0f;
 float giroPlaneta2Offset = 0.04f;
 //objetos de la superficie
@@ -161,7 +161,7 @@ Texture verdaniaPastoTexture;
 //desde el espacio Verdania se ve como la cabeza del peashooter en grande, lisa y con textura de planeta
 //peashooter_planeta.obj es la cabeza sin cuello, sin cejas y redonda por abajo
 Model PlanetaVerdania_M;
-glm::vec3 posPlanetaVerdania = glm::vec3(1512.0f, 100.0f, 600.0f);
+glm::vec3 posPlanetaVerdania = glm::vec3(3330.0f, 250.0f, 1650.0f);
 //centro de la cabeza en las coordenadas del modelo; ahi se gira y se escala para que no gire alrededor de los pies
 glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
 float giroPlanetaVerdania = 0.0f;
@@ -381,8 +381,8 @@ Model Satelite_M;
 //la plataforma esta en la superficie de Pop Star, el planeta 2, y en ella estan el cohete y su torre
 //su lugar se mide desde el centro del piso del planeta, como los arboles y las colinas; queda adelante a la izquierda
 //de donde se llega, entre los arboles y las colinas de las orillas, para que no se encime con nada
-//son modelos de Kenney muy chicos (el cohete mide 4.6 de alto), por eso todo se escala por escalaPlataforma;
-//con 4 el cohete queda de unas 18 unidades y el piso de 24 por 24
+//los modelos del cohete, la torre y la plataforma son muy chicos (el cohete mide 4.6 de alto), por eso todo se escala
+//por escalaPlataforma; con 4 el cohete queda de unas 18 unidades y el piso de 24 por 24
 Model Cohete_M[NUM_PIEZAS_COHETE];
 glm::vec3 rotCohete[NUM_PIEZAS_COHETE]; //las globales empiezan en 0
 Model PlataformaCohete_M;
@@ -392,7 +392,7 @@ float escalaPlataforma = 4.0f;
 int pisosTorre = 5;
 glm::mat4 modelauxPlataforma(1.0);
 //despegue del cohete con la F: estadoCohete dice en que parte va, 0 parado, 1 cuenta regresiva, 2 subiendo y 3 bajando
-//las alturas estan en las unidades de Kenney, asi que se multiplican por escalaPlataforma (con 4, subir 60 son 240 unidades)
+//las alturas estan en las unidades del modelo sin escalar, asi que se multiplican por escalaPlataforma; con 4, subir 60 son 240 unidades
 int estadoCohete = 0;
 float tiempoCuentaCohete = 3.0f; //la cuenta regresiva dura 3 segundos
 float cuentaCohete = 0.0f;       //segundos que le faltan a la cuenta
@@ -402,13 +402,33 @@ float aceleracionCohete = 0.002f; //lo que crece la velocidad cada frame, asi su
 float alturaMaxCohete = 60.0f;    //al llegar aqui deja de subir y regresa
 float velBajadaCohete = 0.15f;    //regresa a velocidad constante y despacio, como aterrizando
 float fuegoCohete = 0.0f;         //tamano de la llama: 0 apagada y 1 completa
+//humo del cohete: mientras la llama esta prendida, cada intervaloHumo segundos sale una nube de abajo del motor y se queda
+//donde salio aunque el cohete siga subiendo, asi se va formando la estela; cada nube crece, se encoge y desaparece en duracionHumo
+//las nubes se guardan en arreglos y la nueva ocupa el lugar de la mas vieja, por eso caben MAX_HUMO al mismo tiempo
+const int MAX_HUMO = 480;
+glm::vec3 posHumo[MAX_HUMO];
+float edadHumo[MAX_HUMO];          //segundos desde que salio cada nube; las que ya pasaron duracionHumo no se dibujan
+int siguienteHumo = 0;             //lugar de los arreglos donde va la siguiente nube
+float duracionHumo = 2.5f;
+float intervaloHumo = 0.015f;
+float esperaHumo = 0.0f;           //segundos desde la ultima nube
+float tamanoHumo = 9.0f;           //lo que mide una nube en su punto mas grande
+int idxHumo = 0;                   //lugar de la malla del humo en meshListModel
+Texture humoTexture;
+
+//pone una nube nueva en pos con edad 0
+void SueltaHumo(glm::vec3 pos)
+{
+	posHumo[siguienteHumo] = pos;
+	edadHumo[siguienteHumo] = 0.0f;
+	siguienteHumo = (siguienteHumo + 1) % MAX_HUMO;
+}
 //Gordon y el Capitan Falcon esperan junto a la plataforma como astronautas, del lado de donde llega la camara;
 //su lugar tambien se mide desde el centro del planeta 2
 glm::vec3 posGordonAstronauta = glm::vec3(-27.0f, 0.0f, -16.0f);
 glm::vec3 posFalconAstronauta = glm::vec3(-23.0f, 0.0f, -17.0f);
 float escalaGordonAstronauta = 1.5f; //igual que el avatar; Gordon mide 1.4 y queda de 2.1
 float escalaFalconAstronauta = 1.8f; //el Capitan Falcon mide 0.95 y queda de 1.7, un poco mas bajo que Gordon
-
 
 //--- estacion espacial y naves ---
 //la estacion tiene cuatro landing pads alrededor, a 150 de su centro hacia X positivo, X negativo, Z positivo y Z negativo,
@@ -475,7 +495,8 @@ void InicializarNavesEstacion()
 glm::vec3 rotAvatar[NUM_PIEZAS_KIRBY];
 //lugar del avatar medido desde el centro del piso del planeta donde esta, y hacia donde mira en grados alrededor de Y
 //con rumbo 0 ve hacia Z positivo y con 180 hacia Z negativo, que es hacia donde estan las cosas de cada planeta
-glm::vec3 posLlegadaAvatar = glm::vec3(0.0f, 0.0f, 6.0f);
+//llega adelante y a la izquierda de la camara libre, que aparece en z = 8, para no taparle la vista
+glm::vec3 posLlegadaAvatar = glm::vec3(-3.5f, 0.0f, 3.5f);
 glm::vec3 posAvatar = posLlegadaAvatar;
 float rumboAvatar = 180.0f;
 float escalaAvatar = 1.5f;
@@ -517,6 +538,46 @@ float alturaMiraAvatar = 0.8f;
 //asi que la camara va hacia Z positivo, que es atras de la nave, y mira hacia enfrente de ella
 glm::vec3 camaraNaveAtras = glm::vec3(0.0f, 3.5f, 10.0f);
 glm::vec3 camaraNaveMira = glm::vec3(0.0f, 1.5f, -8.0f);
+//camara 5, el recorrido del lanzamiento, la estacion y los objetos del espacio, que se repite mientras se use la camara
+//etapaRecorrido dice en que parte va: 0 viendo despegar el cohete en Pop Star, 1 siguiendo al cohete en el espacio,
+//2 viendo como se aleja y 3 dando una vuelta alrededor de la pista, la estacion y el satelite
+int etapaRecorrido = 0;
+//en Pop Star la camara se mide desde la plataforma y sube con el cohete a la mitad de su velocidad
+glm::vec3 camaraPlataforma = glm::vec3(30.0f, 6.0f, 45.0f);
+//en el espacio la camara va atras, a un lado y arriba del cohete, para que se vea de lado y no solo su motor, y mira a su mitad
+float distanciaCamaraCohete = 30.0f;
+float ladoCamaraCohete = 30.0f;
+float alturaCamaraCohete = 12.0f;
+//avance del cohete en el espacio: vale 0 al salir de Pop Star y 1 al llegar arriba de la estacion; despues sigue creciendo,
+//porque el cohete sigue de largo, y deja de dibujarse en avanceMaxCohete, cuando ya esta muy lejos
+float avanceCoheteEspacio = 0.0f;
+float velCoheteEspacio = 4.0f;
+float avanceMaxCohete = 2.5f;
+//cuando el cohete pasa arriba de la estacion la camara se queda quieta y lo ve alejarse durante estos segundos
+float tiempoAlejamiento = 3.5f;
+float tiempoEtapa = 0.0f;
+//la vuelta es un circulo en el plano XZ, con x igual al centro mas el radio por el coseno del angulo y z igual al centro
+//mas el radio por el seno; la camara siempre mira al centro, que queda entre la pista, la estacion y el satelite
+glm::vec3 centroVuelta = glm::vec3(500.0f, 100.0f, -170.0f);
+float radioVuelta = 1000.0f;
+float alturaVuelta = 350.0f;
+float anguloVuelta = 0.0f;
+//empieza del lado de X positivo y Z negativo, que es hacia donde se fue el cohete
+float anguloInicioVuelta = 324.0f;
+//grados que avanza por cada unidad de deltaTime; como deltaTime suma unos 61 en un segundo, la vuelta tarda unos 15 segundos
+float velVuelta = 0.4f;
+
+//pone el cohete de Pop Star en la plataforma y empieza su cuenta regresiva, para que el recorrido lo vea despegar desde el inicio
+void ReiniciaRecorrido()
+{
+	etapaRecorrido = 0;
+	alturaCohete = 0.0f;
+	velocidadCohete = 0.0f;
+	fuegoCohete = 0.0f;
+	rotCohete[0].z = 0.0f;
+	cuentaCohete = tiempoCuentaCohete;
+	estadoCohete = 1;
+}
 
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 //en los planetas el sol da una vuelta completa en unos 2 minutos; el angulo avanza 0.05 por cada unidad de deltaTime
@@ -528,9 +589,9 @@ glm::vec3 haciaSolEspacio = glm::vec3(0.0f, 0.707f, -0.707f);
 //direccion de donde viene el sol en la zona actual y su posicion para dibujarlo lejos de la camara
 glm::vec3 haciaSol = haciaSolEspacio;
 glm::vec3 posSol = glm::vec3(0.0f, 0.0f, 0.0f);
-//tiene que ser menor que el plano lejano de la proyeccion, que esta en 3000, si no, no se ve, y mayor que la distancia
+//tiene que ser menor que el plano lejano de la proyeccion, que esta en 7000, si no, no se ve, y mayor que la distancia
 //a los planetas del espacio para que quede detras de ellos
-float distanciaSol = 2500.0f;
+float distanciaSol = 6000.0f;
 //la N salta a la manana si es de noche o a la noche si es de dia; el ciclo sigue corriendo desde ahi
 int saltoDiaNocheActual = 0;
 float anguloManana = 45.0f;
@@ -539,8 +600,8 @@ float anguloNoche = 225.0f;
 //como estan tan lejos, se escalan mucho para que se vean del tamano que se quiere
 Model Sol_M;
 Model Luna_M;
-float tamanoSol = 140.0f;
-float tamanoLuna = 78.0f;
+float tamanoSol = 336.0f;
+float tamanoLuna = 187.0f;
 
 //la linterna se guarda aparte y solo se copia al arreglo de spotlights cuando esta prendida
 SpotLight linternaLuz;
@@ -696,6 +757,41 @@ void DibujaJerarquia(Model piezas[], int padres[], glm::vec3 pivotes[], glm::vec
 //--- satelites y cuerpos espaciales ---
 
 //--- plataforma de lanzamiento y cohete ---
+//nube del humo del cohete: tres planos cruzados de 1 por 1, uno por cada eje, para que se vea desde cualquier lado
+//todas las normales van hacia abajo, como en los planos de la vegetacion, para que se iluminen igual de los dos lados
+void CrearHumoCohete()
+{
+	unsigned int humoIndices[] = {
+		0, 1, 2,
+		0, 2, 3,
+		4, 5, 6,
+		4, 6, 7,
+		8, 9, 10,
+		8, 10, 11
+	};
+
+	GLfloat humoVertices[] = {
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f,		1.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+		-0.5f, 0.5f, 0.0f,		0.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+
+		0.0f, -0.5f, -0.5f,		0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.0f, -0.5f, 0.5f,		1.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.0f, 0.5f, 0.5f,		1.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+		0.0f, 0.5f, -0.5f,		0.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+
+		-0.5f, 0.0f, -0.5f,		0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, -0.5f,		1.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, 0.5f,		1.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+		-0.5f, 0.0f, 0.5f,		0.0f, 1.0f,		0.0f, -1.0f, 0.0f
+	};
+
+	MeshModel* humo = new MeshModel();
+	humo->CreateMeshModel(humoVertices, humoIndices, 96, 18);
+	idxHumo = meshListModel.size();
+	meshListModel.push_back(humo);
+}
 
 //--- estacion espacial y naves ---
 
@@ -1030,7 +1126,7 @@ int main()
 	Satelite_M.LoadModel("Models/sateliteRace/sateliteRace.obj");
 
 	//--- plataforma de lanzamiento y cohete ---
-	//las rutas de las piezas del cohete se arman con su nombre, igual que las plantas: Models/Cohete/cohete_base.obj, ...
+	//las rutas de las piezas del cohete se arman con su nombre, igual que las de las plantas, como Models/Cohete/cohete_base.obj
 	for (int i = 0; i < NUM_PIEZAS_COHETE; i++)
 	{
 		std::string ruta = std::string("Models/Cohete/cohete_") + piezasCohete[i] + ".obj";
@@ -1041,7 +1137,12 @@ int main()
 	PlataformaCohete_M.LoadModel("Models/Cohete/plataforma.obj");
 	TorreCohete_M = Model();
 	TorreCohete_M.LoadModel("Models/Cohete/torre_estructura.obj");
-
+	CrearHumoCohete();
+	humoTexture = Texture("Textures/humo.png");
+	humoTexture.LoadTextureA();
+	//las nubes empiezan con la edad en la que ya desaparecieron, para que no se dibujen hasta que el cohete las suelte
+	for (int i = 0; i < MAX_HUMO; i++)
+		edadHumo[i] = duracionHumo;
 
 	//--- estacion espacial y naves ---
 	Estacion_M = Model();
@@ -1220,8 +1321,8 @@ int main()
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	GLuint uniformColor = 0;
 	//el angulo de glm::perspective va en radianes, por eso 45.0f da una vista de unos 58 grados y no de 45
-	//el plano lejano esta en 3000 para que desde cualquier parte del espacio se vean los planetas, que estan lejos
-	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 3000.0f);
+	//el plano lejano esta en 7000 para que desde cualquier parte del espacio se vean los planetas, que estan lejos
+	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 7000.0f);
 
 	//la carga tarda varios segundos; si lastTime se quedara en 0, el primer frame tendria un deltaTime enorme
 	//y todas las animaciones darian un salto, por eso se toma la hora justo antes de empezar
@@ -1238,9 +1339,9 @@ int main()
 
 		//eventos de teclado y mouse
 		glfwPollEvents();
-		//la camara libre solo se mueve cuando es la que se esta usando; la 4 y la 5 la usan mientras no existan sus recorridos
+		//la camara libre solo se mueve cuando es la que se esta usando; la 4 la usa mientras no exista su recorrido
 		//con las demas camaras el mouse se lee igual y no se usa, para que la libre no brinque al regresar a ella
-		if (mainWindow.getmodoCamara() == 1 || mainWindow.getmodoCamara() == 4 || mainWindow.getmodoCamara() == 5)
+		if (mainWindow.getmodoCamara() == 1 || mainWindow.getmodoCamara() == 4)
 		{
 			camera.keyControl(mainWindow.getsKeys(), deltaTime);
 			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
@@ -1261,11 +1362,14 @@ int main()
 			deltaTime = 0.0f;
 
 		//--- camaras y recorridos ---
-		//al regresar a la camara libre desde la del avatar o la de la nave, la libre aparece donde estaba la otra y viendo hacia lo mismo
+		//al regresar a la camara libre desde la del avatar, la de la nave o el recorrido, la libre aparece donde estaba la otra y viendo hacia lo mismo
 		//el yaw y el pitch salen de la direccion con atan2 y asin, al reves de como Camera::update saca la direccion a partir de ellos
+		//al entrar a la camara 5 su recorrido empieza desde el despegue del cohete
 		if (mainWindow.getmodoCamara() != modoCamaraActual)
 		{
-			if (mainWindow.getmodoCamara() == 1 && (modoCamaraActual == 2 || modoCamaraActual == 3))
+			if (mainWindow.getmodoCamara() == 5)
+				ReiniciaRecorrido();
+			if (mainWindow.getmodoCamara() == 1 && (modoCamaraActual == 2 || modoCamaraActual == 3 || modoCamaraActual == 5))
 			{
 				float yaw = atan2(dirVista.z, dirVista.x) / toRadians;
 				float pitch = asin(dirVista.y) / toRadians;
@@ -1406,6 +1510,88 @@ int main()
 			glm::vec3 arribaNave = glm::normalize(glm::vec3(matrizNave[1]));
 			dirVista = glm::normalize(puntoMira - posVista);
 			view = glm::lookAt(posVista, puntoMira, arribaNave);
+		}
+
+		//la camara 5 hace el recorrido del lanzamiento: ve despegar el cohete en Pop Star, lo sigue en el espacio hasta la estacion
+		//y luego da una vuelta por la estacion y el satelite; al terminar regresa a Pop Star y empieza otra vez
+		//como todo avanza con deltaTime, la P tambien pausa el recorrido
+		if (mainWindow.getmodoCamara() == 5)
+		{
+			//primero se ve si el recorrido cambia de etapa y despues se pone la camara segun la etapa en la que queda,
+			//asi el frame en el que cambia ya usa la camara y el skybox de la etapa nueva
+			//el avance del cohete se divide entre el largo del camino para que vaya a la misma velocidad sin importar lo que mida
+			glm::vec3 caminoCohete = finCoheteEspacio - inicioCoheteEspacio;
+			float largoCamino = sqrt(caminoCohete.x * caminoCohete.x + caminoCohete.y * caminoCohete.y + caminoCohete.z * caminoCohete.z);
+			if (etapaRecorrido >= 1)
+				avanceCoheteEspacio += velCoheteEspacio * deltaTime / largoCamino;
+
+			if (etapaRecorrido == 0 && estadoCohete == 3)
+			{
+				//cuando el cohete deja de subir pasa al espacio; zonaActual tambien se cambia aqui para que el skybox ya sea
+				//el del espacio en este mismo frame
+				//el cohete de Pop Star se regresa a la plataforma, porque ahora es el del espacio el que sigue el viaje
+				estadoCohete = 0;
+				alturaCohete = 0.0f;
+				fuegoCohete = 0.0f;
+				etapaRecorrido = 1;
+				avanceCoheteEspacio = 0.0f;
+				mainWindow.setzonaPlaneta(0);
+				zonaActual = 0;
+			}
+			else if (etapaRecorrido == 1 && avanceCoheteEspacio >= 1.0f)
+			{
+				etapaRecorrido = 2;
+				tiempoEtapa = 0.0f;
+			}
+			else if (etapaRecorrido == 2)
+			{
+				tiempoEtapa += deltaTime / 61.0f;
+				if (tiempoEtapa >= tiempoAlejamiento)
+				{
+					etapaRecorrido = 3;
+					anguloVuelta = anguloInicioVuelta;
+				}
+			}
+			else if (etapaRecorrido == 3)
+			{
+				//al completar la vuelta se regresa a Pop Star y el cohete vuelve a despegar
+				anguloVuelta += velVuelta * deltaTime;
+				if (anguloVuelta >= anguloInicioVuelta + 360.0f)
+				{
+					ReiniciaRecorrido();
+					mainWindow.setzonaPlaneta(2);
+					zonaActual = 2;
+				}
+			}
+
+			glm::vec3 puntoMira = posVista;
+			if (etapaRecorrido == 0)
+			{
+				//la camara ve el cohete desde enfrente de la plataforma y sube con el a la mitad de su velocidad para no perderlo
+				glm::vec3 posPlat = posPlaneta2 + posPlataforma;
+				puntoMira = posPlat + glm::vec3(0.0f, (2.4f + alturaCohete) * escalaPlataforma, 0.0f);
+				posVista = posPlat + camaraPlataforma + glm::vec3(0.0f, alturaCohete * escalaPlataforma * 0.5f, 0.0f);
+			}
+			else if (etapaRecorrido == 1 || etapaRecorrido == 2)
+			{
+				//el lado sale del producto cruz del frente del cohete con Y, que da un vector perpendicular a los dos
+				//en la etapa 2 la camara se queda donde estaba cuando el cohete llego a finCoheteEspacio y solo sigue mirandolo
+				glm::vec3 frenteCohete = glm::normalize(caminoCohete);
+				glm::vec3 ladoCohete = glm::normalize(glm::cross(frenteCohete, glm::vec3(0.0f, 1.0f, 0.0f)));
+				glm::vec3 posCoheteEspacio = inicioCoheteEspacio + caminoCohete * avanceCoheteEspacio;
+				glm::vec3 seguirCohete = posCoheteEspacio;
+				if (etapaRecorrido == 2)
+					seguirCohete = finCoheteEspacio;
+				posVista = seguirCohete - frenteCohete * distanciaCamaraCohete + ladoCohete * ladoCamaraCohete + glm::vec3(0.0f, alturaCamaraCohete, 0.0f);
+				puntoMira = posCoheteEspacio + frenteCohete * 9.0f;
+			}
+			else
+			{
+				posVista = centroVuelta + glm::vec3(radioVuelta * cos(anguloVuelta * toRadians), alturaVuelta, radioVuelta * sin(anguloVuelta * toRadians));
+				puntoMira = centroVuelta;
+			}
+			dirVista = glm::normalize(puntoMira - posVista);
+			view = glm::lookAt(posVista, puntoMira, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
 		//limpiar la pantalla
@@ -1590,14 +1776,14 @@ int main()
 
 		//--- planetas: Xen y planeta 2 ---
 		//Xen
-		//el planeta Xen en el espacio es una esfera de radio 1, asi que con escala 220 queda de radio 220; gira despacio sobre Y
+		//el planeta Xen en el espacio es una esfera de radio 1, asi que con escala 660 queda de radio 660; gira despacio sobre Y
 		giroPlanetaXen += giroPlanetaXenOffset * deltaTime;
 		if (giroPlanetaXen > 360.0f)
 			giroPlanetaXen -= 360.0f;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posPlanetaXen);
 		model = glm::rotate(model, giroPlanetaXen * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(220.0f, 220.0f, 220.0f));
+		model = glm::scale(model, glm::vec3(660.0f, 660.0f, 660.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		XenPlaneta_M.RenderModel();
 
@@ -1756,7 +1942,7 @@ int main()
 		DibujaJerarquia(Headcrab_M, padresHeadcrab, pivotesHeadcrab, rotHeadcrab, NUM_PIEZAS_HEADCRAB, model, uniformModel);
 
 		//planeta 2
-		//Pop Star mide como 1.8 de la punta al centro, asi que con escala 180 cada punta sale unas 320 unidades
+		//Pop Star mide como 1.8 de la punta al centro, asi que con escala 540 cada punta sale unas 970 unidades
 		//la estrella esta parada viendo hacia Z positivo; se gira 120 grados en Y para que vea hacia el centro de la escena
 		//y despues gira sobre su propio Z como rehilete
 		giroPlaneta2 += giroPlaneta2Offset * deltaTime;
@@ -1766,7 +1952,7 @@ int main()
 		model = glm::translate(model, posPlaneta2Espacio);
 		model = glm::rotate(model, 120.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, giroPlaneta2 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(180.0f, 180.0f, 180.0f));
+		model = glm::scale(model, glm::vec3(540.0f, 540.0f, 540.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Planeta2Espacio_M.RenderModel();
 
@@ -2139,14 +2325,14 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinRoca_M.RenderModel();
 
-		//planeta Verdania en el espacio, gira despacio sobre Y como Xen; mide como 0.73 de alto y con escala 450 queda de unas 330 unidades
+		//planeta Verdania en el espacio, gira despacio sobre Y como Xen; mide como 0.73 de alto y con escala 1350 queda de unas 990 unidades
 		giroPlanetaVerdania += giroPlanetaVerdaniaOffset * deltaTime;
 		if (giroPlanetaVerdania > 360.0f)
 			giroPlanetaVerdania -= 360.0f;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posPlanetaVerdania);
 		model = glm::rotate(model, giroPlanetaVerdania * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(450.0f, 450.0f, 450.0f));
+		model = glm::scale(model, glm::vec3(1350.0f, 1350.0f, 1350.0f));
 		model = glm::translate(model, -centroCabezaPea);
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PlanetaVerdania_M.RenderModel();
@@ -2457,7 +2643,7 @@ int main()
 		}
 
 		//modelauxPlataforma guarda el lugar y el tamano de la plataforma, y desde ahi se ponen el piso, la torre y el cohete;
-		//asi todo se mide en las unidades de los modelos de Kenney y despues se escala junto
+		//asi todo se mide en las unidades de los modelos sin escalar y despues se escala junto
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
@@ -2512,6 +2698,24 @@ int main()
 		}
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
+		//humo: las nubes envejecen con deltaTime, igual que la cuenta regresiva, y mientras haya llama sale una nueva
+		//de abajo de ella; con la matriz del cohete se sabe donde queda ese punto en la escena
+		for (int i = 0; i < MAX_HUMO; i++)
+		{
+			if (edadHumo[i] < duracionHumo)
+				edadHumo[i] += deltaTime / 61.0f;
+		}
+		esperaHumo += deltaTime / 61.0f;
+		//cuando el cohete todavia esta en la plataforma ese punto queda abajo del piso, asi que la nube se sube a la altura de las placas
+		if (fuegoCohete > 0.0f && esperaHumo >= intervaloHumo)
+		{
+			glm::vec3 salidaHumo = glm::vec3(raizCohete * glm::vec4(0.0f, -0.6f, 0.0f, 1.0f));
+			if (salidaHumo.y < 1.0f)
+				salidaHumo.y = 1.0f;
+			SueltaHumo(salidaHumo);
+			esperaHumo = 0.0f;
+		}
+
 		//astronautas: Gordon y el Capitan Falcon parados junto a la plataforma, viendo hacia donde llega la camara
 		//Gordon es por piezas y tiene los pies en y = 0, asi que solo se pone en su lugar y se escala
 		model = glm::mat4(1.0f);
@@ -2525,7 +2729,6 @@ int main()
 		model = glm::translate(model, glm::vec3(0.0f, 0.627f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		CapitanFalcon_M.RenderModel();
-
 
 		//--- estacion espacial y naves ---
 		//modelauxEstacion se guarda antes de escalar la estacion, asi los pads y las naves no se hacen chicos con ella
@@ -2748,6 +2951,51 @@ int main()
 			}
 		}
 
+		//--- camaras y recorridos ---
+		//en el recorrido de la camara 5, el cohete que despego de Pop Star aparece en el espacio, pasa por arriba de la estacion
+		//y sigue de largo aunque la camara ya no lo siga; se usan las mismas piezas y la misma escala que en la plataforma
+		if (mainWindow.getmodoCamara() == 5 && etapaRecorrido >= 1 && avanceCoheteEspacio < avanceMaxCohete)
+		{
+			//la punta del cohete apunta hacia Y positivo, asi que para que vea hacia donde va se gira alrededor del eje que es
+			//perpendicular a Y y al camino; el angulo sale del arco coseno de la parte en Y de la direccion
+			glm::vec3 caminoCohete = finCoheteEspacio - inicioCoheteEspacio;
+			glm::vec3 frenteCohete = glm::normalize(caminoCohete);
+			glm::vec3 ejeGiroCohete = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), frenteCohete));
+			float anguloCohete = acos(frenteCohete.y);
+			model = glm::mat4(1.0f);
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			model = glm::translate(model, inicioCoheteEspacio + caminoCohete * avanceCoheteEspacio);
+			model = glm::rotate(model, anguloCohete, ejeGiroCohete);
+			model = glm::scale(model, glm::vec3(escalaPlataforma, escalaPlataforma, escalaPlataforma));
+			glm::mat4 raizCoheteEspacio = model;
+			Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			DibujaJerarquia(Cohete_M, padresCohete, pivotesCohete, rotCohete, NUM_PIEZAS_COHETE, model, uniformModel);
+			//lleva la llama completa, puesta igual que en la plataforma
+			model = raizCoheteEspacio;
+			model = glm::translate(model, glm::vec3(0.0f, 0.2f, 0.0f));
+			model = glm::rotate(model, 180.0f * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.6f, 1.2f, 0.6f));
+			model = glm::translate(model, glm::vec3(0.0f, -1.9f, 0.23f));
+			color = glm::vec3(2.0f, 2.0f, 2.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Torchwood_M[3].RenderModel();
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			//tambien deja su estela de humo, con las mismas nubes que en la plataforma; como aqui va muy rapido, entre una nube
+			//y la siguiente quedaria un hueco, asi que se sueltan tres repartidas en lo que avanzo desde la ultima vez
+			//lo que avanzo es su velocidad por los segundos que pasaron por 61, que es lo que suma deltaTime en un segundo
+			if (esperaHumo >= intervaloHumo)
+			{
+				glm::vec3 salidaHumo = glm::vec3(raizCoheteEspacio * glm::vec4(0.0f, -0.6f, 0.0f, 1.0f));
+				float recorridoHumo = velCoheteEspacio * 61.0f * esperaHumo;
+				for (int k = 0; k < 3; k++)
+					SueltaHumo(salidaHumo - frenteCohete * (recorridoHumo * k / 3.0f));
+				esperaHumo = 0.0f;
+			}
+		}
+
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 		//el sol se dibuja en posSol en el espacio y en los planetas de dia; de noche sale la luna del lado contrario,
 		//que es de donde viene la luz azulada; el color va arriba de 1 para que brillen aunque la luz les pegue por atras
@@ -2777,6 +3025,8 @@ int main()
 		// ---------- objetos con transparencia ----------
 		//van al final, despues de todos los opacos, si no se ven mal
 		//se dibujan entre glEnable(GL_BLEND) y glDisable(GL_BLEND)
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		//--- personajes ---
 
@@ -2787,12 +3037,39 @@ int main()
 		//--- satelites y cuerpos espaciales ---
 
 		//--- plataforma de lanzamiento y cohete ---
+		//humo del cohete; con glDepthMask apagado las nubes no escriben su profundidad, asi la orilla transparente
+		//de una nube no tapa a las que estan atras de ella
+		//el color va arriba de 1, como en la llama, para que se vea claro aunque el sol no le pegue, como pasa en el espacio
+		glDepthMask(GL_FALSE);
+		color = glm::vec3(1.5f, 1.5f, 1.5f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		humoTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		for (int i = 0; i < MAX_HUMO; i++)
+		{
+			if (edadHumo[i] < duracionHumo)
+			{
+				//con el seno de la edad, la nube sale a la mitad de su tamano, crece y luego se encoge hasta desaparecer;
+				//el angulo va de 30 a 180 grados, y el seno de 30 es 0.5
+				float tamano = tamanoHumo * sin((30.0f + edadHumo[i] / duracionHumo * 150.0f) * toRadians);
+				model = glm::mat4(1.0f);
+				model = glm::translate(model, posHumo[i]);
+				model = glm::scale(model, glm::vec3(tamano, tamano, tamano));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				meshListModel[idxHumo]->RenderMeshModel();
+			}
+		}
+		glDepthMask(GL_TRUE);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 
 		//--- estacion espacial y naves ---
 
 		//--- avatar ---
 
 		//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
+
+		glDisable(GL_BLEND);
 
 		glUseProgram(0);
 
