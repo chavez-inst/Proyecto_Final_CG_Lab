@@ -87,6 +87,9 @@ glm::vec3 rotGordon[NUM_PIEZAS_GORDON];
 Model Kirby_M[NUM_PIEZAS_KIRBY];
 glm::vec3 rotKirby[NUM_PIEZAS_KIRBY];
 
+
+
+
 //--- planetas: Xen y planeta 2 ---
 //los tres planetas que se ven desde el espacio estan en un circulo de radio 3500 alrededor del centro de la escena,
 //que esta como en 300, 0, -100, separados 120 grados y a distinta altura; son muy grandes y estan mucho mas lejos
@@ -223,6 +226,47 @@ float pasoHeadcrab = 0.0f;
 float pasoHeadcrabOffset = 2.5f;
 float limitePaso = 20.0f;
 bool pasoAdelante = true;
+
+
+//--- Bacteriofago en Xen (Avatar Dylan) ---
+const int NUM_PIEZAS_BACTERIOFAGO = 9;
+const char* piezasBacteriofago[NUM_PIEZAS_BACTERIOFAGO] = {
+	"cuerpoBac",
+	"pata1Bac", "pata2Bac", "pata3Bac", "pata4Bac",
+	"pata5Bac", "pata6Bac", "pata7Bac", "pata8Bac"
+};
+
+// El cuerpo (0) es la raiz (-1) y las 8 patas (1 a 8) son hijas del cuerpo (0)
+int padresBacteriofago[NUM_PIEZAS_BACTERIOFAGO] = {
+	-1, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+// Como el origen del modelo esta en la base, el pivote base parte de (0, 0.25, 0)
+// (Si deseas que cada pata gire exactamente sobre su punto naranja de Blender, 
+// puedes cambiar cada vec3 por las coordenadas (X, Z, -Y) de cada pata)
+// Pivote en el centro del anillo inferior (y = 0.42f) donde se conectan todas las patas
+glm::vec3 pivotesBacteriofago[NUM_PIEZAS_BACTERIOFAGO] = {
+	glm::vec3(0.0f, 0.0f, 0.0f),  // 0: cuerpoBac
+	glm::vec3(0.0f, 0.42f, 0.0f), // 1: pata1Bac
+	glm::vec3(0.0f, 0.42f, 0.0f), // 2: pata2Bac
+	glm::vec3(0.0f, 0.42f, 0.0f), // 3: pata3Bac
+	glm::vec3(0.0f, 0.42f, 0.0f), // 4: pata4Bac
+	glm::vec3(0.0f, 0.42f, 0.0f), // 5: pata5Bac
+	glm::vec3(0.0f, 0.42f, 0.0f), // 6: pata6Bac
+	glm::vec3(0.0f, 0.42f, 0.0f), // 7: pata7Bac
+	glm::vec3(0.0f, 0.42f, 0.0f)  // 8: pata8Bac
+};
+
+//el bacteriofago camina en circulo sobre la isla de Xen 
+//el bacteriofago camina en circulo sobre la isla de Xen (se mide desde posXen)
+Model Bacteriofago_M[NUM_PIEZAS_BACTERIOFAGO];
+glm::vec3 rotBacteriofago[NUM_PIEZAS_BACTERIOFAGO];
+glm::vec3 centroBacteriofago = glm::vec3(-6.5f, 0.0f, -2.0f);
+float radioBacteriofago = 2.0f;
+float anguloBacteriofago = 0.0f;
+float anguloBacteriofagoOffset = 0.18f; //mas lento para que camine con calma
+float escalaBacteriofago = 0.20f;
+
 
 //planeta 2, que es Pop Star, el planeta de Kirby
 Skybox skyboxPlaneta2Dia;
@@ -504,6 +548,13 @@ glm::mat4 ObtenerMatrizNavePista(float distancia, float carrilX, float alturaFlo
 
 //--- satelites y cuerpos espaciales ---
 Model Satelite_M;
+Model asteroides_M;
+Model luna_M;
+
+
+const int totalAsteroides = 16;
+const float radio = 1000.0f;
+const float pasoAngulo = 360.0f / totalAsteroides;
 
 //--- plataforma de lanzamiento y cohete ---
 //la plataforma esta en Pop Star; su lugar se mide desde el centro del piso del planeta
@@ -1304,6 +1355,13 @@ int main()
 	WallNut_M = Model();
 	WallNut_M.LoadModel("Models/WallNut/wallnut_cuerpo.obj");
 
+	for (int i = 0; i < NUM_PIEZAS_BACTERIOFAGO; i++)
+	{
+		std::string ruta = std::string("Models/bacteriofago/") + piezasBacteriofago[i] + ".obj";
+		Bacteriofago_M[i] = Model();
+		Bacteriofago_M[i].LoadModel(ruta);
+	}
+
 	//jardin de crazy dave
 	JardinCasa_M = Model();
 	JardinCasa_M.LoadModel("Models/JardinDave/jardin_casa.obj");
@@ -1383,6 +1441,10 @@ int main()
 	//--- satelites y cuerpos espaciales ---
 	Satelite_M = Model();
 	Satelite_M.LoadModel("Models/sateliteRace/sateliteRace.obj");
+	asteroides_M = Model();
+	asteroides_M.LoadModel("Models/asteroides/asteroides.obj");
+	Luna_M = Model();
+	luna_M.LoadModel("Models/luna/luna.obj");
 
 	//--- plataforma de lanzamiento y cohete ---
 	//las rutas de las piezas del cohete se arman con su nombre, igual que las de las plantas, como Models/Cohete/cohete_base.obj
@@ -2208,6 +2270,7 @@ int main()
 		//--- personajes ---
 
 		//--- planetas: Xen y planeta 2 ---
+		//glm::vec3 posPlanetaXen = glm::vec3(300.0f, 625.0f, -3600.0f);
 		//Xen
 		//el planeta Xen en el espacio es una esfera de radio 1, asi que con escala 660 queda de radio 660; gira despacio sobre Y
 		giroPlanetaXen += giroPlanetaXenOffset * deltaTime;
@@ -2219,6 +2282,40 @@ int main()
 		model = glm::scale(model, glm::vec3(660.0f, 660.0f, 660.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		XenPlaneta_M.RenderModel();
+
+		//luna
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlanetaXen);
+		model = glm::translate(model, glm::vec3(1300.0f, 1300.0f, 0.0f));
+		model = glm::rotate(model, giroPlanetaXen * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		luna_M.RenderModel();
+
+		//asteroides
+
+		for (int i = 0; i < totalAsteroides; i++) {
+			float anguloGrados = i * pasoAngulo;
+			float anguloRads = anguloGrados * toRadians;
+
+			// Posición en la circunferencia (X, Z) alrededor del planeta
+			float x = radio * cos(anguloRads);
+			float z = radio * sin(anguloRads);
+
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, posPlanetaXen); 
+				model = glm::translate(model, glm::vec3(x, 0.0f, z));
+			model = glm::rotate(model, giroPlanetaXen * toRadians, glm::vec3(0.0f, 1.0f, 0.0f)); 
+
+				model = glm::rotate(model, (i * 22.5f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+
+				model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f)); 
+
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model)); 
+				asteroides_M.RenderModel(); 
+		}
+
+		
 
 		//el suelo es una isla con la cara de arriba en y = 0 y la orilla entre 36 y 50 del centro; arriba repite la textura del suelo
 		//cada 20 unidades y abajo lleva roca, asi se ve como las islas que flotan
@@ -2696,6 +2793,73 @@ int main()
 			glm::vec3(radioHeadcrab * sin(anguloHeadcrab * toRadians), 0.0f, radioHeadcrab * cos(anguloHeadcrab * toRadians)));
 		model = glm::rotate(model, (anguloHeadcrab + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Headcrab_M, padresHeadcrab, pivotesHeadcrab, rotHeadcrab, NUM_PIEZAS_HEADCRAB, model, uniformModel);
+
+
+		//avance continuo en circulo
+		anguloBacteriofago += anguloBacteriofagoOffset * deltaTime;
+		if (anguloBacteriofago > 360.0f)
+			anguloBacteriofago -= 360.0f;
+
+		//IMPORTANTE: usar multiplicador ENTERO (2.0f) sobre anguloXen para que al reiniciar de 360 a 0
+		//no exista discontinuidad ni stutter (2 * 360 = 720 grados, ciclo exacto)
+		float ondaCuerpo = sin(anguloXen * 2.0f * toRadians);
+		float saltoBac = 0.025f * ondaCuerpo;
+		float ladeoBac = 2.0f * cos(anguloXen * 2.0f * toRadians);
+
+		//matriz raiz del cuerpo en Xen
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(10.0f, 0.0f, 10.0f));
+		model = glm::translate(model, posXen + centroBacteriofago +
+			glm::vec3(radioBacteriofago * sin(anguloBacteriofago * toRadians), saltoBac, radioBacteriofago * cos(anguloBacteriofago * toRadians)));
+		model = glm::rotate(model, (anguloBacteriofago + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, ladeoBac * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(escalaBacteriofago, escalaBacteriofago, escalaBacteriofago));
+		glm::mat4 raizBac = model;
+
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+
+		//1. Dibujado de las 8 patas usando SOLO rotacion en su pivote (sin traslacion para que no se desprendan)
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		for (int i = 1; i < NUM_PIEZAS_BACTERIOFAGO; i++)
+		{
+			//multiplicador entero (2.0f) + desfase de 90 grados entre cada pata
+			float fasePata = (anguloXen * 2.0f + i * 90.0f) * toRadians;
+
+			//avancePata (-1 a 1) balancea la punta de la pata hacia adelante y hacia atras
+			float avancePata = sin(fasePata);
+
+			//levantaPata (0 a 1 suave) levanta la rodilla de la pata cuando avanza hacia adelante
+			float levantaPata = 0.5f * (1.0f + cos(fasePata));
+
+			//solo asignamos rotaciones suaves; el origen de la pata en el anillo central no se traslada
+			rotBacteriofago[i].x = 12.0f * avancePata;
+			rotBacteriofago[i].y = 8.0f * avancePata;
+			rotBacteriofago[i].z = ((i % 2 == 0) ? 6.0f : -6.0f) * (levantaPata - 0.5f);
+
+			model = raizBac;
+			model = glm::translate(model, pivotesBacteriofago[i]);
+			model = glm::rotate(model, rotBacteriofago[i].x * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, rotBacteriofago[i].y * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::rotate(model, rotBacteriofago[i].z * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::translate(model, -pivotesBacteriofago[i]);
+
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Bacteriofago_M[i].RenderModel();
+		}
+
+		//2. Cuerpo con capside transparente al final
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(raizBac));
+		Bacteriofago_M[0].RenderModel();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		
+
+		//2. Cuerpo con capside transparente al final para respetar el Z-buffer
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(raizBac));
+		Bacteriofago_M[0].RenderModel();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		//planeta 2
 		//Pop Star mide como 1.8 de la punta al centro, asi que con escala 540 cada punta sale unas 970 unidades
