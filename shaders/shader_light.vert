@@ -14,13 +14,15 @@ uniform mat4 model;
 uniform mat4 projection;
 uniform mat4 view;
 uniform vec3 color;
+//se suma a las coordenadas de textura para mover la textura sin mover el objeto; vale 0 en todos menos en el charco de Xen
+uniform vec2 toffset;
 
 
 void main()
 {
 	gl_Position = projection * view * model * vec4(pos, 1.0);
 	vColor=vec4(color,1.0f);
-	TexCoord = tex;
+	TexCoord = tex + toffset;
 	//la normal tambien se transforma con el modelo; la inversa transpuesta es para que no se deforme
 	//cuando el objeto tiene escalas no uniformes
 	Normal = mat3(transpose(inverse(model))) * norm;

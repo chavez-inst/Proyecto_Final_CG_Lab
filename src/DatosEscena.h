@@ -126,19 +126,128 @@ glm::vec3 pivotesHeadcrab[NUM_PIEZAS_HEADCRAB] = {
 	glm::vec3(0.20f, 0.165f, -0.12f)      //garra_tras_izq
 };
 
-//islas flotantes de Xen
-glm::vec3 posIslas[3] = {
+//criaturas de Xen; todas miran hacia Z positivo y tienen los pies en y = 0
+//el houndeye mide 0.75 de alto y tiene dos patas adelante y una atras, que giran donde tocan el cuerpo
+const int NUM_PIEZAS_HOUNDEYE = 4;
+const char* piezasHoundeye[NUM_PIEZAS_HOUNDEYE] = {
+	"cuerpo", "pata_del_der", "pata_del_izq", "pata_tras" };
+int padresHoundeye[NUM_PIEZAS_HOUNDEYE] = { -1, 0, 0, 0 };
+glm::vec3 pivotesHoundeye[NUM_PIEZAS_HOUNDEYE] = {
+	glm::vec3(0.0f, 0.5f, 0.0f),         //cuerpo
+	glm::vec3(-0.22f, 0.5f, 0.14f),      //pata_del_der
+	glm::vec3(0.22f, 0.5f, 0.14f),       //pata_del_izq
+	glm::vec3(0.0f, 0.4f, -0.31f)        //pata_tras
+};
+//el bullsquid mide 0.9 de alto y 2.6 de largo con la cola; el cuerpo y las patas giran en la misma linea de la cadera,
+//asi el cuerpo se puede echar hacia atras mientras las patas se quedan en el piso
+const int NUM_PIEZAS_BULLSQUID = 5;
+const char* piezasBullsquid[NUM_PIEZAS_BULLSQUID] = {
+	"cuerpo", "tentaculos", "cola", "pata_der", "pata_izq" };
+int padresBullsquid[NUM_PIEZAS_BULLSQUID] = { -1, 0, 0, 0, 0 };
+glm::vec3 pivotesBullsquid[NUM_PIEZAS_BULLSQUID] = {
+	glm::vec3(0.0f, 0.7f, 0.15f),        //cuerpo, gira en la cadera
+	glm::vec3(-0.11f, 0.5f, 0.65f),      //tentaculos, giran donde empieza la boca
+	glm::vec3(0.0f, 0.7f, 0.0f),         //cola
+	glm::vec3(-0.4f, 0.7f, 0.15f),       //pata_der
+	glm::vec3(0.4f, 0.7f, 0.15f)         //pata_izq
+};
+//el vortigaunt mide 1.3 de alto, encorvado; las piernas van con el cuerpo porque se queda en su lugar
+const int NUM_PIEZAS_VORTIGAUNT = 4;
+const char* piezasVortigaunt[NUM_PIEZAS_VORTIGAUNT] = {
+	"cuerpo", "cabeza", "brazo_der", "brazo_izq" };
+int padresVortigaunt[NUM_PIEZAS_VORTIGAUNT] = { -1, 0, 0, 0 };
+glm::vec3 pivotesVortigaunt[NUM_PIEZAS_VORTIGAUNT] = {
+	glm::vec3(0.0f, 0.9f, 0.0f),         //cuerpo
+	glm::vec3(0.0f, 0.95f, 0.3f),        //cabeza, gira en el cuello
+	glm::vec3(-0.3f, 0.86f, -0.05f),     //brazo_der, gira en el hombro
+	glm::vec3(0.3f, 0.86f, -0.05f)       //brazo_izq
+};
+//el alien grunt mide 1.9 de alto; trae el arma en el brazo derecho, la garra en el izquierdo y un brazo chico en el pecho
+//el modelo viene a medio paso, con la pierna derecha adelante y la izquierda atras
+const int NUM_PIEZAS_GRUNT = 6;
+const char* piezasGrunt[NUM_PIEZAS_GRUNT] = {
+	"cuerpo", "arma", "brazo_izq", "brazo_chico", "pierna_der", "pierna_izq" };
+int padresGrunt[NUM_PIEZAS_GRUNT] = { -1, 0, 0, 0, 0, 0 };
+glm::vec3 pivotesGrunt[NUM_PIEZAS_GRUNT] = {
+	glm::vec3(0.0f, 0.9f, -0.2f),        //cuerpo
+	glm::vec3(-0.58f, 1.25f, -0.3f),     //arma, gira en el hombro
+	glm::vec3(0.58f, 1.28f, -0.35f),     //brazo_izq
+	glm::vec3(-0.05f, 1.25f, 0.0f),      //brazo_chico
+	glm::vec3(-0.25f, 0.85f, -0.1f),     //pierna_der, gira en la cadera
+	glm::vec3(0.22f, 0.85f, -0.3f)       //pierna_izq
+};
+//el boid es plano y mide 6.2 de punta a punta; cada mitad del ala gira en el centro del cuerpo y la punta cuelga de ella,
+//por eso las dos mitades no tienen padre
+const int NUM_PIEZAS_BOID = 4;
+const char* piezasBoid[NUM_PIEZAS_BOID] = {
+	"ala_der", "punta_der", "ala_izq", "punta_izq" };
+int padresBoid[NUM_PIEZAS_BOID] = { -1, 0, -1, 2 };
+glm::vec3 pivotesBoid[NUM_PIEZAS_BOID] = {
+	glm::vec3(0.0f, 0.25f, 0.0f),        //ala_der
+	glm::vec3(-1.95f, 0.27f, -0.3f),     //punta_der
+	glm::vec3(0.0f, 0.25f, 0.0f),        //ala_izq
+	glm::vec3(1.95f, 0.27f, -0.3f)       //punta_izq
+};
+//el arbol de Xen mide 5 de alto y el brazo sale de la punta del tronco hacia el frente
+const int NUM_PIEZAS_ARBOL_XEN = 2;
+const char* piezasArbolXen[NUM_PIEZAS_ARBOL_XEN] = { "tronco", "brazo" };
+int padresArbolXen[NUM_PIEZAS_ARBOL_XEN] = { -1, 0 };
+glm::vec3 pivotesArbolXen[NUM_PIEZAS_ARBOL_XEN] = {
+	glm::vec3(0.0f, 2.5f, 0.0f),         //tronco
+	glm::vec3(-0.2f, 4.75f, 0.35f)       //brazo, gira donde se une con el tronco
+};
+
+//arboles de Xen, cada uno girado para que su brazo vea hacia el centro
+const int NUM_ARBOLES_XEN = 4;
+glm::vec3 posArbolesXen[NUM_ARBOLES_XEN] = {
+	glm::vec3(-17.0f, 0.0f, -18.0f),
+	glm::vec3(15.0f, 0.0f, -20.0f),
+	glm::vec3(-24.0f, 0.0f, -3.0f),
+	glm::vec3(24.0f, 0.0f, 0.0f) };
+float giroArbolesXen[NUM_ARBOLES_XEN] = { 45.0f, -38.0f, 98.0f, -90.0f };
+float escalaArbolesXen[NUM_ARBOLES_XEN] = { 1.4f, 1.6f, 1.3f, 1.5f };
+
+//cristales de Xen; el spotlight morado alumbra el primero
+const int NUM_CRISTALES = 12;
+glm::vec3 posCristales[NUM_CRISTALES] = {
+	glm::vec3(-10.0f, 0.0f, -3.0f),
+	glm::vec3(11.0f, 0.0f, 3.0f),
+	glm::vec3(-4.0f, 0.0f, 6.0f),
+	glm::vec3(12.0f, 0.0f, -12.0f),
+	glm::vec3(-15.0f, 0.0f, -13.0f),
+	glm::vec3(16.0f, 0.0f, -6.0f),
+	glm::vec3(-21.0f, 0.0f, 5.0f),
+	glm::vec3(19.0f, 0.0f, -24.0f),
+	glm::vec3(-22.0f, 0.0f, -26.0f),
+	glm::vec3(3.0f, 0.0f, -23.0f),
+	glm::vec3(26.0f, 0.0f, 12.0f),
+	glm::vec3(-11.0f, 0.0f, 13.0f) };
+float giroCristales[NUM_CRISTALES] = { 0.0f, 70.0f, 150.0f, 0.0f, 30.0f, 200.0f, 100.0f, 15.0f, 250.0f, 80.0f, 160.0f, 300.0f };
+float escalaCristales[NUM_CRISTALES] = { 1.2f, 1.0f, 0.7f, 2.0f, 1.6f, 1.1f, 2.4f, 3.0f, 2.2f, 1.8f, 2.0f, 0.9f };
+
+//islas flotantes de Xen; con cosaIsla en 0 la isla no lleva nada encima, con 1 lleva un cristal y con 2 una planta de luz
+//el crewmate escondido de Xen esta parado en la primera
+const int NUM_ISLAS = 7;
+glm::vec3 posIslas[NUM_ISLAS] = {
 	glm::vec3(-20.0f, 12.0f, -30.0f),
 	glm::vec3(25.0f, 18.0f, -20.0f),
-	glm::vec3(5.0f, 25.0f, -45.0f) };
-float escalaIslas[3] = { 3.0f, 4.0f, 6.0f };
+	glm::vec3(5.0f, 25.0f, -45.0f),
+	glm::vec3(-32.0f, 20.0f, 6.0f),
+	glm::vec3(30.0f, 30.0f, -38.0f),
+	glm::vec3(-8.0f, 35.0f, -55.0f),
+	glm::vec3(38.0f, 15.0f, 18.0f) };
+float escalaIslas[NUM_ISLAS] = { 3.0f, 4.0f, 6.0f, 5.0f, 7.0f, 9.0f, 4.0f };
+int cosaIsla[NUM_ISLAS] = { 0, 1, 0, 2, 1, 0, 2 };
 
-//plantas de luz de Xen
-const int NUM_PLANTAS = 3;
+//plantas de luz de Xen; solo las primeras NUM_LUMINARIAS_XEN tienen luz para no pasar del limite de la zona
+const int NUM_PLANTAS = 6;
 glm::vec3 posPlantas[NUM_PLANTAS] = {
 	glm::vec3(-7.0f, 0.0f, 2.0f),
 	glm::vec3(8.5f, 0.0f, 0.0f),
-	glm::vec3(2.0f, 0.0f, -15.0f) };
+	glm::vec3(2.0f, 0.0f, -15.0f),
+	glm::vec3(-14.0f, 0.0f, -5.0f),
+	glm::vec3(15.0f, 0.0f, -17.0f),
+	glm::vec3(-4.0f, 0.0f, -21.0f) };
 
 //las colinas del planeta 2 van en las orillas del mapa como paisaje, porque la camara no choca con nada y las atravesaria
 //el modelo mide 1 de radio y 0.4 de alto, y se baja para que la orilla, donde la textura se estira, quede enterrada

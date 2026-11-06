@@ -1,0 +1,8 @@
+newmtl suelo
+Kd 1 1 1
+map_Kd xen_suelo.png
+
+newmtl roca
+Kd 1 1 1
+map_Kd xen_roca.png
+

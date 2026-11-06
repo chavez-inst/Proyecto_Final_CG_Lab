@@ -1,0 +1,8 @@
+Model Information:
+* title:	[Half- Life (Prototypes)] Boid
+* source:	https://sketchfab.com/3d-models/half-life-prototypes-boid-6d358cb6225b4c8ca3e8e9a53890acd8
+* author:	StarlightLambda64 (https://sketchfab.com/Starlight_lambda64)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

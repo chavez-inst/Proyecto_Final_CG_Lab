@@ -68,8 +68,8 @@ SpotLight spotLights[MAX_SPOT_LIGHTS];
 static const char* vShader = "shaders/shader_light.vert";
 static const char* fShader = "shaders/shader_light.frag";
 
-//la superficie de cada planeta es un piso aparte de 200 por 200 y muy lejos del espacio; como el plano lejano
-//de la perspectiva esta en 7000 y lo mas lejano del espacio queda a menos de 5000 del centro, nunca se ven juntos
+//la superficie de cada planeta es un piso aparte y muy lejos del espacio; en Xen es una isla y en los demas un cuadrado de 200 por 200
+//como el plano lejano de la perspectiva esta en 7000 y lo mas lejano del espacio queda a menos de 5000 del centro, nunca se ven juntos
 glm::vec3 posXen = glm::vec3(15000.0f, 0.0f, 0.0f);
 glm::vec3 posPlaneta2 = glm::vec3(-15000.0f, 0.0f, 0.0f);
 glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 15000.0f);
@@ -95,28 +95,110 @@ glm::vec3 rotKirby[NUM_PIEZAS_KIRBY];
 //Xen
 Skybox skyboxXenDia;
 Skybox skyboxXenNoche;
-Texture xenSueloTexture;
 //el planeta que se ve desde el espacio es una esfera que gira sobre su eje
 Model XenPlaneta_M;
 glm::vec3 posPlanetaXen = glm::vec3(300.0f, 625.0f, -3600.0f);
 float giroPlanetaXen = 0.0f;
 float giroPlanetaXenOffset = 0.05f;
+//el suelo es una isla flotante grande, plana arriba y con una punta de roca abajo
+Model XenSuelo_M;
 //objetos de la superficie
 Model XenCristal_M;
 Model XenIsla_M;
 Model XenTallo_M;
 Model XenFoco_M;
-//criaturas acomodadas de la mas simple a la mas evolucionada
-Model Houndeye_M;
-Model Bullsquid_M;
-Model Vortigaunt_M;
-Model AlienGrunt_M;
+//las criaturas son por piezas; sus pasos y balanceos salen del seno de anguloXen por un numero entero, como en Pop Star
+Model Houndeye_M[NUM_PIEZAS_HOUNDEYE];
+glm::vec3 rotHoundeye[NUM_PIEZAS_HOUNDEYE];
+Model Bullsquid_M[NUM_PIEZAS_BULLSQUID];
+glm::vec3 rotBullsquid[NUM_PIEZAS_BULLSQUID];
+Model Vortigaunt_M[NUM_PIEZAS_VORTIGAUNT];
+glm::vec3 rotVortigaunt[NUM_PIEZAS_VORTIGAUNT];
+Model AlienGrunt_M[NUM_PIEZAS_GRUNT];
+glm::vec3 rotGrunt[NUM_PIEZAS_GRUNT];
+float anguloXen = 0.0f;
+float anguloXenOffset = 2.0f;
+//los houndeyes andan en grupo de tres dando vueltas en un circulo, separados 120 grados
+//cada cierto tiempo se detienen, se agachan abriendo las patas y se levantan de golpe, que es su ataque sonico;
+//estadoHoundeye vale 0 caminando, 1 agachandose y 2 levantandose, y agacheHoundeye va de 0 parado a 1 agachado
+const int NUM_HOUNDEYES = 3;
+glm::vec3 centroHoundeyes = glm::vec3(7.0f, 0.0f, -5.0f); //se mide desde posXen
+float radioHoundeyes = 2.2f;
+float anguloHoundeyes = 0.0f;
+float anguloHoundeyesOffset = 0.5f;
+int estadoHoundeye = 0;
+float agacheHoundeye = 0.0f;
+float tiempoHoundeye = 0.0f;
+float tiempoCaminaHoundeye = 300.0f; //como deltaTime suma como 61 en un segundo, son como 5 segundos
+float bajaHoundeye = 0.012f;
+float subeHoundeye = 0.15f;
+//el bullsquid mueve la cola y los tentaculos todo el tiempo; cada cierto tiempo se echa hacia atras despacio
+//y luego se avienta hacia adelante como cuando escupe; estadoBullsquid vale 0 esperando, 1 echandose, 2 escupiendo y 3 regresando
+int estadoBullsquid = 0;
+float inclinaBullsquid = 0.0f;
+float esperaBullsquid = 0.0f;
+float tiempoEsperaBullsquid = 240.0f;
+float atrasBullsquid = -15.0f;
+float adelanteBullsquid = 10.0f;
+//el vortigaunt junta energia levantando los brazos poco a poco; cargaVortigaunt va de 0 a 1 y tambien
+//prende su luz verde, que se apaga de golpe cuando suelta la energia; estadoVortigaunt vale 0 cargando,
+//1 soltando y 2 esperando
+int estadoVortigaunt = 0;
+float cargaVortigaunt = 0.0f;
+float esperaVortigaunt = 0.0f;
+float tiempoEsperaVortigaunt = 120.0f;
+glm::vec3 posVortigaunt = glm::vec3(0.5f, 0.0f, -6.0f); //se mide desde posXen
+//el alien grunt patrulla de ida y vuelta en X entre -limiteGrunt y limiteGrunt alrededor de su centro;
+//al llegar a cada limite levanta el arma, apunta un rato, la baja y se voltea poco a poco hacia el otro lado
+//estadoGrunt vale 0 caminando, 1 levantando el arma, 2 apuntando y 3 bajandola, y apuntaGrunt va de 0 a 1
+glm::vec3 centroGrunt = glm::vec3(6.0f, 0.0f, -13.0f); //se mide desde posXen
+float posGrunt = 0.0f;
+float posGruntOffset = 0.02f;
+float limiteGrunt = 3.5f;
+bool gruntAdelante = true;
+float rumboGrunt = 90.0f;
+float rumboGruntOffset = 3.0f;
+int estadoGrunt = 0;
+float apuntaGrunt = 0.0f;
+float esperaGrunt = 0.0f;
+float tiempoApuntaGrunt = 90.0f;
+//el charco tiene una textura de liquido que se recorre con un offset de UV, como en la practica 9
+Model XenCharco_M;
+glm::vec3 posCharco = glm::vec3(-6.0f, 0.02f, -8.0f); //se sube un poco para que no se pelee con el suelo
+float charcoU = 0.0f;
+float charcoV = 0.0f;
+//los arboles de Xen esperan y de repente azotan el brazo hacia abajo, cada uno a su tiempo; estadoArbol vale
+//0 esperando, 1 levantando el brazo y 2 azotandolo, y golpeArbol son los grados que gira el brazo en X
+Model ArbolXen_M[NUM_PIEZAS_ARBOL_XEN];
+glm::vec3 rotArbolXen[NUM_PIEZAS_ARBOL_XEN];
+int estadoArbol[NUM_ARBOLES_XEN] = { 0, 0, 0, 0 };
+float golpeArbol[NUM_ARBOLES_XEN] = { 0.0f, 0.0f, 0.0f, 0.0f };
+float esperaArbol[NUM_ARBOLES_XEN] = { 0.0f, 100.0f, 200.0f, 50.0f }; //empiezan con tiempos distintos para no ir juntos
+float tiempoEsperaArbol = 300.0f;
+float subeArbol = 1.0f;
+float bajaArbol = 8.0f;
+float arribaArbol = -60.0f; //con los negativos la punta del brazo sube hacia el frente
+float pisoArbol = 12.0f;    //con 12 grados el brazo queda un poco mas abajo que como viene en el modelo
+//una bandada de boids vuela en circulo sobre la isla; cada uno aletea con el seno de anguloXen
+//y la punta del ala va un poco atrasada para que el ala se doble
+Model Boid_M[NUM_PIEZAS_BOID];
+glm::vec3 rotBoid[NUM_PIEZAS_BOID];
+const int NUM_BOIDS = 5;
+glm::vec3 centroBoids = glm::vec3(0.0f, 22.0f, -12.0f); //se mide desde posXen
+float radioBoids = 20.0f;
+float anguloBoids = 0.0f;
+float anguloBoidsOffset = 0.25f;
+//el Nihilanth flota muy lejos, afuera de la isla, y voltea despacio de un lado a otro mientras sube y baja
+Model Nihilanth_M;
+glm::vec3 posNihilanth = glm::vec3(127.0f, 50.0f, -265.0f); //se mide desde posXen; asi queda arriba a la derecha y las islas no lo tapan
+float giroNihilanth = 0.0f;
+float giroNihilanthOffset = 0.5f;
 //las islas flotantes suben y bajan con el seno de un angulo que avanza cada frame
 float anguloIslas = 0.0f;
 float anguloIslasOffset = 0.6f;
 //las plantas de luz se esconden en el piso y vuelven a salir cada cierto tiempo, como en Half-Life
 //alturaPlantas escala el tallo en Y, vale 1 cuando la planta esta parada y 0.1 cuando esta escondida
-float alturaPlantas[NUM_PLANTAS] = { 1.0f, 1.0f, 1.0f };
+float alturaPlantas[NUM_PLANTAS] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 float altoTallo = 1.62f; //altura de la punta del tallo, ahi va el foco
 //tiempoPlantas cuenta cuanto lleva el estado actual; con estos tiempos duran unos 5 segundos paradas y 3 escondidas
 float tiempoPlantas = 0.0f;
@@ -566,6 +648,8 @@ float velocidadAvatar = 0.08f;
 float giroAvatarOffset = 2.5f;
 //como el piso mide 200 por 200 y llega a 100, el avatar se detiene un poco antes de la orilla
 float limitePisoAvatar = 95.0f;
+//en Xen el suelo es una isla con la orilla irregular que nunca queda a menos de 36 del centro, asi que ahi el limite es un circulo un poco mas chico
+float limiteIslaXen = 32.0f;
 //mientras camina, los pies y las manos van y vienen entre -limitePasoAvatar y limitePasoAvatar, como las patas del headcrab
 float pasoAvatar = 0.0f;
 float pasoAvatarOffset = 3.0f;
@@ -675,6 +759,8 @@ const int NUM_LUMINARIAS_ESPACIO = 5;
 PointLight luminariasEspacio[NUM_LUMINARIAS_ESPACIO];
 const int NUM_LUMINARIAS_XEN = 3;
 PointLight luminariasXen[NUM_LUMINARIAS_XEN];
+//luz verde de las manos del vortigaunt, que brilla mas entre mas energia junta; se arma otra vez en cada frame
+PointLight luzVortigaunt;
 PointLight luminariaPlaneta2;
 PointLight luminariaVerdania;
 //spotlights de cada zona, se prenden y apagan con la K
@@ -943,11 +1029,14 @@ int main()
 	skyboxXenDia = Skybox(carasXenDia);
 	skyboxXenNoche = Skybox(carasXenNoche);
 
-	xenSueloTexture = Texture("Textures/xen_suelo.png");
-	xenSueloTexture.LoadTextureA();
-
 	XenPlaneta_M = Model();
 	XenPlaneta_M.LoadModel("Models/Xen/xen_planeta.obj");
+	XenSuelo_M = Model();
+	XenSuelo_M.LoadModel("Models/Xen/xen_suelo_isla.obj");
+	XenCharco_M = Model();
+	XenCharco_M.LoadModel("Models/Xen/xen_charco.obj");
+	Nihilanth_M = Model();
+	Nihilanth_M.LoadModel("Models/Nihilanth/nihilanth.obj");
 	XenCristal_M = Model();
 	XenCristal_M.LoadModel("Models/Xen/xen_cristal.obj");
 	XenIsla_M = Model();
@@ -957,14 +1046,37 @@ int main()
 	XenFoco_M = Model();
 	XenFoco_M.LoadModel("Models/Xen/xen_planta_foco.obj");
 
-	Houndeye_M = Model();
-	Houndeye_M.LoadModel("Models/Houndeye/houndeye.obj");
-	Bullsquid_M = Model();
-	Bullsquid_M.LoadModel("Models/Bullsquid/bullsquid.obj");
-	Vortigaunt_M = Model();
-	Vortigaunt_M.LoadModel("Models/Vortigaunt/vortigaunt.obj");
-	AlienGrunt_M = Model();
-	AlienGrunt_M.LoadModel("Models/AlienGrunt/aliengrunt.obj");
+	//las piezas de cada modelo se cargan igual que las del headcrab, armando la ruta con el nombre de la pieza
+	for (int i = 0; i < NUM_PIEZAS_HOUNDEYE; i++)
+	{
+		Houndeye_M[i] = Model();
+		Houndeye_M[i].LoadModel(std::string("Models/Houndeye/houndeye_") + piezasHoundeye[i] + ".obj");
+	}
+	for (int i = 0; i < NUM_PIEZAS_BULLSQUID; i++)
+	{
+		Bullsquid_M[i] = Model();
+		Bullsquid_M[i].LoadModel(std::string("Models/Bullsquid/bullsquid_") + piezasBullsquid[i] + ".obj");
+	}
+	for (int i = 0; i < NUM_PIEZAS_VORTIGAUNT; i++)
+	{
+		Vortigaunt_M[i] = Model();
+		Vortigaunt_M[i].LoadModel(std::string("Models/Vortigaunt/vortigaunt_") + piezasVortigaunt[i] + ".obj");
+	}
+	for (int i = 0; i < NUM_PIEZAS_GRUNT; i++)
+	{
+		AlienGrunt_M[i] = Model();
+		AlienGrunt_M[i].LoadModel(std::string("Models/AlienGrunt/aliengrunt_") + piezasGrunt[i] + ".obj");
+	}
+	for (int i = 0; i < NUM_PIEZAS_BOID; i++)
+	{
+		Boid_M[i] = Model();
+		Boid_M[i].LoadModel(std::string("Models/Boid/boid_") + piezasBoid[i] + ".obj");
+	}
+	for (int i = 0; i < NUM_PIEZAS_ARBOL_XEN; i++)
+	{
+		ArbolXen_M[i] = Model();
+		ArbolXen_M[i].LoadModel(std::string("Models/XenArbol/xen_arbol_") + piezasArbolXen[i] + ".obj");
+	}
 
 	for (int i = 0; i < NUM_PIEZAS_HEADCRAB; i++)
 	{
@@ -1406,6 +1518,8 @@ int main()
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	GLuint uniformColor = 0;
+	GLuint uniformTextureOffset = 0;
+	glm::vec2 toffset = glm::vec2(0.0f, 0.0f);
 	//el angulo de glm::perspective va en radianes, por eso 45.0f da una vista de unos 58 grados y no de 45
 	//el plano lejano esta en 7000 para que desde cualquier parte del espacio se vean los planetas, que estan lejos
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 7000.0f);
@@ -1565,6 +1679,16 @@ int main()
 				posAvatar.z = limitePisoAvatar;
 			if (posAvatar.z < -limitePisoAvatar)
 				posAvatar.z = -limitePisoAvatar;
+			//si se pasa del circulo, se regresa a la orilla sobre la misma linea que va al centro de la isla
+			if (zonaAvatar == 1)
+			{
+				float distancia = sqrt(posAvatar.x * posAvatar.x + posAvatar.z * posAvatar.z);
+				if (distancia > limiteIslaXen)
+				{
+					posAvatar.x = posAvatar.x * limiteIslaXen / distancia;
+					posAvatar.z = posAvatar.z * limiteIslaXen / distancia;
+				}
+			}
 
 			//la camara 2 va atras del avatar y a una altura fija, asi que se mueve en un plano paralelo al piso
 			glm::vec3 posAvatarMundo = centroAvatar + posAvatar;
@@ -1708,6 +1832,10 @@ int main()
 		uniformView = shaderList[0].GetViewLocation();
 		uniformEyePosition = shaderList[0].GetEyePositionLocation();
 		uniformColor = shaderList[0].getColorLocation();
+		uniformTextureOffset = shaderList[0].getOffsetLocation();
+		//las texturas van quietas; solo el charco de Xen cambia el offset y al terminar lo regresa a 0
+		toffset = glm::vec2(0.0f, 0.0f);
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 
 		//intensidad especular y brillo del material
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
@@ -1811,6 +1939,14 @@ int main()
 					pointLightCount++;
 				}
 			}
+			//la luz del vortigaunt va enfrente de sus manos y su intensidad sube con la carga, de dia y de noche
+			glm::vec3 manosVortigaunt = posXen + posVortigaunt + glm::vec3(0.0f, 0.8f, 0.8f);
+			luzVortigaunt = PointLight(0.3f, 1.0f, 0.4f,
+				0.0f, 3.0f * cargaVortigaunt,
+				manosVortigaunt.x, manosVortigaunt.y, manosVortigaunt.z,
+				1.0f, 0.3f, 0.15f);
+			pointLights[pointLightCount] = luzVortigaunt;
+			pointLightCount++;
 			if (mainWindow.getlucesEscenario())
 			{
 				spotLights[spotLightCount] = spotXen;
@@ -1873,62 +2009,272 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		XenPlaneta_M.RenderModel();
 
-		//el piso base mide 20 por 20 y su textura se repite 10 veces, asi que con escala 10 el piso de Xen queda de 200 por 200
+		//el suelo es una isla con la cara de arriba en y = 0 y la orilla entre 36 y 50 del centro; arriba repite la textura del suelo
+		//cada 20 unidades y abajo lleva roca, asi se ve como las islas que flotan
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posXen);
-		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		xenSueloTexture.UseTexture();
-		meshListModel[0]->RenderMeshModel();
+		XenSuelo_M.RenderModel();
 
-		//criaturas de la mas simple a la mas evolucionada, viendo hacia donde llega la camara
-		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(-5.0f, 0.0f, -3.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Houndeye_M.RenderModel();
+		//criaturas de Xen; como en Pop Star, primero se ponen los grados de cada pieza, luego la matriz model con su lugar
+		//y hacia donde mira, y al final DibujaJerarquia
+		anguloXen += anguloXenOffset * deltaTime;
+		if (anguloXen > 360.0f)
+			anguloXen -= 360.0f;
 
-		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(-1.5f, 0.0f, -4.5f));
-		model = glm::rotate(model, 20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Bullsquid_M.RenderModel();
+		//los houndeyes caminan hasta que se acaba su tiempo, luego se agachan despacio y se levantan de golpe
+		if (estadoHoundeye == 0)
+		{
+			anguloHoundeyes += anguloHoundeyesOffset * deltaTime;
+			if (anguloHoundeyes > 360.0f)
+				anguloHoundeyes -= 360.0f;
+			tiempoHoundeye += deltaTime;
+			if (tiempoHoundeye > tiempoCaminaHoundeye)
+			{
+				tiempoHoundeye = 0.0f;
+				estadoHoundeye = 1;
+			}
+		}
+		else if (estadoHoundeye == 1)
+		{
+			agacheHoundeye += bajaHoundeye * deltaTime;
+			if (agacheHoundeye > 1.0f)
+			{
+				agacheHoundeye = 1.0f;
+				estadoHoundeye = 2;
+			}
+		}
+		else
+		{
+			agacheHoundeye -= subeHoundeye * deltaTime;
+			if (agacheHoundeye < 0.0f)
+			{
+				agacheHoundeye = 0.0f;
+				estadoHoundeye = 0;
+			}
+		}
+		for (int i = 0; i < NUM_HOUNDEYES; i++)
+		{
+			//al caminar las dos patas de adelante van juntas y al reves de la de atras, y cada houndeye va desfasado
+			//para que no den los pasos al mismo tiempo
+			float pasoHoundeye = 0.0f;
+			if (estadoHoundeye == 0)
+				pasoHoundeye = sin((anguloXen * 5.0f + i * 120.0f) * toRadians);
+			rotHoundeye[1].x = 20.0f * pasoHoundeye;
+			rotHoundeye[2].x = 20.0f * pasoHoundeye;
+			rotHoundeye[3].x = -20.0f * pasoHoundeye;
+			//al agacharse las patas de adelante se abren hacia los lados y la de atras se va hacia atras
+			rotHoundeye[1].z = -35.0f * agacheHoundeye; //pata_del_der
+			rotHoundeye[2].z = 35.0f * agacheHoundeye;  //pata_del_izq
+			rotHoundeye[3].x += 35.0f * agacheHoundeye; //pata_tras
+			//con el valor absoluto del seno el cuerpo da saltitos sin meterse al piso; agachado baja lo que suben las patas al abrirse
+			float saltoHoundeye = 0.06f * fabs(pasoHoundeye) - 0.05f * agacheHoundeye;
+			float angulo = anguloHoundeyes + i * 120.0f;
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posXen + centroHoundeyes +
+				glm::vec3(radioHoundeyes * sin(angulo * toRadians), saltoHoundeye, radioHoundeyes * cos(angulo * toRadians)));
+			model = glm::rotate(model, (angulo + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			DibujaJerarquia(Houndeye_M, padresHoundeye, pivotesHoundeye, rotHoundeye, NUM_PIEZAS_HOUNDEYE, model, uniformModel);
+		}
 
+		//el bullsquid espera, se echa hacia atras despacio, se avienta hacia adelante rapido y regresa a su pose
+		if (estadoBullsquid == 0)
+		{
+			esperaBullsquid += deltaTime;
+			if (esperaBullsquid > tiempoEsperaBullsquid)
+			{
+				esperaBullsquid = 0.0f;
+				estadoBullsquid = 1;
+			}
+		}
+		else if (estadoBullsquid == 1)
+		{
+			inclinaBullsquid -= 0.3f * deltaTime;
+			if (inclinaBullsquid < atrasBullsquid)
+				estadoBullsquid = 2;
+		}
+		else if (estadoBullsquid == 2)
+		{
+			inclinaBullsquid += 2.5f * deltaTime;
+			if (inclinaBullsquid > adelanteBullsquid)
+			{
+				inclinaBullsquid = adelanteBullsquid;
+				estadoBullsquid = 3;
+			}
+		}
+		else
+		{
+			inclinaBullsquid -= 0.3f * deltaTime;
+			if (inclinaBullsquid < 0.0f)
+			{
+				inclinaBullsquid = 0.0f;
+				estadoBullsquid = 0;
+			}
+		}
+		//las patas giran lo contrario que el cuerpo sobre la misma linea de la cadera, asi se quedan como estaban
+		rotBullsquid[0].x = inclinaBullsquid;   //cuerpo
+		rotBullsquid[3].x = -inclinaBullsquid;  //pata_der
+		rotBullsquid[4].x = -inclinaBullsquid;  //pata_izq
+		rotBullsquid[2].y = 20.0f * sin(anguloXen * 2.0f * toRadians); //cola
+		rotBullsquid[2].x = 5.0f * sin(anguloXen * 4.0f * toRadians);
+		//los tentaculos se mueven mas hacia arriba que hacia abajo para que no toquen el piso
+		rotBullsquid[1].x = -4.0f + 6.0f * sin(anguloXen * 6.0f * toRadians); //tentaculos
+		rotBullsquid[1].y = 6.0f * sin(anguloXen * 3.0f * toRadians);
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(2.5f, 0.0f, -4.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Vortigaunt_M.RenderModel();
+		model = glm::translate(model, posXen + glm::vec3(-6.0f, 0.0f, -12.0f));
+		DibujaJerarquia(Bullsquid_M, padresBullsquid, pivotesBullsquid, rotBullsquid, NUM_PIEZAS_BULLSQUID, model, uniformModel);
 
+		//el vortigaunt carga despacio, suelta la energia de golpe y espera antes de volver a cargar
+		if (estadoVortigaunt == 0)
+		{
+			cargaVortigaunt += 0.006f * deltaTime;
+			if (cargaVortigaunt > 1.0f)
+			{
+				cargaVortigaunt = 1.0f;
+				estadoVortigaunt = 1;
+			}
+		}
+		else if (estadoVortigaunt == 1)
+		{
+			cargaVortigaunt -= 0.08f * deltaTime;
+			if (cargaVortigaunt < 0.0f)
+			{
+				cargaVortigaunt = 0.0f;
+				esperaVortigaunt = 0.0f;
+				estadoVortigaunt = 2;
+			}
+		}
+		else
+		{
+			esperaVortigaunt += deltaTime;
+			if (esperaVortigaunt > tiempoEsperaVortigaunt)
+				estadoVortigaunt = 0;
+		}
+		//con la carga los brazos suben hacia el frente y se abren un poco, y la cabeza deja de voltear para ver hacia arriba
+		float meceVortigaunt = 3.0f * sin(anguloXen * 2.0f * toRadians);
+		rotVortigaunt[2].x = -45.0f * cargaVortigaunt + meceVortigaunt; //brazo_der
+		rotVortigaunt[2].z = -20.0f * cargaVortigaunt;
+		rotVortigaunt[3].x = -45.0f * cargaVortigaunt - meceVortigaunt; //brazo_izq
+		rotVortigaunt[3].z = 20.0f * cargaVortigaunt;
+		rotVortigaunt[1].y = 25.0f * sin(anguloXen * toRadians) * (1.0f - cargaVortigaunt); //cabeza
+		rotVortigaunt[1].x = -15.0f * cargaVortigaunt;
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(6.0f, 0.0f, -3.5f));
-		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		AlienGrunt_M.RenderModel();
+		model = glm::translate(model, posXen + posVortigaunt);
+		DibujaJerarquia(Vortigaunt_M, padresVortigaunt, pivotesVortigaunt, rotVortigaunt, NUM_PIEZAS_VORTIGAUNT, model, uniformModel);
 
-		//cristales
+		//el alien grunt camina hasta un limite, levanta el arma, apunta un rato, la baja y se regresa
+		if (estadoGrunt == 0)
+		{
+			if (gruntAdelante)
+			{
+				posGrunt += posGruntOffset * deltaTime;
+				if (posGrunt > limiteGrunt)
+				{
+					posGrunt = limiteGrunt;
+					estadoGrunt = 1;
+				}
+			}
+			else
+			{
+				posGrunt -= posGruntOffset * deltaTime;
+				if (posGrunt < -limiteGrunt)
+				{
+					posGrunt = -limiteGrunt;
+					estadoGrunt = 1;
+				}
+			}
+		}
+		else if (estadoGrunt == 1)
+		{
+			apuntaGrunt += 0.03f * deltaTime;
+			if (apuntaGrunt > 1.0f)
+			{
+				apuntaGrunt = 1.0f;
+				esperaGrunt = 0.0f;
+				estadoGrunt = 2;
+			}
+		}
+		else if (estadoGrunt == 2)
+		{
+			esperaGrunt += deltaTime;
+			if (esperaGrunt > tiempoApuntaGrunt)
+				estadoGrunt = 3;
+		}
+		else
+		{
+			apuntaGrunt -= 0.03f * deltaTime;
+			if (apuntaGrunt < 0.0f)
+			{
+				apuntaGrunt = 0.0f;
+				gruntAdelante = !gruntAdelante;
+				estadoGrunt = 0;
+			}
+		}
+		//mientras camina ve hacia donde avanza, y cuando se detiene a apuntar se voltea hacia el frente de la escena;
+		//el giro va poco a poco hacia el rumbo que le toca, como el del Bandana Dee
+		float rumboDeseado = 0.0f;
+		if (estadoGrunt == 0)
+		{
+			if (gruntAdelante)
+				rumboDeseado = 90.0f;
+			else
+				rumboDeseado = -90.0f;
+		}
+		if (rumboGrunt < rumboDeseado)
+		{
+			rumboGrunt += rumboGruntOffset * deltaTime;
+			if (rumboGrunt > rumboDeseado)
+				rumboGrunt = rumboDeseado;
+		}
+		if (rumboGrunt > rumboDeseado)
+		{
+			rumboGrunt -= rumboGruntOffset * deltaTime;
+			if (rumboGrunt < rumboDeseado)
+				rumboGrunt = rumboDeseado;
+		}
+		float pasoGrunt = 0.0f;
+		if (estadoGrunt == 0)
+			pasoGrunt = sin(anguloXen * 4.0f * toRadians);
+		rotGrunt[4].x = 25.0f * pasoGrunt;                                    //pierna_der
+		rotGrunt[5].x = -25.0f * pasoGrunt;                                   //pierna_izq
+		rotGrunt[2].x = -15.0f * pasoGrunt;                                   //brazo_izq
+		rotGrunt[1].x = 10.0f * pasoGrunt - 35.0f * apuntaGrunt;              //arma
+		rotGrunt[3].x = 8.0f * sin(anguloXen * 3.0f * toRadians);             //brazo_chico
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(-10.0f, 0.0f, -3.0f));
-		model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		XenCristal_M.RenderModel();
+		model = glm::translate(model, posXen + centroGrunt + glm::vec3(posGrunt, 0.0f, 0.0f));
+		model = glm::rotate(model, rumboGrunt * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(AlienGrunt_M, padresGrunt, pivotesGrunt, rotGrunt, NUM_PIEZAS_GRUNT, model, uniformModel);
 
+		//el offset de UV del charco avanza un poco cada frame para que el liquido se vea fluir; al pasar de 1 se le
+		//resta 1, que es lo mismo porque la textura se repite, y al terminar se regresa a 0 para lo demas
+		charcoU += 0.0015f * deltaTime;
+		charcoV += 0.0008f * deltaTime;
+		if (charcoU > 1.0f)
+			charcoU -= 1.0f;
+		if (charcoV > 1.0f)
+			charcoV -= 1.0f;
+		toffset = glm::vec2(charcoU, charcoV);
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(11.0f, 0.0f, 3.0f));
-		model = glm::rotate(model, 70.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, posXen + posCharco);
+		model = glm::scale(model, glm::vec3(2.5f, 1.0f, 1.8f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		XenCristal_M.RenderModel();
+		XenCharco_M.RenderModel();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		toffset = glm::vec2(0.0f, 0.0f);
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 
-		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(-4.0f, 0.0f, 6.0f));
-		model = glm::rotate(model, 150.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		XenCristal_M.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, posXen + glm::vec3(12.0f, 0.0f, -12.0f));
-		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		XenCristal_M.RenderModel();
+		//cristales, todos con el mismo modelo
+		for (int i = 0; i < NUM_CRISTALES; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posXen + posCristales[i]);
+			model = glm::rotate(model, giroCristales[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaCristales[i], escalaCristales[i], escalaCristales[i]));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			XenCristal_M.RenderModel();
+		}
 
 		//en las plantas de luz el foco cuelga del tallo, por eso modelaux guarda la matriz antes de escalar el tallo
 		//cuando se acaba el tiempo del estado actual, las plantas cambian y el contador vuelve a 0
@@ -1975,20 +2321,106 @@ int main()
 			XenFoco_M.RenderModel();
 		}
 
-		//cada isla flotante sube y baja desfasada 120 grados de la anterior
+		//cada isla flotante sube y baja desfasada 120 grados de la anterior; lo que lleva encima usa la matriz de la isla
+		//sin la escala, por eso modelaux se guarda antes de escalar, y se sube a la cara de arriba de la isla
 		anguloIslas += anguloIslasOffset * deltaTime;
 		if (anguloIslas > 360.0f)
 			anguloIslas -= 360.0f;
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < NUM_ISLAS; i++)
 		{
 			model = glm::mat4(1.0);
 			model = glm::translate(model, posXen + posIslas[i] +
 				glm::vec3(0.0f, 0.8f * sin((anguloIslas + i * 120.0f) * toRadians), 0.0f));
 			model = glm::rotate(model, i * 50.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::mat4 modelaux = model;
 			model = glm::scale(model, glm::vec3(escalaIslas[i], escalaIslas[i], escalaIslas[i]));
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			XenIsla_M.RenderModel();
+			if (cosaIsla[i] != 0)
+			{
+				model = glm::translate(modelaux, glm::vec3(0.0f, 0.12f * escalaIslas[i], 0.0f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				if (cosaIsla[i] == 1)
+				{
+					model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+					glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+					XenCristal_M.RenderModel();
+				}
+				else
+				{
+					XenTallo_M.RenderModel();
+					XenFoco_M.RenderModel();
+				}
+			}
 		}
+
+		//cada arbol espera, levanta el brazo despacio hasta arribaArbol y lo azota rapido hasta pisoArbol, como el martillo de Dedede
+		for (int i = 0; i < NUM_ARBOLES_XEN; i++)
+		{
+			if (estadoArbol[i] == 0)
+			{
+				esperaArbol[i] += deltaTime;
+				if (esperaArbol[i] > tiempoEsperaArbol)
+					estadoArbol[i] = 1;
+			}
+			else if (estadoArbol[i] == 1)
+			{
+				golpeArbol[i] -= subeArbol * deltaTime;
+				if (golpeArbol[i] < arribaArbol)
+					estadoArbol[i] = 2;
+			}
+			else
+			{
+				golpeArbol[i] += bajaArbol * deltaTime;
+				if (golpeArbol[i] > pisoArbol)
+				{
+					golpeArbol[i] = pisoArbol;
+					esperaArbol[i] = 0.0f;
+					estadoArbol[i] = 0;
+				}
+			}
+			rotArbolXen[1].x = golpeArbol[i]; //brazo
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posXen + posArbolesXen[i]);
+			model = glm::rotate(model, giroArbolesXen[i] * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(escalaArbolesXen[i], escalaArbolesXen[i], escalaArbolesXen[i]));
+			DibujaJerarquia(ArbolXen_M, padresArbolXen, pivotesArbolXen, rotArbolXen, NUM_PIEZAS_ARBOL_XEN, model, uniformModel);
+		}
+
+		//boids volando en circulo como el Halberd; cada mitad del ala baja con un seno y la otra mitad gira al reves
+		//porque esta del otro lado, y la punta usa el mismo seno 40 grados atrasado para que el ala se doble al aletear
+		anguloBoids += anguloBoidsOffset * deltaTime;
+		if (anguloBoids > 360.0f)
+			anguloBoids -= 360.0f;
+		for (int i = 0; i < NUM_BOIDS; i++)
+		{
+			float aleteo = sin((anguloXen * 4.0f + i * 70.0f) * toRadians);
+			float aleteoPunta = sin((anguloXen * 4.0f + i * 70.0f - 40.0f) * toRadians);
+			rotBoid[0].z = -30.0f * aleteo;      //ala_der
+			rotBoid[1].z = -20.0f * aleteoPunta; //punta_der
+			rotBoid[2].z = 30.0f * aleteo;       //ala_izq
+			rotBoid[3].z = 20.0f * aleteoPunta;  //punta_izq
+			//van separados 72 grados en el circulo y los nones vuelan 4 unidades mas alto
+			float angulo = anguloBoids + i * 72.0f;
+			model = glm::mat4(1.0);
+			model = glm::translate(model, posXen + centroBoids +
+				glm::vec3(radioBoids * sin(angulo * toRadians), (i % 2) * 4.0f, radioBoids * cos(angulo * toRadians)));
+			model = glm::rotate(model, (angulo + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.35f, 0.35f, 0.35f));
+			DibujaJerarquia(Boid_M, padresBoid, pivotesBoid, rotBoid, NUM_PIEZAS_BOID, model, uniformModel);
+		}
+
+		//el Nihilanth mide 1 de alto y con escala 45 queda gigante; sube y baja con el seno de anguloXen
+		//y voltea de un lado a otro con el de giroNihilanth, que es mas lento
+		giroNihilanth += giroNihilanthOffset * deltaTime;
+		if (giroNihilanth > 360.0f)
+			giroNihilanth -= 360.0f;
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posXen + posNihilanth + glm::vec3(0.0f, 6.0f * sin(anguloXen * toRadians), 0.0f));
+		model = glm::rotate(model, 25.0f * sin(giroNihilanth * toRadians) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(45.0f, 45.0f, 45.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Nihilanth_M.RenderModel();
 
 		//el headcrab camina en circulo en la superficie de Xen mientras su caminata este prendida con la tecla F
 		if (mainWindow.getcaminaHeadcrab())
@@ -2042,7 +2474,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Planeta2Espacio_M.RenderModel();
 
-		//el piso del planeta 2 mide lo mismo que el de Xen
+		//el piso base mide 20 por 20 y su textura se repite 10 veces, asi que con escala 10 el piso del planeta 2 queda de 200 por 200
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posPlaneta2);
 		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
@@ -2254,7 +2686,7 @@ int main()
 
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		//piso de pasto, del mismo tamano que el de Xen, que mide 200 por 200
+		//piso de pasto, del mismo tamano que el del planeta 2, que mide 200 por 200
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania);
 		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
