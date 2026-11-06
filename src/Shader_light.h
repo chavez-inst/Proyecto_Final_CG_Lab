@@ -26,6 +26,7 @@ public:
 	GLuint GetShininessLocation();
 	GLuint GetEyePositionLocation();
 	GLuint getColorLocation();
+	GLuint getOffsetLocation();
 
 	//mandan al shader los datos de las luces (se llaman en cada vuelta del while)
 	void SetDirectionalLight(DirectionalLight * dLight);
@@ -39,7 +40,7 @@ public:
 
 private:
 	GLuint shaderID, uniformProjection, uniformModel, uniformColor, uniformView, uniformEyePosition,
-		uniformSpecularIntensity, uniformShininess;
+		uniformSpecularIntensity, uniformShininess, uniformTextureOffset;
 
 	struct {
 		GLuint uniformcolor;

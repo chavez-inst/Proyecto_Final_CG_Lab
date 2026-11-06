@@ -11,7 +11,6 @@ Window::Window()
 	lastY = 0.0f;
 	xChange = 0.0f;
 	yChange = 0.0f;
-	muevex = 2.0f;
 	pausaAnimaciones = false;
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
@@ -30,6 +29,7 @@ Window::Window()
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	despegaCohete = false;
 
 	//--- estacion espacial y naves ---
 
@@ -40,6 +40,8 @@ Window::Window()
 	modoCamara = 1;
 	objetivoCamara = 0;
 	puntoEspacio = 0;
+	viajeCamara = 1;
+	reinicioViaje = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 	linterna = false;
@@ -63,7 +65,6 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	lastY = 0.0f;
 	xChange = 0.0f;
 	yChange = 0.0f;
-	muevex = 2.0f;
 	pausaAnimaciones = false;
 
 	//valor inicial de las variables de cada actividad (va en los dos constructores)
@@ -82,6 +83,7 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	despegaCohete = false;
 
 	//--- estacion espacial y naves ---
 
@@ -92,6 +94,8 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	modoCamara = 1;
 	objetivoCamara = 0;
 	puntoEspacio = 0;
+	viajeCamara = 1;
+	reinicioViaje = 0;
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 	linterna = false;
@@ -208,15 +212,6 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	//Y y U cambian muevex al presionar la tecla y mientras se deja presionada
-	if (key == GLFW_KEY_Y && action != GLFW_RELEASE)
-	{
-		theWindow->muevex += 1.0;
-	}
-	if (key == GLFW_KEY_U && action != GLFW_RELEASE)
-	{
-		theWindow->muevex -= 1.0;
-	}
 	//P pausa o continua todas las animaciones; en main.cpp se pone deltaTime en 0 mientras dure la pausa
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 	{
@@ -286,30 +281,41 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	//F prende o apaga los despegues del cohete cuando se esta en el planeta 2, igual que las otras animaciones basicas;
+	//mientras este prendida el cohete despega, sube, regresa a la plataforma y vuelve a despegar
+	if (key == GLFW_KEY_F && action == GLFW_PRESS && theWindow->zonaPlaneta == 2)
+	{
+		theWindow->despegaCohete = !theWindow->despegaCohete;
+		if (theWindow->despegaCohete)
+			printf("despegue del cohete prendido\n");
+		else
+			printf("despegue del cohete apagado, el cohete se queda en la plataforma al aterrizar\n");
+	}
 
 	//--- estacion espacial y naves ---
 
 	//--- avatar ---
-	//T cambia el personaje que se controla con la camara 2: 0 es Kirby y 1 la carnivora;
+	//la T cambia el personaje que se controla con la camara 2 entre Kirby, que es el 0, y la carnivora, que es el 1;
 	//al pasar del ultimo personaje se regresa al primero
 	if (key == GLFW_KEY_T && action == GLFW_PRESS)
 	{
 		theWindow->personajeAvatar += 1;
 		if (theWindow->personajeAvatar > 1)
 			theWindow->personajeAvatar = 0;
-		//se avisa en la consola cual personaje quedo
 		if (theWindow->personajeAvatar == 0)
-			printf("avatar: Kirby\n");
+			printf("el avatar es Kirby\n");
 		else
-			printf("avatar: carnivora\n");
+			printf("el avatar es la carnivora\n");
 	}
 
 	//--- camaras y recorridos ---
 	//1 es la camara libre, 2 la del avatar, 3 la de una nave de la carrera, 4 la de la nave que viaja entre planetas
-	//y 5 la del lanzamiento y la estacion; los codigos de las teclas 1 a 5 van seguidos, asi que al restarles
+	//y 5 el recorrido del lanzamiento y la estacion; los codigos de las teclas 1 a 5 van seguidos, asi que al restarles
 	//el de la 1 y sumar 1 sale el numero de la camara
-	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y de la 3 a la 5 solo sirven en el espacio
-	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5 && action == GLFW_PRESS)
+	//la tecla 4 no hace nada porque a la camara 4 se entra con G, H o J, que dicen a que planeta va el viaje
+	//la 2 solo sirve en los planetas, por eso desde el espacio lleva a Xen, y la 3 empieza en el espacio
+	//el recorrido de la 5 empieza en el planeta 2 viendo despegar el cohete, y main.cpp lo pasa al espacio cuando el cohete ya subio
+	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5 && key != GLFW_KEY_4 && action == GLFW_PRESS)
 	{
 		int modo = key - GLFW_KEY_1 + 1;
 		if (modo != theWindow->modoCamara)
@@ -321,13 +327,17 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		{
 			theWindow->zonaPlaneta = 1;
 		}
-		if (modo >= 3 && theWindow->zonaPlaneta != 0)
+		if (modo == 3 && theWindow->zonaPlaneta != 0)
 		{
 			theWindow->zonaPlaneta = 0;
 			theWindow->puntoEspacio = 0;
 		}
+		if (modo == 5)
+		{
+			theWindow->zonaPlaneta = 2;
+		}
 	}
-	//Q y E cambian a la nave anterior o a la siguiente en la camara 3, y a la vista anterior o a la siguiente en la 5
+	//Q y E cambian a la nave anterior o a la siguiente en la camara 3
 	if (key == GLFW_KEY_Q && action == GLFW_PRESS)
 	{
 		theWindow->objetivoCamara -= 1;
@@ -335,6 +345,22 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	if (key == GLFW_KEY_E && action == GLFW_PRESS)
 	{
 		theWindow->objetivoCamara += 1;
+	}
+	//G, H y J ponen la camara 4 con el viaje a Xen, a Pop Star o a Verdania, en el mismo orden que X, C y V
+	//como el viaje empieza en la estacion, regresan al espacio, y main.cpp lo pasa al planeta cuando la nave ya se alejo;
+	//si ya se estaba en ese viaje, empieza otra vez
+	if ((key == GLFW_KEY_G || key == GLFW_KEY_H || key == GLFW_KEY_J) && action == GLFW_PRESS)
+	{
+		if (key == GLFW_KEY_G)
+			theWindow->viajeCamara = 0;
+		else if (key == GLFW_KEY_H)
+			theWindow->viajeCamara = 1;
+		else
+			theWindow->viajeCamara = 2;
+		theWindow->reinicioViaje += 1;
+		theWindow->modoCamara = 4;
+		theWindow->zonaPlaneta = 0;
+		theWindow->puntoEspacio = 0;
 	}
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---

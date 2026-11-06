@@ -1,0 +1,11 @@
+Model Information:
+* title:	Half- Life  Xen Tree
+* source:	https://sketchfab.com/3d-models/half-life-xen-tree-33f93624f6c34273bd16fd4eb0e5e8c6
+* author:	Your cat (https://sketchfab.com/Laigaxy)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Half- Life  Xen Tree" (https://sketchfab.com/3d-models/half-life-xen-tree-33f93624f6c34273bd16fd4eb0e5e8c6) by Your cat (https://sketchfab.com/Laigaxy) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

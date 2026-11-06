@@ -88,17 +88,17 @@ void Skybox::DrawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, GLfloa
 	//se le quita la traslacion a la vista para que el skybox gire con la camara pero no se mueva con ella
 	viewMatrix = glm::mat4(glm::mat3(viewMatrix));
 
-	//angulos que crecen cada frame para que el skybox gire solo
-	static float angleY = 0.0f; //giro principal, hacia los lados
-	static float angleX = 0.0f; //inclinacion
-	static float angleZ = 0.0f; //bamboleo leve
+	//angulos que crecen cada frame para que el skybox gire solo; son static para que no regresen a 0 en cada llamada,
+	//y como los comparten todos los skybox, el giro sigue igual al cambiar de zona
+	static float angleY = 0.0f;
+	static float angleX = 0.0f;
+	static float angleZ = 0.0f;
 
-	//los multiplicadores son la velocidad de giro de cada eje
-	angleY += 0.035f * deltaTime;  //giro constante sobre el eje Y
-	angleX += 0.025f * deltaTime;  //giro lento sobre el eje X
-	angleZ += 0.01f * deltaTime;  //giro muy lento sobre el eje Z
+	//cada eje gira a distinta velocidad; el Y es el mas rapido y el Z el mas lento
+	angleY += 0.035f * deltaTime;
+	angleX += 0.025f * deltaTime;
+	angleZ += 0.01f * deltaTime;
 
-	//se aplican las rotaciones a la matriz de vista del skybox
 	if (gira)
 	{
 		viewMatrix = glm::rotate(viewMatrix, glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f));

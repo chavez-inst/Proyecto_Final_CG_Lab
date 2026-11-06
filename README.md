@@ -32,30 +32,35 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 
 | Tecla       | Que hace                     |
 |-------------|------------------------------|
-| W A S D     | Con la camara libre, moverla. Con la del avatar, caminar con Kirby (W y S avanzan y retroceden, A y D giran) |
+| W A S D     | Con la camara libre, moverla. Con la del avatar, caminar con el avatar (W y S avanzan y retroceden, A y D giran) |
 | Mouse       | Voltear la camara libre      |
 | Espacio / Ctrl | Subir y bajar la camara libre |
-| Shift       | Ir al doble de rapido (camara libre o Kirby) |
-| 1 2 3 4 5   | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 4 nave entre planetas, 5 lanzamiento y estacion |
-| Q / E       | Nave anterior o siguiente en la camara 3 (y vista anterior o siguiente en la 5) |
+| Shift       | Ir al doble de rapido (camara libre o avatar) |
+| T           | Cambiar el avatar entre Kirby y la planta carnivora |
+| 1 2 3 5     | Cambiar de camara: 1 libre, 2 avatar, 3 nave de la carrera, 5 recorrido del lanzamiento y la estacion (a la 4 se entra con G, H o J) |
+| Q / E       | Nave anterior o siguiente en la camara 3 |
+| G / H / J   | Camara 4 con el viaje de la nave a Xen, a Pop Star o a Verdania |
 | Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
 | X / C / V   | Ir a Xen, al planeta 2 o a Verdania; si ya se esta ahi, regresar al punto de llegada |
-| F           | Prender o apagar la animacion basica de la escena (headcrab en Xen, plantas en Verdania) |
+| F           | Prender o apagar la animacion basica de la escena (headcrab en Xen, despegue del cohete en Pop Star, plantas en Verdania) |
 | P           | Pausar o continuar todas las animaciones (tambien el ciclo de dia y noche) |
 | L           | Prender o apagar la linterna (empieza apagada) |
 | K           | Prender o apagar los spotlights de la zona donde se esta |
 | N           | En un planeta, saltar a la manana o a la noche (el ciclo sigue desde ahi) |
-| Y / U       | Mover el cubo en X           |
 | ESC         | Cerrar                       |
 
-La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y de la 3 a la 5 solo en el
-espacio (desde un planeta llevan al espacio). La 4 y la 5 se comportan como la libre mientras no
-existan la nave entre planetas, el cohete y la estacion. Al regresar a la libre, aparece donde estaba
-la camara anterior.
+La camara 2 solo funciona en los planetas (desde el espacio lleva a Xen) y la 3 y la 4 empiezan en el
+espacio (desde un planeta llevan al espacio). La 4 es un recorrido que se repite solo: una nave despega del pad
+de la estacion que da hacia X negativo, gira hacia un planeta y se va con su estela prendida; la camara se queda quieta
+y solo voltea a verla, y cuando ya esta muy lejos pasa al planeta para verla llegar y estacionarse. G, H y J escogen
+el planeta (Xen, Pop Star o Verdania) y la 4 repite el ultimo que se escogio, que al inicio es Pop Star. La 5 es un recorrido que se repite solo: ve despegar el cohete en Pop Star,
+lo sigue en el espacio hasta que pasa por arriba de la estacion, se queda quieta viendolo alejarse con su estela de humo
+y luego da una vuelta en circulo alrededor de la pista, la estacion y el satelite. Al regresar a la libre, aparece donde
+estaba la camara anterior.
 
 En los planetas el sol da una vuelta cada 2 minutos: de dia se ve el sol y el skybox de dia, y de noche
 la luna, el skybox de noche y las luminarias prendidas. En el espacio el sol esta fijo y no hay noche.
-La consola avisa cuando se prende o apaga algo con P, F, L, K y N.
+La consola avisa cuando se prende o apaga algo con P, F, L, K y N, y cual es el avatar al presionar la T.
 
 ---
 
@@ -69,6 +74,7 @@ Proyecto_Final_CG_Lab/
 |
 |-- src/                       <- todo el codigo C++
 |   |-- main.cpp               <- LA ESCENA: aqui se carga y se dibuja todo
+|   |-- DatosEscena.h          <- arreglos largos de la escena (piezas, puntos de la pista, lugares)
 |   |-- Window.h/.cpp          <- ventana, teclado y mouse (aqui se agregan teclas)
 |   |-- Camera.h/.cpp          <- camara en primera persona
 |   |-- Shader_light.h/.cpp    <- compila los shaders y les manda datos (luces, matrices)
@@ -84,11 +90,11 @@ Proyecto_Final_CG_Lab/
 |   `-- Material.h/.cpp        <- brillo especular de los objetos
 |
 |-- shaders/
-|   |-- shader_light.vert/.frag<- shader de todos los objetos (Phong con texturas)
+|   |-- shader_light.vert/.frag<- shader de todos los objetos (Phong con texturas y offset de UV para moverlas)
 |   `-- skybox.vert/.frag      <- shader del skybox
 |
-|-- Models/                    <- modelos (.obj + .mtl)
-|-- Textures/                  <- TODAS las imagenes (tambien las texturas de los modelos)
+|-- Models/                    <- un modelo por carpeta (.obj + .mtl), con sus texturas en su carpeta Textures/
+|-- Textures/                  <- imagenes de los pisos, de los skybox y de los objetos hechos a mano
 |   |-- plain.png              <- textura blanca, se usa si un modelo no tiene textura (no borrar)
 |   `-- Skybox/                <- las 6 caras del skybox
 |
@@ -102,25 +108,25 @@ Proyecto_Final_CG_Lab/
 ```
 
 En el Explorador de soluciones de VS los archivos estan agrupados en carpetas virtuales:
-**Escena** (main.cpp), **Base**, **Graficos**, **Iluminacion** y **Shaders**.
+**Escena** (main.cpp y DatosEscena.h), **Base**, **Graficos**, **Iluminacion** y **Shaders**.
 
 ### Como esta acomodado main.cpp
 
 Esta dividido en 4 bloques marcados con `// ==================`:
 
 1. **Variables globales**: aqui se declaran texturas, modelos, materiales y luces.
-2. **Geometria hecha a mano**: piso, plano de vegetacion y cubo (`CreateObjects` y `CrearCubo`).
+2. **Geometria hecha a mano**: piso y plano de vegetacion (`CreateObjects`) y `DibujaJerarquia`.
 3. **Carga de recursos** (dentro de `main`): se cargan texturas, modelos, skybox, materiales y luces.
 4. **Ciclo principal** (el `while`): se dibuja todo cada frame. Primero los objetos opacos y al final los transparentes.
 
-Al principio de cada bloque esta lo de la base del lab (piso, cubo, materiales, luces de prueba).
-Despues viene una seccion por actividad, siempre en el mismo orden:
+Al principio de cada bloque esta lo de la base del lab (ventana, camara, skybox del espacio, materiales,
+luces). Despues viene una seccion por actividad, siempre en el mismo orden:
 
 ```
 //--- personajes ---
 //--- planetas: Xen y planeta 2 ---
-//--- nave de Among Us y crewmates ---
 //--- planeta 3: Verdania ---
+//--- nave de Among Us y crewmates ---
 //--- pista de carreras y naves ---
 //--- satelites y cuerpos espaciales ---
 //--- plataforma de lanzamiento y cohete ---
@@ -129,6 +135,11 @@ Despues viene una seccion por actividad, siempre en el mismo orden:
 //--- camaras y recorridos ---
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 ```
+
+Dentro de cada seccion, todo lo de un mismo objeto va junto: su modelo, su textura y las variables de su
+animacion. Los arreglos largos que casi no cambian (piezas, padres y pivotes de los modelos con jerarquia,
+puntos de la pista, lugares de los objetos que se repiten y datos de las naves de la estacion) estan en
+`src/DatosEscena.h`, con las mismas secciones. Solo se incluye en `main.cpp`.
 
 Las mismas secciones estan en `Window.h` (getters y variables) y en `Window.cpp` (valores iniciales en
 los dos constructores y teclas en `ManejaTeclado`). **Cada quien escribe solo dentro de las secciones de
@@ -142,7 +153,7 @@ su actividad**; asi, al juntar las ramas, cada quien cambio lineas distintas y G
   cada frame (ciclo dia/noche, prender/apagar).
 - Las luces se crean solo en la seccion de iluminacion. Si otra actividad necesita una, se le pide
   a quien lleva esa seccion. Cada frame solo se mandan al shader las luces de la zona donde se esta,
-  asi que el limite (3 puntuales y 4 spotlights) es por zona y no para toda la escena.
+  asi que el limite (5 puntuales y 5 spotlights) es por zona y no para toda la escena.
 - Si una actividad agrega geometria hecha a mano, su funcion va en el bloque 2 (en su seccion) y se
   llama en la carga de recursos (en su seccion). Como el indice en `meshListModel` depende del
   orden, se guarda en una variable global antes del `push_back`:
@@ -160,13 +171,14 @@ agrega a esta tabla.
 | Teclas | Actividad | Uso |
 |---|---|---|
 | W A S D, mouse, Espacio, Ctrl, Shift | base y avatar | moverse con la camara libre o caminar con el avatar |
-| ESC, Y / U | base | cerrar, mover el cubo de prueba |
+| T | avatar | cambiar el avatar entre Kirby y la carnivora |
+| ESC | base | cerrar |
 | P | base | pausar o continuar todas las animaciones |
-| 1 2 3 4 5, Q / E | camaras y recorridos | cambiar de camara; Q y E cambian la nave o la vista que se sigue |
+| 1 2 3 5, Q / E, G H J | camaras y recorridos | cambiar de camara; Q y E cambian la nave que se sigue; G, H y J escogen el viaje de la camara 4 |
 | Z X C V | planetas | ir al espacio, a Xen, al planeta 2 y a Verdania |
-| F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, plantas en Verdania y cohete en el espacio |
+| F | todas, segun la escena | animacion basica de la escena: headcrab en Xen, despegue del cohete en el planeta 2 y plantas en Verdania |
 | K L N | iluminacion | L la linterna, K los spotlights del escenario, N dia o noche en los planetas |
-| G H J B M R T I O | libres | se piden en el grupo |
+| B M R I O Y U | libres | se piden en el grupo |
 
 - La **F** es la tecla de las animaciones basicas (las que se inician con teclado). Cada actividad
   revisa en `ManejaTeclado` que se este en su zona (0 espacio, 1 Xen, 2 planeta 2, 3 Verdania),
@@ -236,14 +248,15 @@ Primero se asigna la ruta y despues se carga, en ese orden.
 ### Un modelo nuevo (.obj)
 
 1. Exportar desde Blender / 3ds Max / Maya como `.obj` con su `.mtl`.
-2. Poner el `.obj` y el `.mtl` en `Models/` y **sus texturas en `Textures/`**.
+2. Poner el `.obj` y el `.mtl` en su propia carpeta dentro de `Models/` (ej. `Models/arbol/`) y
+   **sus texturas en la carpeta `Textures/` de esa carpeta** (ej. `Models/arbol/Textures/`).
 3. Revisar en el `.mtl` que la linea `map_Kd` tenga el nombre correcto de la textura
    (la ruta no importa, solo el nombre).
 4. En variables globales: `Model Arbol_M;`
 5. En la carga de recursos:
    ```cpp
    Arbol_M = Model();
-   Arbol_M.LoadModel("Models/arbol.obj");
+   Arbol_M.LoadModel("Models/arbol/arbol.obj");
    ```
 6. En el `while` usar la plantilla y al final `Arbol_M.RenderModel();` (sin `UseTexture`,
    el modelo usa sus propias texturas).
@@ -253,19 +266,19 @@ Si sale muy grande o muy chico, ajustar con `glm::scale`.
 
 ### Un objeto hecho a mano (geometria propia)
 
-1. Hacer una funcion como `CrearCubo()` con su arreglo de vertices e indices.
+1. Hacer una funcion como `CreateObjects()` con su arreglo de vertices e indices.
    Cada vertice lleva 8 valores: `x, y, z,  u, v,  nx, ny, nz`.
 2. Crear la malla y meterla a la lista:
    ```cpp
    MeshModel* obj = new MeshModel();
    obj->CreateMeshModel(vertices, indices, numFloats, numIndices);
-   meshListModel.push_back(obj); //meshListModel[3], [4], ...
+   meshListModel.push_back(obj); //meshListModel[2], [3], ...
    ```
    Ojo: el tercer parametro es la **cantidad de floats** del arreglo (vertices x 8),
    no la cantidad de vertices.
 3. Si no quieres escribir las normales a mano, se pueden calcular con `calcAverageNormals(...)`
    **antes** de `CreateMeshModel`.
-4. Llamar la funcion en `main()` junto a `CreateObjects()` y `CrearCubo()` y anotar que indice le toco.
+4. Llamar la funcion en la carga de recursos, en la seccion de su actividad, y guardar que indice le toco.
 
 ### Un material
 
@@ -277,7 +290,7 @@ Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);  //antes
 
 Ya existen `Material_opaco` (casi sin brillo, lo de la mayoria), `Material_brillante` (reflejo chico y
 fuerte, como el visor de los crewmates), `Material_metal` (naves de la carrera) y `Material_avatar`
-(Kirby). Despues de usar uno distinto, se regresa `Material_opaco` para lo que sigue.
+(Kirby y la carnivora cuando son el avatar). Despues de usar uno distinto, se regresa `Material_opaco` para lo que sigue.
 
 ### Una luz
 
@@ -300,7 +313,7 @@ if (zonaLuces == 3 && esDeNoche)
 }
 ```
 
-- Maximo 3 puntuales y 4 spotlights por zona (`CommonValues.h`); la linterna cuenta como un spotlight.
+- Maximo 5 puntuales y 5 spotlights por zona (`CommonValues.h`); la linterna cuenta como un spotlight.
 - Las luminarias (puntuales) se prenden de noche y los spotlights con la K.
 - Para mover una luz mientras corre el programa: `spot.SetPos(nuevaPos);` o `spot.SetFlash(pos, dir);`
   antes de copiarla al arreglo.
@@ -308,7 +321,7 @@ if (zonaLuces == 3 && esDeNoche)
 
 ### Una tecla nueva / mover algo con el teclado
 
-Se hace igual que la variable `muevex` (teclas Y/U):
+Se hace igual que `despegaCohete` (la F en el planeta 2) o `caminaHeadcrab` (la F en Xen):
 
 1. `Window.h`: agregar la variable en `private` (ej. `GLfloat rotaPuerta;`) y su getter en `public`
    (`GLfloat getrotaPuerta() { return rotaPuerta; }`).
@@ -324,21 +337,44 @@ Se hace igual que la variable `muevex` (teclas Y/U):
 4. En `main.cpp` usarla: `mainWindow.getrotaPuerta()`.
 
 Usar solo las teclas de su actividad (ver "Teclas por actividad"). W, A, S, D son de la camara libre y
-del avatar, P pausa y ESC cierra.
+del avatar, T cambia el avatar, P pausa y ESC cierra.
 
 ### Cambiar el skybox
 
 Poner las 6 imagenes en `Textures/Skybox/` y cambiar las rutas en `main.cpp`.
 El orden tiene que ser: **rt, lf, dn, up, bk, ft** (derecha, izquierda, abajo, arriba, atras, enfrente).
-Cada planeta tiene un skybox de dia y uno de noche (`xen_dia_*`, `planeta2_dia_*`, `verdania_noche_*`
-y los originales). El ultimo parametro de `DrawSkybox` en `true` lo hace girar en los tres ejes (espacio)
-y en `false` solo sobre Y (planetas, para que no se incline el horizonte).
+Cada planeta tiene un skybox de dia y uno de noche (por ejemplo `skyboxXenDia` y `skyboxXenNoche`); en la
+carga de recursos sus caras se arman con `carasSkybox` y el principio del nombre del archivo (`xen_dia_`, `xen_`).
+El ultimo parametro de `DrawSkybox` en `true` lo hace girar en los tres ejes (espacio) y en `false` solo
+sobre Y (planetas, para que no se incline el horizonte).
 
 ### Objetos con transparencia
 
 - La imagen debe ser .png con canal alfa y cargarse con `LoadTextureA()`.
-- Se dibujan al final del `while`, entre `glEnable(GL_BLEND)` y `glDisable(GL_BLEND)`
-  (ver el ejemplo de la vegetacion).
+- Se dibujan al final del `while`, en la parte de objetos con transparencia, entre `glEnable(GL_BLEND)`
+  y `glDisable(GL_BLEND)`. Para plantas o cosas planas sirve `meshListModel[1]`, que son dos planos cruzados:
+  ```cpp
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //aqui va la matriz model como en la plantilla
+  plantaTexture.UseTexture();
+  Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+  meshListModel[1]->RenderMeshModel();
+  glDisable(GL_BLEND);
+  ```
+
+### Textura que se mueve (offset de UV)
+
+Como en la practica 9: el vertex shader le suma el uniform `toffset` a las coordenadas de textura. En el `while`
+vale 0 para todo; antes de dibujar el objeto se cambia y despues se regresa a 0 (asi se hace el charco de Xen):
+```cpp
+toffset = glm::vec2(charcoU, charcoV); //charcoU y charcoV avanzan con deltaTime y se les resta 1 al pasar de 1
+glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+//aqui se dibuja el objeto
+toffset = glm::vec2(0.0f, 0.0f);
+glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+```
+La imagen tiene que poder repetirse (que la orilla derecha empate con la izquierda) para que no se note el salto.
 
 ### Una clase o archivo .cpp nuevo
 
@@ -397,9 +433,9 @@ el final (sirven para ver como fue avanzando cada quien). Por eso:
 | Problema | Solucion |
 |---|---|
 | `Falta la carpeta Librerias` al compilar | Extraer `Librerias.zip` como dice "Como empezar". |
-| `No se encontro la textura: ...` en la consola | Revisar nombre y extension exactos y que este en `Textures/`. |
+| `No se encontro la textura: ...` en la consola | Revisar nombre y extension exactos y que este en la carpeta `Textures/` del modelo o en `Textures/`. |
 | `Fallo al cargar el modelo: ...` | Revisar la ruta en `LoadModel` y que el .obj este en `Models/`. |
-| Modelo blanco | No encontro su textura: revisar `map_Kd` del .mtl y que la imagen este en `Textures/`. |
+| Modelo blanco | No encontro su textura: revisar `map_Kd` del .mtl y que la imagen este en la carpeta `Textures/` del modelo. |
 | Una cara se ve negra u oscura | Normal al reves (en este proyecto van hacia adentro) o no le llega ninguna luz. |
 | Transparencia con fondo negro/blanco | Usar `LoadTextureA()` y dibujarlo al final con blending. |
 | `Error al compilar el ... shader` | La consola dice la linea del error dentro del shader. |

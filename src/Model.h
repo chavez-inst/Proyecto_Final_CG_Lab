@@ -9,7 +9,8 @@
 #include "Texture.h"
 
 //modelo cargado con Assimp desde un archivo .obj, .fbx u otro formato
-//sus texturas se buscan en la carpeta Textures, sin importar la ruta que diga el archivo del modelo
+//sus texturas se buscan primero en la carpeta Textures del modelo y si ahi no estan, en la carpeta Textures
+//del proyecto, sin importar la ruta que diga el archivo del modelo
 class Model
 {
 public:

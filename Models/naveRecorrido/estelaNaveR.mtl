@@ -1,0 +1,22 @@
+# Blender 5.2.2 LTS MTL File: 'None'
+# www.blender.org
+
+newmtl Shield_2
+Ns 105.882362
+Ka 1.000000 1.000000 1.000000
+Kd 0.629189 0.629189 0.629189
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.503185
+illum 9
+
+newmtl Star_Fighter_Fire
+Ns 37.254898
+Ka 1.000000 1.000000 1.000000
+Ks 0.393476 0.393476 0.393476
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd estelaTextura.png
+map_d estelaTextura.png

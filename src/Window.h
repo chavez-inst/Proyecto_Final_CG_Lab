@@ -14,7 +14,6 @@ public:
 	GLfloat getBufferHeight() { return bufferHeight; }
 	GLfloat getXChange();
 	GLfloat getYChange();
-	GLfloat getmuevex() { return muevex; }
 	bool getpausaAnimaciones() { return pausaAnimaciones; }
 
 	//getters de cada actividad (misma division que main.cpp)
@@ -33,6 +32,7 @@ public:
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	bool getdespegaCohete() { return despegaCohete; }
 
 	//--- estacion espacial y naves ---
 
@@ -43,6 +43,10 @@ public:
 	int getmodoCamara() { return modoCamara; }
 	int getobjetivoCamara() { return objetivoCamara; }
 	int getpuntoEspacio() { return puntoEspacio; }
+	int getviajeCamara() { return viajeCamara; }
+	int getreinicioViaje() { return reinicioViaje; }
+	//los recorridos de las camaras 4 y 5 pasan del espacio a un planeta o al reves, por eso cambian la zona desde main.cpp
+	void setzonaPlaneta(int zona) { zonaPlaneta = zona; }
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 	bool getlinterna() { return linterna; }
@@ -65,9 +69,7 @@ private:
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
-	//valor que cambia con Y y U
 	//para agregar otro valor se pone la variable aqui, su getter arriba, su valor inicial en los constructores y la tecla en ManejaTeclado
-	GLfloat muevex;
 	bool pausaAnimaciones; //P pausa o continua todas las animaciones
 
 	//variables de cada actividad
@@ -87,6 +89,7 @@ private:
 	//--- satelites y cuerpos espaciales ---
 
 	//--- plataforma de lanzamiento y cohete ---
+	bool despegaCohete; //F prende o apaga los despegues del cohete cuando se esta en el planeta 2
 
 	//--- estacion espacial y naves ---
 
@@ -94,9 +97,11 @@ private:
 	int personajeAvatar; //personaje que se controla con la camara 2, vale 0 si es Kirby y 1 si es la carnivora, y lo cambia la T
 
 	//--- camaras y recorridos ---
-	int modoCamara; //camara que se esta usando, de la 1 a la 5, y se cambia con las teclas 1 a 5
+	int modoCamara; //camara que se esta usando, de la 1 a la 5; se cambia con las teclas 1, 2, 3 y 5, y a la 4 se entra con G, H o J
 	int objetivoCamara; //nave o vista que sigue la camara; Q le resta 1 y E le suma 1
 	int puntoEspacio; //cuantas veces se ha presionado la Z estando en el espacio, para ir al siguiente punto de interes
+	int viajeCamara; //planeta a donde va la nave de la camara 4, 0 Xen, 1 Pop Star y 2 Verdania, y lo cambian G, H y J
+	int reinicioViaje; //cuantas veces se ha presionado G, H o J, para empezar el viaje desde la estacion
 
 	//--- iluminacion: ciclo dia/noche, luminarias y spotlights ---
 	bool linterna; //L prende o apaga la linterna de la camara, empieza apagada
