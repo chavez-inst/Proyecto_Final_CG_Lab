@@ -21,23 +21,23 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Tecla | Zona | Que hay |
 |---|---|---|
 | Z | 0, espacio | nave nodriza, pista de carreras, estacion espacial, satelite, los planetas vistos desde lejos y la nave de Among Us |
-| X | 1, Xen | planeta de Half-Life: islas flotantes, cristales, plantas de luz, headcrab y especies de Xen |
+| X | 1, Xen | planeta de Half-Life: el suelo es una isla flotante; islas flotantes, cristales, plantas de luz, arboles de Xen, un charco, boids volando, el Nihilanth a lo lejos, el headcrab y la cadena houndeye, bullsquid, vortigaunt y alien grunt |
 | C | 2, Pop Star | planeta de Kirby: colinas, arboles, nubes, warp star, Waddle Dee, Waddle Doo, Bandana Waddle Dee, King Dedede, el Halberd volando y la plataforma del cohete con Gordon y el Capitan Falcon |
-| V | 3, Verdania | planeta de Plants vs. Zombies: jardin de Crazy Dave, plantas y NPCs caminando |
+| V | 3, Verdania | planeta de Plants vs. Zombies: jardin de Crazy Dave, plantas criaturas de Xen (los houndeyes caminan y se agachan para atacar, el bullsquid se echa hacia atras y escupe, el vortigaunt junta energia con su luz verde y el alien grunt patrulla y apunta), arboles de Xen que azotan el brazo, boids aleteando, el charco de Xen con su textura en movimiento y NPCs caminando |
 
 ## Elementos del escenario (60%, 410 pts + 60 extra)
 
 | Punto de la rubrica | Pts | Responsable | Estado | Notas |
 |---|---|---|---|---|
 | Geometria 3D (modelos o geometria propia) | 10 | todos | en proceso | |
-| Jerarquia en elementos del escenario | 10 | todos | hecho | Gordon, carnivora, Kirby, headcrab, plantas de Verdania y el cohete van por piezas (`DibujaJerarquia`) |
+| Jerarquia en elementos del escenario | 10 | todos | hecho | Gordon, carnivora, Kirby, headcrab, criaturas, arboles y boids de Xen, habitantes de Pop Star, plantas de Verdania y el cohete van por piezas (`DibujaJerarquia`) |
 | Ambientacion de los universos y tematicas | 40 | todos | en proceso | Half-Life en Xen, Kirby en Pop Star, Plants vs. Zombies en Verdania y F-Zero en la pista; Among Us como extra |
-| NPCs (otras especies intergalacticas) | 10 | Abraham | hecho | en Verdania: peashooter y crazy dave caminando, ice pea, gatling pea, fire pea y cactus; en Xen, el headcrab |
+| NPCs (otras especies intergalacticas) | 10 | Abraham | hecho | en Verdania: peashooter y crazy dave caminando, ice pea, gatling pea, fire pea y cactus; en Xen, el headcrab, los houndeyes, el bullsquid, el vortigaunt, el alien grunt y los boids |
 | Pista de carreras con naves corriendo | 20 | Dylan | hecho | las 8 naves de F-Zero le dan vueltas al circuito |
 | Plataforma de lanzamiento con cohete | 20 | Abraham | hecho | en Pop Star, con su torre; el cohete despega con la F, deja una estela de humo y en el recorrido 4 llega al espacio |
 | Estacion espacial (entran y salen naves) | 20 | Dylan | hecho | cuatro landing pads; las naves salen a hipervelocidad y regresan solas |
 | Satelites y cuerpos espaciales | 10 | Dylan | en proceso | hay un satelite; faltan lunas o asteroides |
-| Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | en proceso | Xen, Pop Star y Verdania; cadena de Pop Star: Waddle Dee, Waddle Doo, Bandana Waddle Dee y King Dedede |
+| Al menos 2 planetas (evolucion de especies) | 40 | Alejandro | hecho | Xen, Pop Star y Verdania; cadena de Xen: houndeye, bullsquid, vortigaunt y alien grunt; cadena de Pop Star: Waddle Dee, Waddle Doo, Bandana Waddle Dee y King Dedede |
 | Texturizado de todo | 20 | todos | en proceso | |
 | Avatar jerarquico **no humanoide** | 10 | Alejandro y Abraham | hecho | Kirby o la carnivora, los dos por piezas; la T cambia de personaje y sirve en todos los planetas |
 | Avatar con textura y material | 10 | Alejandro | hecho | su textura y `Material_avatar` |
@@ -52,7 +52,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio y uno de dia y otro de noche para cada planeta |
 | Spotlights que se prenden/apagan con teclado | 10 | Alejandro | hecho | K prende o apaga los de la zona y L la linterna (empieza apagada) |
 | 3 animaciones basicas (se inician con teclado) | 30 | Alejandro y Abraham | hecho | con la F: headcrab en Xen, plantas en Verdania y despegue del cohete en Pop Star |
-| 3 animaciones complejas (ciclo continuo con funciones) | 30 | todos | hecho | naves de la pista, naves de la estacion, islas flotantes y plantas de luz de Xen, Pop Star girando, el Halberd volando en circulo, habitantes de Pop Star por piezas (el Waddle Dee camina en circulo, el Bandana Dee hace guardia con su lanza, el Waddle Doo agita las manos y King Dedede azota su martillo), Gordon que revisa el logo de WhatsApp que trae en la mano y se tapa el sol en el despegue, el Capitan Falcon con las manos en la cintura que se voltea a saludar, y NPCs caminando |
+| 3 animaciones complejas (ciclo continuo con funciones) | 30 | todos | hecho | naves de la pista, naves de la estacion, islas flotantes y plantas de luz de Xen, Pop Star girando, el Halberd volando en circulo, habitantes de Pop Star por piezas (el Waddle Dee camina en circulo, el Bandana Dee hace guardia con su lanza, el Waddle Doo agita las manos y King Dedede azota su martillo), Gordon que revisa el logo de WhatsApp que trae en la mano y se tapa el sol en el despegue, el Capitan Falcon con las manos en la cintura que se voltea a saludar, criaturas de Xen (los houndeyes caminan y se agachan para atacar, el bullsquid se echa hacia atras y escupe, el vortigaunt junta energia con su luz verde y el alien grunt patrulla y apunta), arboles de Xen que azotan el brazo, boids aleteando, el charco de Xen con su textura en movimiento y NPCs caminando |
 | Estilo visual | 30 | todos | en proceso | |
 | Extra: originalidad | +30 | todos | en proceso | nave de Among Us con crewmates escondidos, carnivora como segundo avatar |
 | Extra: animaciones complejas adicionales | +30 | todos | en proceso | las complejas que pasan de 3 |
@@ -91,6 +91,8 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | `alejandro-iluminacion` | Alejandro | ciclo de dia y noche, luces por zona, sol y luna, skyboxes de dia y noche, materiales (integrada) |
 | `alejandro-orden` | Alejandro | orden de `main.cpp` por secciones y datos largos en `DatosEscena.h` (integrada) |
 | `alejandro-comentarios` | Alejandro | correccion de comentarios (integrada) |
+| `alejandro-popstar` | Alejandro | habitantes de Pop Star y el Halberd, animados por piezas (integrada) |
+| `alejandro-xen` | Alejandro | Xen terminado: suelo de isla, criaturas por piezas y animadas, charco, arboles, boids y el Nihilanth |
 | `dylan-pista-y-cuerpos-espaciales` | Dylan | pista de carreras, naves de F-Zero y satelite (integrada) |
 | `dylan-estacionEspacial` | Dylan | estacion espacial y naves que entran y salen (integrada) |
 | `Abraham-NPCs` | Abraham | Verdania, NPCs y plantas de adorno, y la carnivora como segundo avatar (integrada) |

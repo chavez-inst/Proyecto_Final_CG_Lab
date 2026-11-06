@@ -1,0 +1,11 @@
+Model Information:
+* title:	The Nihilanth
+* source:	https://sketchfab.com/3d-models/the-nihilanth-0f92b6dfd49546c5a3ae0d4ab355f7de
+* author:	H.E.C.U Models (https://sketchfab.com/H.E.C.U)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "The Nihilanth" (https://sketchfab.com/3d-models/the-nihilanth-0f92b6dfd49546c5a3ae0d4ab355f7de) by H.E.C.U Models (https://sketchfab.com/H.E.C.U) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

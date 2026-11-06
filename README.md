@@ -87,7 +87,7 @@ Proyecto_Final_CG_Lab/
 |   `-- Material.h/.cpp        <- brillo especular de los objetos
 |
 |-- shaders/
-|   |-- shader_light.vert/.frag<- shader de todos los objetos (Phong con texturas)
+|   |-- shader_light.vert/.frag<- shader de todos los objetos (Phong con texturas y offset de UV para moverlas)
 |   `-- skybox.vert/.frag      <- shader del skybox
 |
 |-- Models/                    <- un modelo por carpeta (.obj + .mtl), con sus texturas en su carpeta Textures/
@@ -359,6 +359,19 @@ sobre Y (planetas, para que no se incline el horizonte).
   meshListModel[1]->RenderMeshModel();
   glDisable(GL_BLEND);
   ```
+
+### Textura que se mueve (offset de UV)
+
+Como en la practica 9: el vertex shader le suma el uniform `toffset` a las coordenadas de textura. En el `while`
+vale 0 para todo; antes de dibujar el objeto se cambia y despues se regresa a 0 (asi se hace el charco de Xen):
+```cpp
+toffset = glm::vec2(charcoU, charcoV); //charcoU y charcoV avanzan con deltaTime y se les resta 1 al pasar de 1
+glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+//aqui se dibuja el objeto
+toffset = glm::vec2(0.0f, 0.0f);
+glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+```
+La imagen tiene que poder repetirse (que la orilla derecha empate con la izquierda) para que no se note el salto.
 
 ### Una clase o archivo .cpp nuevo
 
