@@ -78,7 +78,8 @@ glm::vec3 posVerdania = glm::vec3(0.0f, 0.0f, 15000.0f);
 //modelos de los personajes; Kirby y la carnivora se dibujan como el avatar y los demas todavia no salen en la escena
 //los que tienen jerarquia se dibujan con DibujaJerarquia y se articulan cambiando sus rotaciones en el while,
 //por ejemplo rotGordon[2].x = -30.0f; gira el brazo derecho en el hombro
-Model CapitanFalcon_M;
+Model CapitanFalcon_M[NUM_PIEZAS_FALCON];
+glm::vec3 rotFalcon[NUM_PIEZAS_FALCON];
 Model Carnivora_M[NUM_PIEZAS_CARNIVORA];
 glm::vec3 rotCarnivora[NUM_PIEZAS_CARNIVORA]; //las globales empiezan en 0
 Model Gordon_M[NUM_PIEZAS_GORDON];
@@ -153,11 +154,42 @@ Model Planeta2Nube2_M;
 Model WarpStar_M;
 //la warp star flota un poco arriba del piso, enfrente de donde llega la camara
 glm::vec3 posWarpStar = glm::vec3(4.0f, 0.8f, -4.0f);
-//habitantes acomodados del mas simple al mas evolucionado, atras de la warp star
-Model WaddleDee_M;
-Model WaddleDoo_M;
-Model BandanaDee_M;
-Model KingDedede_M;
+//habitantes acomodados del mas simple al mas evolucionado, atras de la warp star; todos son por piezas
+Model WaddleDee_M[NUM_PIEZAS_WADDLE];
+glm::vec3 rotWaddleDee[NUM_PIEZAS_WADDLE];
+Model WaddleDoo_M[NUM_PIEZAS_WADDLE];
+glm::vec3 rotWaddleDoo[NUM_PIEZAS_WADDLE];
+Model BandanaDee_M[NUM_PIEZAS_BANDANA];
+glm::vec3 rotBandana[NUM_PIEZAS_BANDANA];
+Model KingDedede_M[NUM_PIEZAS_DEDEDE];
+glm::vec3 rotDedede[NUM_PIEZAS_DEDEDE];
+//los pasos y los balanceos salen del seno de anguloHabitantes por un numero entero, como en Verdania
+float anguloHabitantes = 0.0f;
+float anguloHabitantesOffset = 2.0f;
+//el Waddle Dee camina en circulo como el headcrab; el centro se mide desde posPlaneta2
+glm::vec3 centroWaddleDee = glm::vec3(-11.0f, 0.0f, -3.0f);
+float radioWaddleDee = 3.0f;
+float anguloWaddleDee = 0.0f;
+float anguloWaddleDeeOffset = 0.5f;
+//el Bandana Dee hace guardia con la lanza parada; va y viene en linea recta como crazy dave,
+//entre -limiteBandana y limiteBandana, y se voltea poco a poco hacia donde camina
+float posBandana = 0.0f;
+float posBandanaOffset = 0.015f;
+float limiteBandana = 2.5f;
+bool bandanaAdelante = true;
+float rumboBandana = 90.0f;
+float rumboBandanaOffset = 6.0f;
+//King Dedede levanta el martillo despacio, lo azota rapido contra el piso y espera antes de volver a levantarlo
+//estadoDedede vale 0 levantando, 1 azotando y 2 esperando; golpeDedede son los grados que gira el brazo en X sobre su largo,
+//asi el martillo pasa de estar enfrente a quedar arriba con los negativos y a pegar en el piso con los positivos
+int estadoDedede = 0;
+float golpeDedede = 0.0f;
+float subeDedede = 1.2f;
+float bajaDedede = 9.0f;
+float arribaDedede = -110.0f;
+float pisoDedede = 8.0f; //con 8 grados la cara del martillo queda justo en el piso
+float esperaDedede = 0.0f;
+float tiempoEsperaDedede = 90.0f; //como deltaTime suma como 61 en un segundo, son como 1.5 segundos
 //el Halberd vuela en un circulo alto sobre el planeta, igual que el headcrab pero sin la F, asi que siempre se mueve
 Model Halberd_M;
 glm::vec3 centroHalberd = glm::vec3(0.0f, 30.0f, -30.0f); //se mide desde posPlaneta2
@@ -440,6 +472,25 @@ glm::vec3 posGordonAstronauta = glm::vec3(-27.0f, 0.0f, -16.0f);
 glm::vec3 posFalconAstronauta = glm::vec3(-23.0f, 0.0f, -17.0f);
 float escalaGordonAstronauta = 1.5f; //igual que el avatar; Gordon mide 1.4 y queda de 2.1
 float escalaFalconAstronauta = 1.8f; //el Capitan Falcon mide 0.95 y queda de 1.7, un poco mas bajo que Gordon
+//mientras el cohete esta quieto Gordon revisa su reloj de vez en cuando y el Capitan Falcon espera con las manos en la
+//cintura volteando a los lados; cuando empieza la cuenta los dos se voltean hacia el cohete y lo siguen con la mirada,
+//Gordon tapandose el sol con la mano y Falcon levantando el puno
+float anguloAstronautas = 0.0f;
+float anguloAstronautasOffset = 1.0f;
+//vistaCohete va de 0 a 1 y mezcla la pose de espera con la de ver el cohete, asi cambian de una a otra poco a poco
+float vistaCohete = 0.0f;
+float vistaCoheteOffset = 0.02f;
+//hacia donde ven en grados; esperando ven hacia donde llega la camara y en el despegue quedan de lado, girando la cabeza hacia el cohete
+float rumboEspera = 40.0f;
+float rumboDespegue = -50.0f;
+//reloj de Gordon: estadoReloj vale 0 esperando, 1 subiendo el brazo, 2 viendo la hora y 3 bajandolo;
+//brazoReloj va de 0 con el brazo abajo a 1 con el reloj enfrente
+int estadoReloj = 0;
+float brazoReloj = 0.0f;
+float brazoRelojOffset = 0.03f;
+float tiempoReloj = 0.0f;
+float esperaReloj = 300.0f; //unos 5 segundos entre una vez y otra
+float veReloj = 120.0f;     //y unos 2 segundos viendo la hora
 
 //--- estacion espacial y naves ---
 //la estacion tiene cuatro landing pads alrededor, a 150 de su centro hacia X positivo, X negativo, Z positivo y Z negativo,
@@ -851,8 +902,12 @@ int main()
 	Material_avatar = Material(0.4f, 8);
 
 	//--- personajes ---
-	CapitanFalcon_M = Model();
-	CapitanFalcon_M.LoadModel("Models/capitanFalcon/capitanFalcon.obj");
+	for (int i = 0; i < NUM_PIEZAS_FALCON; i++)
+	{
+		std::string ruta = std::string("Models/capitanFalcon/capitanFalcon_") + piezasFalcon[i] + ".obj";
+		CapitanFalcon_M[i] = Model();
+		CapitanFalcon_M[i].LoadModel(ruta);
+	}
 
 	//las rutas se arman con el nombre de cada pieza
 	for (int i = 0; i < NUM_PIEZAS_CARNIVORA; i++)
@@ -945,14 +1000,23 @@ int main()
 	Planeta2Colina_M = Model();
 	Planeta2Colina_M.LoadModel("Models/Planeta2/planeta2_colina.obj");
 
-	WaddleDee_M = Model();
-	WaddleDee_M.LoadModel("Models/WaddleDee/waddledee.obj");
-	WaddleDoo_M = Model();
-	WaddleDoo_M.LoadModel("Models/WaddleDoo/waddledoo.obj");
-	BandanaDee_M = Model();
-	BandanaDee_M.LoadModel("Models/BandanaDee/bandanadee.obj");
-	KingDedede_M = Model();
-	KingDedede_M.LoadModel("Models/KingDedede/kingdedede.obj");
+	for (int i = 0; i < NUM_PIEZAS_WADDLE; i++)
+	{
+		WaddleDee_M[i] = Model();
+		WaddleDee_M[i].LoadModel(std::string("Models/WaddleDee/waddledee_") + piezasWaddle[i] + ".obj");
+		WaddleDoo_M[i] = Model();
+		WaddleDoo_M[i].LoadModel(std::string("Models/WaddleDoo/waddledoo_") + piezasWaddle[i] + ".obj");
+	}
+	for (int i = 0; i < NUM_PIEZAS_BANDANA; i++)
+	{
+		BandanaDee_M[i] = Model();
+		BandanaDee_M[i].LoadModel(std::string("Models/BandanaDee/bandanadee_") + piezasBandana[i] + ".obj");
+	}
+	for (int i = 0; i < NUM_PIEZAS_DEDEDE; i++)
+	{
+		KingDedede_M[i] = Model();
+		KingDedede_M[i].LoadModel(std::string("Models/KingDedede/kingdedede_") + piezasDedede[i] + ".obj");
+	}
 	Halberd_M = Model();
 	Halberd_M.LoadModel("Models/Halberd/halberd.obj");
 
@@ -2025,30 +2089,108 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		WarpStar_M.RenderModel();
 
-		//habitantes de Pop Star del mas simple al mas evolucionado, viendo hacia donde llega la camara
-		model = glm::mat4(1.0);
-		model = glm::translate(model, posPlaneta2 + glm::vec3(-8.5f, 0.0f, -8.0f));
-		model = glm::rotate(model, 20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		WaddleDee_M.RenderModel();
+		//habitantes de Pop Star del mas simple al mas evolucionado; como en Verdania, primero se ponen los grados de cada pieza,
+		//luego la matriz model con su lugar y hacia donde mira, y al final DibujaJerarquia
+		anguloHabitantes += anguloHabitantesOffset * deltaTime;
+		if (anguloHabitantes > 360.0f)
+			anguloHabitantes -= 360.0f;
 
+		//el Waddle Dee camina como Kirby, los pies van y vienen en X uno al reves del otro y cada mano va al reves del pie
+		//de su lado, como cuando se balancean los brazos al caminar
+		anguloWaddleDee += anguloWaddleDeeOffset * deltaTime;
+		if (anguloWaddleDee > 360.0f)
+			anguloWaddleDee -= 360.0f;
+		float pasoDee = sin(anguloHabitantes * 4.0f * toRadians);
+		rotWaddleDee[3].x = 30.0f * pasoDee;  //pie_der
+		rotWaddleDee[4].x = -30.0f * pasoDee; //pie_izq
+		rotWaddleDee[1].x = -25.0f * pasoDee; //mano_der
+		rotWaddleDee[2].x = 25.0f * pasoDee;  //mano_izq
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posPlaneta2 + glm::vec3(-6.0f, 0.0f, -9.0f));
-		model = glm::rotate(model, 10.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		WaddleDoo_M.RenderModel();
+		model = glm::translate(model, posPlaneta2 + centroWaddleDee +
+			glm::vec3(radioWaddleDee * sin(anguloWaddleDee * toRadians), 0.0f, radioWaddleDee * cos(anguloWaddleDee * toRadians)));
+		model = glm::rotate(model, (anguloWaddleDee + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(WaddleDee_M, padresWaddle, pivotesWaddleDee, rotWaddleDee, NUM_PIEZAS_WADDLE, model, uniformModel);
 
+		//el Waddle Doo se queda en su lugar, voltea despacio a los lados y agita las manos en Z, una arriba mientras la otra
+		//esta abajo; como las manos estan de lados contrarios, el mismo valor hace que vayan al reves
+		rotWaddleDoo[1].z = 30.0f * sin(anguloHabitantes * 3.0f * toRadians);
+		rotWaddleDoo[2].z = 30.0f * sin(anguloHabitantes * 3.0f * toRadians);
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posPlaneta2 + glm::vec3(-3.5f, 0.0f, -9.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		BandanaDee_M.RenderModel();
+		model = glm::translate(model, posPlaneta2 + glm::vec3(-6.5f, 0.0f, -8.5f));
+		model = glm::rotate(model, (10.0f + 35.0f * sin(anguloHabitantes * 0.5f * toRadians)) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(WaddleDoo_M, padresWaddle, pivotesWaddleDoo, rotWaddleDoo, NUM_PIEZAS_WADDLE, model, uniformModel);
 
-		//King Dedede es el mas grande y va al final con su martillo
+		//el Bandana Dee camina como el Waddle Dee pero de un lado a otro, y se voltea poco a poco al llegar a cada limite
+		if (bandanaAdelante)
+		{
+			posBandana += posBandanaOffset * deltaTime;
+			if (posBandana > limiteBandana)
+				bandanaAdelante = false;
+		}
+		else
+		{
+			posBandana -= posBandanaOffset * deltaTime;
+			if (posBandana < -limiteBandana)
+				bandanaAdelante = true;
+		}
+		if (bandanaAdelante && rumboBandana < 90.0f)
+		{
+			rumboBandana += rumboBandanaOffset * deltaTime;
+			if (rumboBandana > 90.0f)
+				rumboBandana = 90.0f;
+		}
+		if (!bandanaAdelante && rumboBandana > -90.0f)
+		{
+			rumboBandana -= rumboBandanaOffset * deltaTime;
+			if (rumboBandana < -90.0f)
+				rumboBandana = -90.0f;
+		}
+		//la lanza viene acostada hacia enfrente; girada -90 grados en X queda parada con la punta arriba y la base en el piso,
+		//y la mano que la agarra no se mueve para que no se despegue
+		float pasoBandana = sin(anguloHabitantes * 3.0f * toRadians);
+		rotBandana[2].x = -90.0f;                    //lanza
+		rotBandana[4].x = 30.0f * pasoBandana;       //pie_der
+		rotBandana[5].x = -30.0f * pasoBandana;      //pie_izq
+		rotBandana[3].x = 25.0f * pasoBandana;       //mano_izq
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posPlaneta2 + glm::vec3(0.0f, 0.0f, -11.0f));
-		model = glm::rotate(model, -20.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		KingDedede_M.RenderModel();
+		model = glm::translate(model, posPlaneta2 + glm::vec3(-3.0f + posBandana, 0.0f, -6.0f));
+		model = glm::rotate(model, rumboBandana * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(BandanaDee_M, padresBandana, pivotesBandana, rotBandana, NUM_PIEZAS_BANDANA, model, uniformModel);
+
+		//King Dedede va al final con su martillo; el brazo sube hasta arribaDedede, baja de golpe hasta pisoDedede
+		//y luego espera un rato con el martillo en el piso antes de levantarlo otra vez
+		if (estadoDedede == 0)
+		{
+			golpeDedede -= subeDedede * deltaTime;
+			if (golpeDedede < arribaDedede)
+				estadoDedede = 1;
+		}
+		else if (estadoDedede == 1)
+		{
+			golpeDedede += bajaDedede * deltaTime;
+			if (golpeDedede > pisoDedede)
+			{
+				golpeDedede = pisoDedede;
+				esperaDedede = 0.0f;
+				estadoDedede = 2;
+			}
+		}
+		else
+		{
+			esperaDedede += deltaTime;
+			if (esperaDedede > tiempoEsperaDedede)
+				estadoDedede = 0;
+		}
+		rotDedede[1].x = golpeDedede; //brazo_der
+		//el modelo trae el martillo con el barril acostado; girado 90 grados en Z sobre el mango queda parado
+		//y pega en el piso con una de sus caras y no de lado
+		rotDedede[3].z = 90.0f;       //martillo
+		//el brazo izquierdo viene extendido; se baja 40 grados en Z y se mece un poco
+		rotDedede[4].z = -40.0f + 5.0f * sin(anguloHabitantes * toRadians); //brazo_izq
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posPlaneta2 + glm::vec3(1.0f, 0.0f, -12.0f));
+		model = glm::rotate(model, -15.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		DibujaJerarquia(KingDedede_M, padresDedede, pivotesDedede, rotDedede, NUM_PIEZAS_DEDEDE, model, uniformModel);
 
 		//el angulo da la posicion en el circulo con seno y coseno, y se le suman 90 grados al giro
 		//para que la nariz del Halberd vea hacia donde avanza; con la P se queda quieto porque usa deltaTime
@@ -2776,19 +2918,103 @@ int main()
 			esperaHumo = 0.0f;
 		}
 
-		//astronautas: Gordon y el Capitan Falcon parados junto a la plataforma, viendo hacia donde llega la camara
-		//Gordon es por piezas y tiene los pies en y = 0, asi que solo se pone en su lugar y se escala
+		//astronautas: Gordon y el Capitan Falcon junto a la plataforma
+		anguloAstronautas += anguloAstronautasOffset * deltaTime;
+		if (anguloAstronautas > 360.0f)
+			anguloAstronautas -= 360.0f;
+		//mientras dura la cuenta y el cohete sube, vistaCohete crece hasta 1, y cuando el cohete baja regresa a 0
+		if (estadoCohete == 1 || estadoCohete == 2)
+		{
+			vistaCohete += vistaCoheteOffset * deltaTime;
+			if (vistaCohete > 1.0f)
+				vistaCohete = 1.0f;
+		}
+		else
+		{
+			vistaCohete -= vistaCoheteOffset * deltaTime;
+			if (vistaCohete < 0.0f)
+				vistaCohete = 0.0f;
+		}
+		//cada pose se mezcla como espera + (despegue - espera) * vistaCohete, asi con 0 queda la de espera y con 1 la del despegue
+		float rumboAstronautas = rumboEspera + (rumboDespegue - rumboEspera) * vistaCohete;
+		//la cabeza sube conforme sube el cohete, hasta 35 grados
+		float subeMirada = alturaCohete;
+		if (subeMirada > 35.0f)
+			subeMirada = 35.0f;
+
+		//reloj de Gordon, con estados como el cohete; si el cohete despega deja de verlo y baja el brazo
+		if (estadoReloj == 0)
+		{
+			tiempoReloj += deltaTime;
+			if (tiempoReloj > esperaReloj && vistaCohete == 0.0f)
+				estadoReloj = 1;
+		}
+		else if (estadoReloj == 1)
+		{
+			brazoReloj += brazoRelojOffset * deltaTime;
+			if (brazoReloj > 1.0f)
+			{
+				brazoReloj = 1.0f;
+				tiempoReloj = 0.0f;
+				estadoReloj = 2;
+			}
+		}
+		else if (estadoReloj == 2)
+		{
+			tiempoReloj += deltaTime;
+			if (tiempoReloj > veReloj || vistaCohete > 0.0f)
+				estadoReloj = 3;
+		}
+		else
+		{
+			brazoReloj -= brazoRelojOffset * deltaTime;
+			if (brazoReloj < 0.0f)
+			{
+				brazoReloj = 0.0f;
+				tiempoReloj = 0.0f;
+				estadoReloj = 0;
+			}
+		}
+		//Gordon trae los brazos abiertos hacia abajo y con 35 grados en Z quedan pegados al cuerpo;
+		//para ver el reloj el antebrazo izquierdo se dobla en X hasta quedar acostado hacia enfrente, el brazo gira en Y para
+		//que la muneca quede enfrente del pecho y la cabeza baja hacia ella
+		float esperaCabezaX = 30.0f * brazoReloj;
+		float esperaCabezaY = 20.0f * sin(anguloAstronautas * toRadians) * (1.0f - brazoReloj) + 15.0f * brazoReloj;
+		rotGordon[5].z = -35.0f;                //brazo_izq
+		rotGordon[5].x = -25.0f * brazoReloj;
+		rotGordon[5].y = -55.0f * brazoReloj;
+		rotGordon[6].x = -80.0f * brazoReloj;   //antebrazo_izq
+		//para taparse el sol el brazo derecho sube por un lado con el codo hacia afuera y un poco hacia enfrente, y el antebrazo
+		//se dobla 150 grados en Z hasta que la mano queda en la frente; la cabeza voltea hacia el cohete y sube siguiendolo
+		rotGordon[2].z = 35.0f + (-50.0f - 35.0f) * vistaCohete; //brazo_der
+		rotGordon[2].y = 35.0f * vistaCohete;
+		rotGordon[3].z = -150.0f * vistaCohete; //antebrazo_der
+		rotGordon[1].x = esperaCabezaX + (-subeMirada - esperaCabezaX) * vistaCohete; //cabeza
+		rotGordon[1].y = esperaCabezaY + (-50.0f - esperaCabezaY) * vistaCohete;
+		//Gordon tiene los pies en y = 0, asi que solo se pone en su lugar, se gira y se escala
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, posPlaneta2 + posGordonAstronauta);
+		model = glm::rotate(model, rumboAstronautas * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(escalaGordonAstronauta, escalaGordonAstronauta, escalaGordonAstronauta));
 		DibujaJerarquia(Gordon_M, padresGordon, pivotesGordon, rotGordon, NUM_PIEZAS_GORDON, model, uniformModel);
-		//el Capitan Falcon es una sola pieza y su modelo tiene los pies en y = -0.627, por eso se sube eso despues de escalar
+
+		//el Capitan Falcon viene en T; con los brazos 45 grados abajo y los antebrazos doblados 80 grados mas
+		//las manos le quedan en la cintura, y en el despegue se voltea con el cuerpo y saluda con la mano derecha,
+		//con el brazo arriba y el antebrazo yendo de un lado a otro, sin seguir al cohete con la cabeza
+		float esperaFalconY = 30.0f * cos(anguloAstronautas * toRadians);
+		float saludo = 30.0f * sin(anguloAstronautas * 8.0f * toRadians);
+		rotFalcon[2].z = 45.0f + (-40.0f - 45.0f) * vistaCohete;              //brazo_der
+		rotFalcon[3].z = 80.0f + (-50.0f + saludo - 80.0f) * vistaCohete;     //antebrazo_der
+		rotFalcon[4].z = -45.0f;                                              //brazo_izq
+		rotFalcon[5].z = -80.0f;                                              //antebrazo_izq
+		rotFalcon[1].y = esperaFalconY * (1.0f - vistaCohete);                //cabeza
+		//su modelo tiene los pies en y = -0.627, por eso se sube eso despues de escalar
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, posPlaneta2 + posFalconAstronauta);
+		model = glm::rotate(model, rumboAstronautas * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(escalaFalconAstronauta, escalaFalconAstronauta, escalaFalconAstronauta));
 		model = glm::translate(model, glm::vec3(0.0f, 0.627f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		CapitanFalcon_M.RenderModel();
+		DibujaJerarquia(CapitanFalcon_M, padresFalcon, pivotesFalcon, rotFalcon, NUM_PIEZAS_FALCON, model, uniformModel);
 
 		//--- estacion espacial y naves ---
 		//modelauxEstacion se guarda antes de escalar la estacion, asi los pads y las naves no se hacen chicos con ella
