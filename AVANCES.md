@@ -52,7 +52,7 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Skybox espacial que cambia segun el planeta | 10 | Alejandro | hecho | uno para el espacio y uno de dia y otro de noche para cada planeta |
 | Spotlights que se prenden/apagan con teclado | 10 | Alejandro | hecho | K prende o apaga los de la zona y L la linterna (empieza apagada) |
 | 3 animaciones basicas (se inician con teclado) | 30 | Alejandro y Abraham | hecho | con la F: headcrab en Xen, plantas en Verdania y despegue del cohete en Pop Star |
-| 3 animaciones complejas (ciclo continuo con funciones) | 30 | todos | hecho | naves de la pista, naves de la estacion, islas flotantes y plantas de luz de Xen, Pop Star girando, el Halberd volando en circulo y NPCs caminando |
+| 3 animaciones complejas (ciclo continuo con funciones) | 30 | todos | hecho | naves de la pista, naves de la estacion, islas flotantes y plantas de luz de Xen, Pop Star girando, el Halberd volando en circulo, habitantes de Pop Star por piezas (el Waddle Dee camina en circulo, el Bandana Dee hace guardia con su lanza, el Waddle Doo agita las manos y King Dedede azota su martillo), Gordon que revisa el logo de WhatsApp que trae en la mano y se tapa el sol en el despegue, el Capitan Falcon con las manos en la cintura que se voltea a saludar, y NPCs caminando |
 | Estilo visual | 30 | todos | en proceso | |
 | Extra: originalidad | +30 | todos | en proceso | nave de Among Us con crewmates escondidos, carnivora como segundo avatar |
 | Extra: animaciones complejas adicionales | +30 | todos | en proceso | las complejas que pasan de 3 |

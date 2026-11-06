@@ -42,19 +42,21 @@ glm::vec3 pivotesCarnivora[NUM_PIEZAS_CARNIVORA] = {
 };
 
 //Gordon mide como 1.4 de alto
-const int NUM_PIEZAS_GORDON = 14;
+const int NUM_PIEZAS_GORDON = 15;
 const char* piezasGordon[NUM_PIEZAS_GORDON] = {
 	"torso", "cabeza",
 	"brazo_der", "antebrazo_der", "mano_der",
 	"brazo_izq", "antebrazo_izq", "mano_izq",
 	"muslo_der", "pantorrilla_der", "pie_der",
-	"muslo_izq", "pantorrilla_izq", "pie_izq" };
+	"muslo_izq", "pantorrilla_izq", "pie_izq",
+	"logo" };
 int padresGordon[NUM_PIEZAS_GORDON] = {
 	-1, 0,
 	0, 2, 3,
 	0, 5, 6,
 	0, 8, 9,
-	0, 11, 12 };
+	0, 11, 12,
+	7 };
 glm::vec3 pivotesGordon[NUM_PIEZAS_GORDON] = {
 	glm::vec3(0.0f, 0.73277f, 0.01014f),       //torso, gira en la cadera
 	glm::vec3(0.0f, 1.22766f, -0.01482f),      //cabeza, gira en el cuello
@@ -69,7 +71,8 @@ glm::vec3 pivotesGordon[NUM_PIEZAS_GORDON] = {
 	glm::vec3(-0.07732f, 0.08130f, -0.03441f), //pie_der, gira en el tobillo
 	glm::vec3(0.07392f, 0.73277f, 0.01014f),   //muslo_izq
 	glm::vec3(0.07569f, 0.39412f, -0.00743f),  //pantorrilla_izq
-	glm::vec3(0.07732f, 0.08130f, -0.03441f)   //pie_izq
+	glm::vec3(0.07732f, 0.08130f, -0.03441f),  //pie_izq
+	glm::vec3(0.43085f, 0.77516f, -0.04469f)   //logo de WhatsApp en la mano izquierda, no gira por su cuenta
 };
 
 //Kirby mide como 0.73 de alto
@@ -83,6 +86,20 @@ glm::vec3 pivotesKirby[NUM_PIEZAS_KIRBY] = {
 	glm::vec3(0.2014f, 0.3897f, 0.0170f),   //mano_izq
 	glm::vec3(-0.1323f, 0.1498f, -0.0135f), //pie_der
 	glm::vec3(0.1317f, 0.1505f, -0.0139f)   //pie_izq
+};
+
+//el Capitan Falcon mide como 0.95 de alto y tiene los pies en y = -0.627; viene en pose de T, asi que sus brazos van sobre X
+const int NUM_PIEZAS_FALCON = 6;
+const char* piezasFalcon[NUM_PIEZAS_FALCON] = {
+	"cuerpo", "cabeza", "brazo_der", "antebrazo_der", "brazo_izq", "antebrazo_izq" };
+int padresFalcon[NUM_PIEZAS_FALCON] = { -1, 0, 0, 2, 0, 4 };
+glm::vec3 pivotesFalcon[NUM_PIEZAS_FALCON] = {
+	glm::vec3(0.0f, 0.0f, 0.0f),         //cuerpo
+	glm::vec3(0.0f, 0.19f, 0.0f),        //cabeza, gira en el cuello
+	glm::vec3(-0.12f, 0.16f, -0.03f),    //brazo_der, gira en el hombro
+	glm::vec3(-0.25f, 0.16f, -0.03f),    //antebrazo_der, gira en el codo
+	glm::vec3(0.12f, 0.16f, -0.03f),     //brazo_izq
+	glm::vec3(0.25f, 0.16f, -0.03f)      //antebrazo_izq
 };
 
 //--- planetas: Xen y planeta 2 ---
@@ -157,6 +174,57 @@ glm::vec3 posNubes[NUM_NUBES] = {
 	glm::vec3(50.0f, 26.0f, -10.0f) };
 int tipoNubes[NUM_NUBES] = { 2, 1, 2, 1, 1 };
 float escalaNubes[NUM_NUBES] = { 3.0f, 3.0f, 4.0f, 3.0f, 2.5f };
+
+//habitantes de Pop Star; los Waddle Dee y el Waddle Doo tienen las mismas piezas que Kirby, cuerpo, manos y pies,
+//y las manos y los pies giran en la parte que toca el cuerpo
+//el Waddle Dee mide 0.9 de alto
+const int NUM_PIEZAS_WADDLE = 5;
+const char* piezasWaddle[NUM_PIEZAS_WADDLE] = {
+	"cuerpo", "mano_der", "mano_izq", "pie_der", "pie_izq" };
+int padresWaddle[NUM_PIEZAS_WADDLE] = { -1, 0, 0, 0, 0 };
+glm::vec3 pivotesWaddleDee[NUM_PIEZAS_WADDLE] = {
+	glm::vec3(0.0f, 0.45f, 0.0f),        //cuerpo
+	glm::vec3(-0.28f, 0.45f, 0.0f),      //mano_der
+	glm::vec3(0.28f, 0.45f, 0.0f),       //mano_izq
+	glm::vec3(-0.18f, 0.18f, 0.0f),      //pie_der
+	glm::vec3(0.18f, 0.18f, 0.0f)        //pie_izq
+};
+//el Waddle Doo mide 1 de alto con las pestanas
+glm::vec3 pivotesWaddleDoo[NUM_PIEZAS_WADDLE] = {
+	glm::vec3(0.0f, 0.5f, 0.0f),         //cuerpo
+	glm::vec3(-0.36f, 0.49f, -0.05f),    //mano_der
+	glm::vec3(0.36f, 0.49f, -0.05f),     //mano_izq
+	glm::vec3(-0.19f, 0.19f, -0.03f),    //pie_der
+	glm::vec3(0.19f, 0.19f, -0.03f)      //pie_izq
+};
+//el Bandana Dee mide 1 de alto y la lanza cuelga de su mano derecha, que la agarra mas o menos a la mitad
+const int NUM_PIEZAS_BANDANA = 6;
+const char* piezasBandana[NUM_PIEZAS_BANDANA] = {
+	"cuerpo", "mano_der", "lanza", "mano_izq", "pie_der", "pie_izq" };
+int padresBandana[NUM_PIEZAS_BANDANA] = { -1, 0, 1, 0, 0, 0 };
+glm::vec3 pivotesBandana[NUM_PIEZAS_BANDANA] = {
+	glm::vec3(0.0f, 0.5f, 0.0f),         //cuerpo
+	glm::vec3(-0.35f, 0.53f, 0.0f),      //mano_der
+	glm::vec3(-0.70f, 0.53f, -0.05f),    //lanza, gira donde la agarra la mano
+	glm::vec3(0.35f, 0.53f, 0.0f),       //mano_izq
+	glm::vec3(-0.21f, 0.2f, 0.0f),       //pie_der
+	glm::vec3(0.21f, 0.2f, 0.0f)         //pie_izq
+};
+//King Dedede mide 2.4 de alto; el martillo cuelga de la mano derecha y la mano del brazo
+const int NUM_PIEZAS_DEDEDE = 8;
+const char* piezasDedede[NUM_PIEZAS_DEDEDE] = {
+	"cuerpo", "brazo_der", "mano_der", "martillo", "brazo_izq", "mano_izq", "pie_der", "pie_izq" };
+int padresDedede[NUM_PIEZAS_DEDEDE] = { -1, 0, 1, 2, 0, 4, 0, 0 };
+glm::vec3 pivotesDedede[NUM_PIEZAS_DEDEDE] = {
+	glm::vec3(0.0f, 1.0f, 0.0f),         //cuerpo
+	glm::vec3(-0.45f, 1.1f, 0.0f),       //brazo_der, gira en el hombro
+	glm::vec3(-1.2f, 1.07f, -0.08f),     //mano_der, gira en la muneca
+	glm::vec3(-1.601f, 0.966f, -0.08f),  //martillo, gira sobre el centro del mango
+	glm::vec3(0.45f, 1.1f, 0.0f),        //brazo_izq
+	glm::vec3(1.2f, 1.07f, -0.08f),      //mano_izq
+	glm::vec3(-0.4f, 0.3f, 0.0f),        //pie_der
+	glm::vec3(0.4f, 0.3f, 0.0f)          //pie_izq
+};
 
 //--- planeta 3: Verdania ---
 //el peashooter mide como 1.5 de alto
