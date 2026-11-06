@@ -1041,4 +1041,35 @@ glm::vec3 pivotesAvatar[NUM_PIEZAS_KIRBY] = {
 glm::vec3 inicioCoheteEspacio = glm::vec3(-800.0f, 250.0f, 480.0f);
 glm::vec3 finCoheteEspacio = glm::vec3(613.0f, 600.0f, -350.0f);
 
+//recorrido de la camara 4; cada viaje va de la estacion a un planeta y en todos los arreglos el 0 es Xen, el 1 Pop Star
+//y el 2 Verdania, en el orden de las teclas G, H y J
+const int NUM_VIAJES = 3;
+//zona del planeta a donde va, como las de Window
+int zonaViajes[NUM_VIAJES] = { 1, 2, 3 };
+//lo que sube en diagonal antes de girar; para ir a Verdania sube mas, porque si no pasaria por la estacion
+float subidaViajes[NUM_VIAJES] = { 60.0f, 40.0f, 240.0f };
+//rumbo con el que apunta al planeta en el espacio; sale del arco tangente del camino de donde termina de subir al planeta,
+//sin contar la altura, y se le resto una vuelta a los que asi giran por el lado corto desde -90, que es como esta en el pad
+float rumboViajes[NUM_VIAJES] = { 0.7f, -237.1f, -122.2f };
+//lo que vuela antes de que la camara pase al planeta; es la distancia al planeta menos unas dos veces y media su radio,
+//asi se ve muy lejos pero no lo toca
+float distanciaViajes[NUM_VIAJES] = { 1600.0f, 2330.0f, 2400.0f };
+//camara en la estacion, medida desde su centro; cada una ve el pad y hacia donde se va la nave en ese viaje
+glm::vec3 camaraEstacionViajes[NUM_VIAJES] = {
+	glm::vec3(-265.0f, 8.0f, 45.0f),
+	glm::vec3(-265.0f, 8.0f, -45.0f),
+	glm::vec3(-300.0f, 60.0f, 200.0f) };
+//en el planeta, donde se estaciona la nave, el rumbo con el que llega y donde esta la camara, medidos desde el centro del piso
+//son lugares libres: en Xen adelante de donde se llega, en Pop Star entre las dos colinas de Z positivo y en Verdania
+//del lado contrario al jardin
+glm::vec3 lugarLlegadaViajes[NUM_VIAJES] = {
+	glm::vec3(6.0f, 5.0f, 22.0f),
+	glm::vec3(45.0f, 5.0f, 50.0f),
+	glm::vec3(28.0f, 5.0f, 30.0f) };
+float rumboLlegadaViajes[NUM_VIAJES] = { 0.0f, 90.0f, 90.0f };
+glm::vec3 camaraLlegadaViajes[NUM_VIAJES] = {
+	glm::vec3(-25.0f, 8.0f, 30.0f),
+	glm::vec3(10.0f, 6.0f, 15.0f),
+	glm::vec3(0.0f, 6.0f, 10.0f) };
+
 //--- iluminacion: ciclo dia/noche, luminarias y spotlights ---

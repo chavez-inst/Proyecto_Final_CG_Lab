@@ -8,7 +8,7 @@ in vec4 vColor;
 out vec4 color;
 
 //tienen que ser iguales a los de src/CommonValues.h
-const int MAX_POINT_LIGHTS = 5;
+const int MAX_POINT_LIGHTS = 6;
 const int MAX_SPOT_LIGHTS = 5;
 
 struct Light
