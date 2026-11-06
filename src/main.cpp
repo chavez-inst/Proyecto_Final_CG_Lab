@@ -289,21 +289,19 @@ float anguloHalberdOffset = 0.08f;
 Skybox skyboxVerdaniaDia;
 Skybox skyboxVerdaniaNoche;
 Texture verdaniaPastoTexture;
-//desde el espacio Verdania se ve como la cabeza del peashooter en grande, lisa y con textura de planeta
-//peashooter_planeta.obj es la cabeza sin cuello, sin cejas y redonda por abajo
+//desde el espacio Verdania es la cabeza del peashooter en grande, lisa y con textura de planeta
 Model PlanetaVerdania_M;
 glm::vec3 posPlanetaVerdania = glm::vec3(3330.0f, 250.0f, 1650.0f);
-//centro de la cabeza en las coordenadas del modelo; ahi se gira y se escala para que no gire alrededor de los pies
+//centro de la cabeza; ahi se gira y se escala para que no gire alrededor de los pies
 glm::vec3 centroCabezaPea = glm::vec3(0.0f, 1.15f, 0.05f);
 float giroPlanetaVerdania = 0.0f;
 float giroPlanetaVerdaniaOffset = 0.05f;
 
-//las plantas estan separadas en piezas por sus huesos
-//anguloVerdania marca el tiempo de todas sus animaciones y solo avanza mientras la F las tenga prendidas
+//anguloVerdania marca el tiempo de las animaciones de las plantas y solo avanza con la F prendida
 float anguloVerdania = 0.0f;
 float anguloVerdaniaOffset = 2.0f;
 
-//peashooter, que camina en circulo como el headcrab
+//peashooter, camina en circulo
 Model Peashooter_M[NUM_PIEZAS_PEASHOOTER];
 glm::vec3 rotPeashooter[NUM_PIEZAS_PEASHOOTER];
 glm::vec3 centroPeashooter = glm::vec3(0.0f, 0.0f, -2.0f); //el centro del circulo se mide desde posVerdania
@@ -311,19 +309,18 @@ float radioPeashooter = 2.5f;
 float anguloPeashooter = 0.0f;
 float anguloPeashooterOffset = 0.4f;
 
-//crazy dave, que va y viene en linea recta en X entre -limiteDave y limiteDave
+//crazy dave, va y viene en linea recta en X
 Model CrazyDave_M[NUM_PIEZAS_CRAZYDAVE];
 glm::vec3 rotCrazyDave[NUM_PIEZAS_CRAZYDAVE];
 float posDave = 0.0f;
 float posDaveOffset = 0.02f;
 float limiteDave = 4.0f;
 bool daveAdelante = true;
-//hacia donde mira en grados alrededor de Y; vale 90 cuando camina hacia X positivo y -90 hacia X negativo, y al cambiar
-//de direccion se va girando de rumboDaveOffset en rumboDaveOffset para que la vuelta no sea de golpe
+//hacia donde mira crazy dave; se gira poco a poco entre 90 y -90 para que la vuelta no sea de golpe
 float rumboDave = 90.0f;
 float rumboDaveOffset = 6.0f;
 
-//los tres peas en maceta y el cactus se quedan en su lugar
+//peas en maceta y cactus, se quedan en su lugar
 Model IcePea_M[NUM_PIEZAS_ICEPEA];
 glm::vec3 rotIcePea[NUM_PIEZAS_ICEPEA];
 Model GatlingPea_M[NUM_PIEZAS_GATLINGPEA];
@@ -335,7 +332,7 @@ glm::vec3 rotFirePea[NUM_PIEZAS_FIREPEA];
 Model Cactus_M[NUM_PIEZAS_CACTUS];
 glm::vec3 rotCactus[NUM_PIEZAS_CACTUS];
 
-//plantas de adorno, cada una con una animacion sencilla
+//plantas de adorno
 Model Sunflower_M[NUM_PIEZAS_SUNFLOWER];
 glm::vec3 rotSunflower[NUM_PIEZAS_SUNFLOWER];
 Model Sunflower2_M[NUM_PIEZAS_SUNFLOWER2];
@@ -352,7 +349,7 @@ Model Torchwood_M[NUM_PIEZAS_TORCHWOOD];
 glm::vec3 rotTorchwood[NUM_PIEZAS_TORCHWOOD];
 Model WallNut_M; //es una sola pieza, por eso es un Model normal
 
-//jardin de crazy dave con su casa, la calle, cercas, un farol, arboles, arbustos, flores y piedras
+//jardin de crazy dave
 Model JardinCasa_M;
 Model JardinCalle_M;
 Model JardinCalleFin_M;
@@ -509,11 +506,8 @@ glm::mat4 ObtenerMatrizNavePista(float distancia, float carrilX, float alturaFlo
 Model Satelite_M;
 
 //--- plataforma de lanzamiento y cohete ---
-//la plataforma esta en la superficie de Pop Star, el planeta 2, y en ella estan el cohete y su torre
-//su lugar se mide desde el centro del piso del planeta, como los arboles y las colinas; queda adelante a la izquierda
-//de donde se llega, entre los arboles y las colinas de las orillas, para que no se encime con nada
-//los modelos del cohete, la torre y la plataforma son muy chicos (el cohete mide 4.6 de alto), por eso todo se escala
-//por escalaPlataforma; con 4 el cohete queda de unas 18 unidades y el piso de 24 por 24
+//la plataforma esta en Pop Star; su lugar se mide desde el centro del piso del planeta
+//los modelos son muy chicos, el cohete mide 4.6, por eso todo se escala por escalaPlataforma
 Model Cohete_M[NUM_PIEZAS_COHETE];
 glm::vec3 rotCohete[NUM_PIEZAS_COHETE]; //las globales empiezan en 0
 Model PlataformaCohete_M;
@@ -522,8 +516,8 @@ glm::vec3 posPlataforma = glm::vec3(-42.0f, 0.0f, -32.0f);
 float escalaPlataforma = 4.0f;
 int pisosTorre = 5;
 glm::mat4 modelauxPlataforma(1.0);
-//despegue del cohete con la F: estadoCohete dice en que parte va, 0 parado, 1 cuenta regresiva, 2 subiendo y 3 bajando
-//las alturas estan en las unidades del modelo sin escalar, asi que se multiplican por escalaPlataforma; con 4, subir 60 son 240 unidades
+//estadoCohete dice en que parte va el despegue; vale 0 parado, 1 en la cuenta regresiva, 2 subiendo y 3 bajando
+//las alturas van en las unidades del modelo y despues se escalan con escalaPlataforma
 int estadoCohete = 0;
 float tiempoCuentaCohete = 3.0f; //la cuenta regresiva dura 3 segundos
 float cuentaCohete = 0.0f;       //segundos que le faltan a la cuenta
@@ -2882,10 +2876,8 @@ int main()
 		Halberd_M.RenderModel();
 
 		//--- planeta 3: Verdania ---
-		//cada parte que se mueve usa el seno de anguloVerdania por un numero entero, que va y viene suave entre -1 y 1 y no
-		//brinca cuando el angulo regresa de 360 a 0; ese valor se multiplica por los grados maximos que se mueve la pieza
-		//entre mas grande es el numero mas rapido se mueve, y si se suman grados dentro del seno, como 120 o 240, las plantas
-		//iguales quedan desfasadas; si la F apaga las animaciones, las plantas se quedan quietas en su ultima pose
+		//cada pieza que se mueve usa el seno de anguloVerdania por un numero entero, asi no brinca al pasar de 360 a 0;
+		//el numero es la velocidad y lo que se suma dentro del seno desfasa a las plantas iguales
 		if (mainWindow.getanimaVerdania())
 		{
 			anguloVerdania += anguloVerdaniaOffset * deltaTime;
@@ -2895,7 +2887,7 @@ int main()
 			anguloPeashooter += anguloPeashooterOffset * deltaTime;
 			if (anguloPeashooter > 360.0f)
 				anguloPeashooter -= 360.0f;
-			//crazy dave avanza hacia un lado; al pasar el limite cambia de direccion
+			//crazy dave cambia de direccion al pasar el limite
 			if (daveAdelante)
 			{
 				posDave += posDaveOffset * deltaTime;
@@ -2908,8 +2900,7 @@ int main()
 				if (posDave < -limiteDave)
 					daveAdelante = true;
 			}
-			//crazy dave se voltea poco a poco hacia donde camina, a 90 grados hacia X positivo y a -90 hacia X negativo,
-			//en lugar de girar de golpe al llegar al limite
+			//y se voltea poco a poco hacia donde camina
 			if (daveAdelante && rumboDave < 90.0f)
 			{
 				rumboDave += rumboDaveOffset * deltaTime;
@@ -2930,7 +2921,7 @@ int main()
 
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		//piso de pasto, del mismo tamano que el del planeta 2, que mide 200 por 200
+		//piso de pasto de 200 por 200
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania);
 		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
@@ -2938,53 +2929,44 @@ int main()
 		verdaniaPastoTexture.UseTexture();
 		meshListModel[0]->RenderMeshModel();
 
-		//todas las plantas se dibujan igual, primero se ponen los grados que gira cada pieza,
-		//luego la matriz model con su lugar en Verdania y hacia donde mira, y al final DibujaJerarquia
-		//dibuja cada pieza encima de su padre girando en su pivote
+		//cada planta pone los grados de sus piezas, despues su lugar en model y al final DibujaJerarquia
 
-		//peashooter, que es NPC y camina en circulo como el headcrab
-		//pasoPea va de -1 a 1; las hojas de abajo le sirven de patas y se mueven cruzadas, la delantera izquierda junto con
-		//la trasera derecha y la delantera derecha junto con la trasera izquierda, como caminan los animales de cuatro patas
+		//las hojas de abajo del peashooter son sus patas y se mueven cruzadas, como un animal de cuatro patas
 		float pasoPea = sin(anguloVerdania * 3.0f * toRadians);
 		rotPeashooter[8].x = 25.0f * pasoPea;   //hoja_del_izq
 		rotPeashooter[11].x = 25.0f * pasoPea;  //hoja_tras_der
 		rotPeashooter[9].x = -25.0f * pasoPea;  //hoja_del_der
 		rotPeashooter[10].x = -25.0f * pasoPea; //hoja_tras_izq
-		//los brazos vienen extendidos en T en el modelo; se bajan 70 grados en Z en el hombro y se quedan quietos
+		//los brazos vienen en T y se bajan 70 grados
 		rotPeashooter[6].z = -70.0f;            //brazo_izq abajo
 		rotPeashooter[7].z = 70.0f;             //brazo_der abajo
-		//la posicion en el circulo sale del seno y el coseno de su angulo, y se gira 90 grados mas para que mire hacia donde avanza
+		//su lugar en el circulo sale del seno y coseno, y se gira 90 grados mas para que mire hacia donde avanza
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + centroPeashooter +
 			glm::vec3(radioPeashooter * sin(anguloPeashooter * toRadians), 0.0f, radioPeashooter * cos(anguloPeashooter * toRadians)));
 		model = glm::rotate(model, (anguloPeashooter + 90.0f) * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Peashooter_M, padresPeashooter, pivotesPeashooter, rotPeashooter, NUM_PIEZAS_PEASHOOTER, model, uniformModel);
 
-		//crazy dave, que es NPC y camina de un lado a otro en linea recta
-		//solo mueve las piernas, una al reves de la otra, como cuando camina una persona;
-		//la pantorrilla y el pie son hijos del muslo, asi que se mueven con el sin tocarlos
+		//las piernas de crazy dave van al reves una de la otra; la pantorrilla y el pie siguen al muslo porque son sus hijos
 		float pasoDave = sin(anguloVerdania * 4.0f * toRadians);
 		rotCrazyDave[11].x = 25.0f * pasoDave;  //muslo_der
 		rotCrazyDave[14].x = -25.0f * pasoDave; //muslo_izq
-		//los brazos vienen abiertos en el modelo; se bajan 45 grados en Z y se quedan quietos
+		//los brazos vienen abiertos y se bajan 45 grados
 		rotCrazyDave[5].z = 45.0f;              //brazo_der abajo
 		rotCrazyDave[8].z = -45.0f;             //brazo_izq abajo
-		//el modelo mira hacia Z positivo y rumboDave lo gira en Y hacia donde camina
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(posDave, 0.0f, -8.0f));
 		model = glm::rotate(model, rumboDave * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(CrazyDave_M, padresCrazyDave, pivotesCrazyDave, rotCrazyDave, NUM_PIEZAS_CRAZYDAVE, model, uniformModel);
 
-		//el ice pea y el fire pea son NPCs en maceta que vigilan y solo voltean la cabeza de un lado a otro hasta 35 grados en Y;
-		//el fire pea va desfasado 240 grados para que no volteen al mismo tiempo
+		//ice pea y fire pea voltean la cabeza hasta 35 grados; el fire pea va desfasado para que no volteen juntos
 		rotIcePea[2].y = 35.0f * sin(anguloVerdania * toRadians);       //cabeza
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-6.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(IcePea_M, padresIcePea, pivotesIcePea, rotIcePea, NUM_PIEZAS_ICEPEA, model, uniformModel);
 
-		//el gatling pea es NPC en maceta y su cabeza se queda quieta; solo giran los canones sobre su propio eje,
-		//que es el eje Z del modelo
+		//el gatling pea solo gira sus canones
 		rotGatlingPea[4].z = giroCanones;
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-7.0f, 0.0f, -3.0f));
@@ -2997,8 +2979,7 @@ int main()
 		model = glm::rotate(model, 70.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(FirePea_M, padresFirePea, pivotesFirePea, rotFirePea, NUM_PIEZAS_FIREPEA, model, uniformModel);
 
-		//el cactus es NPC y solo sube y baja los brazos en Z; con el mismo valor en los dos uno sube mientras el otro baja
-		//porque estan de lados contrarios
+		//con el mismo valor en los dos brazos del cactus uno sube y el otro baja, porque estan de lados contrarios
 		rotCactus[4].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_izq
 		rotCactus[5].z = 10.0f * sin(anguloVerdania * 2.0f * toRadians); //brazo_der
 		model = glm::mat4(1.0);
@@ -3006,8 +2987,7 @@ int main()
 		model = glm::rotate(model, -40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(Cactus_M, padresCactus, pivotesCactus, rotCactus, NUM_PIEZAS_CACTUS, model, uniformModel);
 
-		//los girasoles son de adorno y solo mecen la cabeza de lado en Z, como con el viento;
-		//cada uno va desfasado 120 grados del anterior
+		//los girasoles mecen la cabeza de lado, cada uno desfasado 120 grados
 		rotSunflower[6].z = -60.0f; //los brazos tambien vienen en T y se bajan 60 grados
 		rotSunflower[7].z = 60.0f;
 		rotSunflower[3].z = 8.0f * sin(anguloVerdania * toRadians); //cabeza
@@ -3031,29 +3011,28 @@ int main()
 		model = glm::rotate(model, -15.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(StuffyFlower_M, padresStuffyFlower, pivotesStuffyFlower, rotStuffyFlower, NUM_PIEZAS_STUFFYFLOWER, model, uniformModel);
 
-		//hypno-shroom de adorno, solo el sombrero se tambalea de lado
+		//el sombrero del hypno-shroom se tambalea
 		rotHypnoShroom[2].z = 6.0f * sin(anguloVerdania * 2.0f * toRadians); //sombrero
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(7.0f, 0.0f, -6.0f));
 		model = glm::rotate(model, -50.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(HypnoShroom_M, padresHypnoShroom, pivotesHypnoShroom, rotHypnoShroom, NUM_PIEZAS_HYPNOSHROOM, model, uniformModel);
 
-		//laser bean de adorno, el cuerpo se balancea dentro de su maceta y el pelo se mueve con el porque es su hijo
+		//el cuerpo del laser bean se balancea y el pelo lo sigue porque es su hijo
 		rotLaserBean[1].z = 8.0f * sin(anguloVerdania * toRadians);         //cuerpo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(5.0f, 0.0f, 3.0f));
 		model = glm::rotate(model, -30.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(LaserBean_M, padresLaserBean, pivotesLaserBean, rotLaserBean, NUM_PIEZAS_LASERBEAN, model, uniformModel);
 
-		//potato mine de adorno, la antena se mueve rapido de un lado a otro
+		//la antena de la potato mine se mueve rapido
 		rotPotatoMine[2].z = 15.0f * sin(anguloVerdania * 3.0f * toRadians); //antena
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(-4.0f, 0.0f, 4.0f));
 		model = glm::rotate(model, 30.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		DibujaJerarquia(PotatoMine_M, padresPotatoMine, pivotesPotatoMine, rotPotatoMine, NUM_PIEZAS_POTATOMINE, model, uniformModel);
 
-		//wall-nut de adorno, como es una sola pieza se balancea todo el modelo hasta 6 grados en Z;
-		//su origen esta en la base, asi que gira apoyada en el piso
+		//la wall-nut es una sola pieza, asi que se balancea todo el modelo apoyado en su base
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(8.5f, 0.0f, -9.0f));
 		model = glm::rotate(model, -40.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -3061,8 +3040,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		WallNut_M.RenderModel();
 
-		//torchwood de adorno, solo la mandibula se abre entre 0 y 12 grados en X
-		//como a 6 se le suma 6 por el seno, nunca baja de 0 y la boca no se cierra de mas
+		//la mandibula del torchwood se abre entre 0 y 12 grados; como a 6 se le suma 6 por el seno, nunca baja de 0
 		rotTorchwood[4].x = 6.0f + 6.0f * sin(anguloVerdania * 2.0f * toRadians); //mandibula
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -18.0f));
@@ -3071,7 +3049,7 @@ int main()
 		//jardin de crazy dave
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		//casa de crazy dave al fondo; el modelo tiene la puerta hacia Z negativo, por eso se gira 180 grados para que vea al jardin
+		//casa al fondo, girada 180 grados porque su puerta ve hacia Z negativo
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posVerdania + glm::vec3(0.0f, 0.0f, -34.0f));
 		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -3079,7 +3057,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinCasa_M.RenderModel();
 
-		//en la calle los tramos rectos se giran 90 grados para que corran sobre X, y en la punta va el final de la calle
+		//los tramos de la calle se giran 90 grados para que corran sobre X, y en la punta va el final
 		for (int i = 0; i < NUM_TRAMOS_CALLE; i++)
 		{
 			model = glm::mat4(1.0);
@@ -3104,7 +3082,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinFarol_M.RenderModel();
 
-		//camino de piedra; cada piedra se gira distinto para que el camino no se vea repetido
+		//camino de piedra; cada piedra va girada distinto para que no se vea repetido
 		for (int i = 0; i < NUM_PIEDRAS_CAMINO; i++)
 		{
 			model = glm::mat4(1.0);
@@ -3114,7 +3092,7 @@ int main()
 			JardinCaminoPiedra_M.RenderModel();
 		}
 
-		//cerca entre el jardin y la casa; en indicePuerta va la pieza con la puerta abierta
+		//cerca; en indicePuerta va la pieza con la puerta
 		for (int i = 0; i < NUM_CERCAS_JARDIN; i++)
 		{
 			model = glm::mat4(1.0);
@@ -3133,7 +3111,7 @@ int main()
 			}
 		}
 
-		//en los arboles se alternan los dos modelos, los pares usan el 1 y los impares el 2
+		//en los arboles los pares usan el modelo 1 y los impares el 2
 		for (int i = 0; i < NUM_ARBOLES_JARDIN; i++)
 		{
 			model = glm::mat4(1.0);
@@ -3147,7 +3125,7 @@ int main()
 				JardinArbol2_M.RenderModel();
 		}
 
-		//en los arbustos se alternan el normal y el que tiene flores
+		//en los arbustos se alternan el normal y el de flores
 		for (int i = 0; i < NUM_ARBUSTOS_JARDIN; i++)
 		{
 			model = glm::mat4(1.0);
@@ -3161,7 +3139,7 @@ int main()
 				JardinArbustoFlores_M.RenderModel();
 		}
 
-		//en las flores se alternan los dos ramos, cada uno con un giro distinto
+		//en las flores se alternan los dos ramos
 		for (int i = 0; i < NUM_FLORES_JARDIN; i++)
 		{
 			model = glm::mat4(1.0);
@@ -3175,7 +3153,7 @@ int main()
 				JardinFlores2_M.RenderModel();
 		}
 
-		//los detalles chicos del pasto se reparten en orden trebol, helecho y hongo, y el residuo de i entre 3 dice cual toca
+		//en los detalles del pasto el residuo de i entre 3 dice si va trebol, helecho u hongo
 		for (int i = 0; i < NUM_DETALLES_JARDIN; i++)
 		{
 			model = glm::mat4(1.0);
@@ -3203,7 +3181,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		JardinRoca_M.RenderModel();
 
-		//planeta Verdania en el espacio, gira despacio sobre Y como Xen; mide como 0.73 de alto y con escala 1350 queda de unas 990 unidades
+		//Verdania en el espacio, gira despacio sobre Y; con escala 1350 mide unas 990 unidades
 		giroPlanetaVerdania += giroPlanetaVerdaniaOffset * deltaTime;
 		if (giroPlanetaVerdania > 360.0f)
 			giroPlanetaVerdania -= 360.0f;
@@ -3470,11 +3448,11 @@ int main()
 		Satelite_M.RenderModel();
 
 		//--- plataforma de lanzamiento y cohete ---
-		//despegue del cohete; cada parte avanza y al terminar pasa a la siguiente, como las naves de la estacion
-		//las esperas van en segundos, por eso deltaTime se divide entre 61, que es lo que suma en un segundo
+		//el despegue del cohete va por estados, como las naves de la estacion;
+		//los tiempos van en segundos, por eso deltaTime se divide entre 61
 		if (estadoCohete == 0)
 		{
-			//parado en la plataforma; si la F tiene prendidos los despegues, empieza la cuenta regresiva
+			//parado; si la F tiene prendidos los despegues empieza la cuenta
 			if (mainWindow.getdespegaCohete())
 			{
 				cuentaCohete = tiempoCuentaCohete;
@@ -3483,8 +3461,7 @@ int main()
 		}
 		else if (estadoCohete == 1)
 		{
-			//cuenta regresiva: la llama crece hasta la mitad y el cohete tiembla cada vez mas desde la base,
-			//que es la raiz de su jerarquia, asi tiembla todo junto; el seno da unas 5 sacudidas por segundo
+			//en la cuenta regresiva la llama crece y el cohete tiembla desde la base, que es la raiz de su jerarquia
 			cuentaCohete -= deltaTime / 61.0f;
 			fuegoCohete += fuegoCuentaOffset * deltaTime;
 			if (fuegoCohete > 0.5f)
@@ -3499,7 +3476,7 @@ int main()
 		}
 		else if (estadoCohete == 2)
 		{
-			//sube acelerando con la llama completa: la velocidad crece cada frame y la altura crece con la velocidad
+			//sube acelerando, porque la velocidad crece cada frame y la altura crece con la velocidad
 			fuegoCohete = 1.0f;
 			velocidadCohete += aceleracionCohete * deltaTime;
 			alturaCohete += velocidadCohete * deltaTime;
@@ -3511,7 +3488,7 @@ int main()
 		}
 		else if (estadoCohete == 3)
 		{
-			//regresa a su lugar bajando despacio con la llama mas chica; al tocar la plataforma se apaga
+			//baja despacio y al tocar la plataforma apaga la llama
 			fuegoCohete = 0.6f;
 			alturaCohete -= velBajadaCohete * deltaTime;
 			if (alturaCohete <= 0.0f)
@@ -3522,16 +3499,14 @@ int main()
 			}
 		}
 
-		//modelauxPlataforma guarda el lugar y el tamano de la plataforma, y desde ahi se ponen el piso, la torre y el cohete;
-		//asi todo se mide en las unidades de los modelos sin escalar y despues se escala junto
+		//desde modelauxPlataforma se ponen el piso, la torre y el cohete, y todo se escala junto
 		model = glm::mat4(1.0f);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		model = glm::translate(model, posPlaneta2 + posPlataforma);
 		model = glm::scale(model, glm::vec3(escalaPlataforma, escalaPlataforma, escalaPlataforma));
 		modelauxPlataforma = model;
-		//piso: 3 por 3 placas de 2 por 2 con el cohete en medio; van sobre el piso del planeta (y = 0) y miden 0.1 de grueso,
-		//por eso la torre y el cohete se suben 0.1, para que queden parados encima de las placas y no se hundan
+		//piso de 3 por 3 placas; miden 0.1 de grueso, por eso la torre y el cohete se suben 0.1
 		for (int i = -1; i <= 1; i++)
 		{
 			for (int j = -1; j <= 1; j++)
@@ -3542,9 +3517,9 @@ int main()
 				PlataformaCohete_M.RenderModel();
 			}
 		}
-		//la torre y el cohete son de metal, como las naves, y al terminar se regresa el material opaco
+		//la torre y el cohete son de metal
 		Material_metal.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		//torre: cubos de vigas de 1 por lado, uno encima de otro, a un lado del cohete; con 5 queda un poco mas alta que el
+		//torre de 5 cubos de vigas a un lado del cohete
 		for (int i = 0; i < pisosTorre; i++)
 		{
 			model = modelauxPlataforma;
@@ -3552,23 +3527,21 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			TorreCohete_M.RenderModel();
 		}
-		//cohete por piezas en medio de la plataforma; se sube 0.1 para quedar sobre las placas, mas lo que lleva de despegue
-		//raizCohete se guarda para poner la llama abajo del motor
+		//cohete por piezas; raizCohete se guarda para poner la llama abajo del motor
 		model = modelauxPlataforma;
 		model = glm::translate(model, glm::vec3(0.0f, 0.1f + alturaCohete, 0.0f));
 		glm::mat4 raizCohete = model;
 		DibujaJerarquia(Cohete_M, padresCohete, pivotesCohete, rotCohete, NUM_PIEZAS_COHETE, model, uniformModel);
-		//llama del motor: es la pieza del fuego del torchwood de Verdania, que ya esta cargada, puesta de cabeza
-		//abajo del motor, que termina en y = 0.2; mientras mas grande fuegoCohete, mas larga la llama
+		//la llama es la pieza del fuego del torchwood puesta de cabeza abajo del motor; crece con fuegoCohete
 		if (fuegoCohete > 0.0f)
 		{
 			model = raizCohete;
 			model = glm::translate(model, glm::vec3(0.0f, 0.2f, 0.0f));
 			model = glm::rotate(model, 180.0f * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(0.6f, 1.2f * fuegoCohete, 0.6f));
-			//el fuego del torchwood esta arriba de su cabeza, entre y = 1.9 y 2.72; se baja para que su base quede en el origen
+			//se baja el fuego para que su base quede en el origen
 			model = glm::translate(model, glm::vec3(0.0f, -1.9f, 0.23f));
-			//un color arriba de 1 hace que brille aunque no le llegue luz, como el sol
+			//con color arriba de 1 brilla aunque no le llegue luz
 			color = glm::vec3(2.0f, 2.0f, 2.0f);
 			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
