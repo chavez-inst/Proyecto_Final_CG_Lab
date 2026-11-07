@@ -14,7 +14,6 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | Alejandro | Gordon Freeman | Half-Life | `Models/GordonParts` (jerarquico) |
 | Dylan | Capitan Falcon | F-Zero | `Models/capitanFalcon` |
 | Abraham | Planta carnivora (Chomper) | Plants vs. Zombies | `Models/Carnivora` (jerarquico) |
-| Andrea | Kirby | Kirby | `Models/Kirby` (jerarquico) |
 
 ## Escenarios
 
@@ -97,7 +96,6 @@ Estado: `hecho` / `en proceso` / `pendiente` / `por definir`
 | `dylan-estacionEspacial` | Dylan | estacion espacial y naves que entran y salen (integrada) |
 | `Abraham-NPCs` | Abraham | Verdania, NPCs y plantas de adorno, y la carnivora como segundo avatar (integrada) |
 | `plataforma-abraham-alejandro-dylan` | Abraham | plataforma de lanzamiento y cohete en Pop Star, Gordon y el Capitan Falcon junto a ella (integrada) |
-| `andrea-plataforma` | Andrea | rama de Andrea; por ahora solo trae su fila en esta tabla |
 
 - Cada avance va en una rama nueva que sale de `main` (ver `README.md`, Trabajo en equipo con Git) y se
   agrega a esta tabla. Las ramas no se borran (el profesor las revisa).
