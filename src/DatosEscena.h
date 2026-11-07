@@ -967,6 +967,17 @@ glm::vec3 pivotesCohete[NUM_PIEZAS_COHETE] = {
 	glm::vec3(0.0f, 3.1f, 0.0f), //anillo
 	glm::vec3(0.0f, 3.8f, 0.0f)  //punta
 };
+//para la animacion por keyframes cada pieza se mueve sola: su centro armado (donde gira), la y de su parte de abajo
+//(donde va la llama cuando es la que queda abajo) y que tan ancha sale la llama en ella
+glm::vec3 centrosCohete[NUM_PIEZAS_COHETE] = {
+	glm::vec3(0.0f, 0.80f, 0.0f), //base
+	glm::vec3(0.0f, 1.85f, 0.0f), //tanque
+	glm::vec3(0.0f, 2.60f, 0.0f), //cuerpo
+	glm::vec3(0.0f, 3.45f, 0.0f), //anillo
+	glm::vec3(0.0f, 4.20f, 0.0f)  //punta
+};
+float fondoCohete[NUM_PIEZAS_COHETE] = { 0.0f, 1.6f, 2.1f, 3.1f, 3.8f };
+float anchoFuegoCohete[NUM_PIEZAS_COHETE] = { 1.0f, 0.7f, 0.7f, 0.8f, 0.7f };
 
 //--- estacion espacial y naves ---
 //lugar donde se posa cada nave, desde el centro de la estacion; el modelo 0 es la dorada, 1 la blanca y 2 la caza

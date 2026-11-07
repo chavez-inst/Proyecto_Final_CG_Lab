@@ -17,6 +17,7 @@
 #include "Model.h"
 #include "Skybox.h"
 #include "DatosEscena.h"
+#include "KeyframesCohete.h"
 
 //iluminacion
 #include "CommonValues.h"
@@ -477,6 +478,14 @@ float alturaMaxCohete = 60.0f;  //al llegar aqui deja de subir y regresa
 float velBajadaCohete = 0.15f;  //regresa a velocidad constante y despacio, como aterrizando
 float fuegoCohete = 0.0f;  //tamano de la llama: 0 apagada y 1 completa
 float fuegoCuentaOffset = 0.0027f; //en la cuenta la llama crece esto cada frame; en 3 segundos llega a la mitad
+//animacion por keyframes: B la reproduce, R la detiene, I imprime los keyframes y O los guarda; los lee de un archivo de texto
+AnimacionCohete animCohete;
+const char* archivoKeyframesCohete = "keyframes_cohete.txt";
+const char* archivoKeyframesGuardado = "keyframes_cohete_guardado.txt";
+int iniciosKeyframesVistos = 0;
+int reinicioKeyframesVistos = 0;
+int imprimeKeyframesVistos = 0;
+int guardaKeyframesVistos = 0;
 //mientras la llama esta prendida sale una nube cada intervaloHumo; la nueva ocupa el lugar de la mas vieja
 const int MAX_HUMO = 480;
 glm::vec3 posHumo[MAX_HUMO];
@@ -678,6 +687,7 @@ float velVuelta = 0.4f;
 //pone el cohete en la plataforma y empieza la cuenta, para que el recorrido lo vea despegar
 void ReiniciaRecorrido()
 {
+	animCohete.Detiene();  //los keyframes y el recorrido no pueden usar el cohete al mismo tiempo
 	etapaRecorrido = 0;
 	alturaCohete = 0.0f;
 	velocidadCohete = 0.0f;
@@ -849,6 +859,25 @@ void DibujaJerarquia(Model piezas[], int padres[], glm::vec3 pivotes[], glm::vec
 		model = glm::rotate(model, rotaciones[i].y * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, rotaciones[i].z * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::translate(model, -pivotes[i]);
+		matrices[i] = model;
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		piezas[i].RenderModel();
+	}
+}
+
+
+//dibuja el cohete con los keyframes; cada pieza se mueve y gira sola alrededor de su centro, y se guarda la matriz de cada una para poner la llama
+void DibujaCoheteKeyframes(Model piezas[], AnimacionCohete& anim, glm::mat4 raiz, GLuint uniformModel, glm::mat4 matrices[])
+{
+	for (int i = 0; i < NUM_PIEZAS_COHETE; i++)
+	{
+		glm::mat4 model = raiz;
+		model = glm::translate(model, centrosCohete[i] + anim.pos[i]);
+		model = glm::rotate(model, anim.rot[i].x * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, anim.rot[i].y * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, anim.rot[i].z * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::translate(model, -centrosCohete[i]);
 		matrices[i] = model;
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1305,6 +1334,7 @@ int main()
 	TorreCohete_M = Model();
 	TorreCohete_M.LoadModel("Models/Cohete/torre_estructura.obj");
 	CrearHumoCohete();
+	animCohete.Carga(archivoKeyframesCohete);
 	humoTexture = Texture("Textures/humo.png");
 	humoTexture.LoadTextureA();
 	//las nubes empiezan con la edad en la que ya desaparecieron, para que no se dibujen hasta que el cohete las suelte
@@ -3304,11 +3334,40 @@ int main()
 		}
 
 		//--- plataforma de lanzamiento y cohete ---
+		//keyframes: B empieza la animacion y quita el despegue normal para que no haya dos cohetes; R regresa el cohete a la plataforma
+		if (mainWindow.getiniciosKeyframes() != iniciosKeyframesVistos)
+		{
+			iniciosKeyframesVistos = mainWindow.getiniciosKeyframes();
+			estadoCohete = 0;
+			alturaCohete = 0.0f;
+			velocidadCohete = 0.0f;
+			fuegoCohete = 0.0f;
+			rotCohete[0].z = 0.0f;
+			animCohete.Inicia();
+		}
+		if (mainWindow.getreinicioKeyframes() != reinicioKeyframesVistos)
+		{
+			reinicioKeyframesVistos = mainWindow.getreinicioKeyframes();
+			animCohete.Detiene();
+		}
+		if (mainWindow.getimprimeKeyframes() != imprimeKeyframesVistos)
+		{
+			imprimeKeyframesVistos = mainWindow.getimprimeKeyframes();
+			animCohete.ImprimeTodos();
+		}
+		if (mainWindow.getguardaKeyframes() != guardaKeyframesVistos)
+		{
+			guardaKeyframesVistos = mainWindow.getguardaKeyframes();
+			animCohete.Guarda(archivoKeyframesGuardado);
+		}
+		//los keyframes van en segundos, por eso deltaTime se divide entre 61 (con P se pausan porque deltaTime vale 0)
+		animCohete.Actualiza(deltaTime / 61.0f);
+
 		//los tiempos del despegue van en segundos, por eso deltaTime se divide entre 61
 		if (estadoCohete == 0)
 		{
-			//parado; si la F tiene prendidos los despegues empieza la cuenta
-			if (mainWindow.getdespegaCohete())
+			//parado; si la F tiene prendidos los despegues empieza la cuenta, salvo que los keyframes tengan el cohete
+			if (mainWindow.getdespegaCohete() && !animCohete.activa)
 			{
 				cuentaCohete = tiempoCuentaCohete;
 				estadoCohete = 1;
@@ -3382,14 +3441,31 @@ int main()
 		model = modelauxPlataforma;
 		model = glm::translate(model, glm::vec3(0.0f, 0.1f + alturaCohete, 0.0f));
 		glm::mat4 raizCohete = model;
-		DibujaJerarquia(Cohete_M, padresCohete, pivotesCohete, rotCohete, NUM_PIEZAS_COHETE, model, uniformModel);
-		//la llama es la pieza del fuego del torchwood puesta de cabeza abajo del motor; crece con fuegoCohete
-		if (fuegoCohete > 0.0f)
+		//la llama y el humo salen de la pieza que queda abajo: en el despegue normal es la raiz, y con keyframes la que diga el keyframe
+		glm::mat4 matFuegoCohete = raizCohete;
+		float tamanoFuego = fuegoCohete;
+		float fondoFuego = 0.0f;
+		float anchoFuego = 1.0f;
+		if (animCohete.activa)
 		{
-			model = raizCohete;
-			model = glm::translate(model, glm::vec3(0.0f, 0.2f, 0.0f));
+			glm::mat4 matPiezas[NUM_PIEZAS_COHETE];
+			DibujaCoheteKeyframes(Cohete_M, animCohete, raizCohete, uniformModel, matPiezas);
+			matFuegoCohete = matPiezas[animCohete.piezaFuego];
+			tamanoFuego = animCohete.fuego;
+			fondoFuego = fondoCohete[animCohete.piezaFuego];
+			anchoFuego = anchoFuegoCohete[animCohete.piezaFuego];
+		}
+		else
+		{
+			DibujaJerarquia(Cohete_M, padresCohete, pivotesCohete, rotCohete, NUM_PIEZAS_COHETE, model, uniformModel);
+		}
+		//la llama es la pieza del fuego del torchwood puesta de cabeza abajo del motor; crece con el tamano de la llama
+		if (tamanoFuego > 0.0f)
+		{
+			model = matFuegoCohete;
+			model = glm::translate(model, glm::vec3(0.0f, fondoFuego + 0.2f, 0.0f));
 			model = glm::rotate(model, 180.0f * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.6f, 1.2f * fuegoCohete, 0.6f));
+			model = glm::scale(model, glm::vec3(0.6f * anchoFuego, 1.2f * tamanoFuego, 0.6f * anchoFuego));
 			//se baja el fuego para que su base quede en el origen
 			model = glm::translate(model, glm::vec3(0.0f, -1.9f, 0.23f));
 			//con color arriba de 1 brilla aunque no le llegue luz
@@ -3410,9 +3486,9 @@ int main()
 		}
 		esperaHumo += deltaTime / 61.0f;
 		//cuando el cohete todavia esta en la plataforma ese punto queda abajo del piso, asi que la nube se sube a la altura de las placas
-		if (fuegoCohete > 0.0f && esperaHumo >= intervaloHumo)
+		if (tamanoFuego > 0.0f && esperaHumo >= intervaloHumo)
 		{
-			glm::vec3 salidaHumo = glm::vec3(raizCohete * glm::vec4(0.0f, -0.6f, 0.0f, 1.0f));
+			glm::vec3 salidaHumo = glm::vec3(matFuegoCohete * glm::vec4(0.0f, fondoFuego - 0.6f, 0.0f, 1.0f));
 			if (salidaHumo.y < 1.0f)
 				salidaHumo.y = 1.0f;
 			SueltaHumo(salidaHumo);
@@ -3423,7 +3499,7 @@ int main()
 		anguloAstronautas += anguloAstronautasOffset * deltaTime;
 		if (anguloAstronautas > 360.0f)
 			anguloAstronautas -= 360.0f;
-		if (estadoCohete == 1 || estadoCohete == 2)
+		if (estadoCohete == 1 || estadoCohete == 2 || animCohete.activa)
 		{
 			vistaCohete += vistaCoheteOffset * deltaTime;
 			if (vistaCohete > 1.0f)
@@ -3439,6 +3515,8 @@ int main()
 		float rumboAstronautas = rumboEspera + (rumboDespegue - rumboEspera) * vistaCohete;
 		//la cabeza sube conforme sube el cohete, hasta 35 grados
 		float subeMirada = alturaCohete;
+		if (animCohete.activa)
+			subeMirada = animCohete.pos[4].y; //con keyframes mira a la capsula
 		if (subeMirada > 35.0f)
 			subeMirada = 35.0f;
 

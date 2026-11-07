@@ -106,6 +106,7 @@
     <ClInclude Include="src\CommonValues.h" />
     <ClInclude Include="src\DatosEscena.h" />
     <ClInclude Include="src\DirectionalLight.h" />
+    <ClInclude Include="src\KeyframesCohete.h" />
     <ClInclude Include="src\Light.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Mesh_tn.h" />

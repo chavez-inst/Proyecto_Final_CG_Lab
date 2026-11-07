@@ -29,6 +29,10 @@ Window::Window()
 
 	//--- plataforma de lanzamiento y cohete ---
 	despegaCohete = false;
+	iniciosKeyframes = 0;
+	reinicioKeyframes = 0;
+	imprimeKeyframes = 0;
+	guardaKeyframes = 0;
 
 	//--- estacion espacial y naves ---
 
@@ -82,6 +86,10 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 
 	//--- plataforma de lanzamiento y cohete ---
 	despegaCohete = false;
+	iniciosKeyframes = 0;
+	reinicioKeyframes = 0;
+	imprimeKeyframes = 0;
+	guardaKeyframes = 0;
 
 	//--- estacion espacial y naves ---
 
@@ -280,6 +288,28 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 			printf("despegue del cohete prendido\n");
 		else
 			printf("despegue del cohete apagado, el cohete se queda en la plataforma al aterrizar\n");
+	}
+	//animacion por keyframes del cohete: despega, se separa por fases y la capsula queda orbitando
+	//la B la reproduce desde el planeta 2 (si se esta en otro lugar, lleva ahi), la R lo regresa a la plataforma,
+	//la I imprime los keyframes en la consola y la O los guarda en keyframes_cohete_guardado.txt
+	if (key == GLFW_KEY_B && action == GLFW_PRESS)
+	{
+		theWindow->zonaPlaneta = 2;
+		if (theWindow->modoCamara != 2)
+			theWindow->modoCamara = 1;
+		theWindow->iniciosKeyframes += 1;
+	}
+	if (key == GLFW_KEY_R && action == GLFW_PRESS)
+	{
+		theWindow->reinicioKeyframes += 1;
+	}
+	if (key == GLFW_KEY_I && action == GLFW_PRESS)
+	{
+		theWindow->imprimeKeyframes += 1;
+	}
+	if (key == GLFW_KEY_O && action == GLFW_PRESS)
+	{
+		theWindow->guardaKeyframes += 1;
 	}
 
 	//--- estacion espacial y naves ---

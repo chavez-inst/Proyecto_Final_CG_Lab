@@ -32,6 +32,11 @@ public:
 
 	//--- plataforma de lanzamiento y cohete ---
 	bool getdespegaCohete() { return despegaCohete; }
+	//B, R, I y O de la animacion por keyframes; main.cpp compara estos contadores con los que ya atendio
+	int getiniciosKeyframes() { return iniciosKeyframes; }
+	int getreinicioKeyframes() { return reinicioKeyframes; }
+	int getimprimeKeyframes() { return imprimeKeyframes; }
+	int getguardaKeyframes() { return guardaKeyframes; }
 
 	//--- estacion espacial y naves ---
 
@@ -88,6 +93,10 @@ private:
 
 	//--- plataforma de lanzamiento y cohete ---
 	bool despegaCohete; //F prende o apaga los despegues del cohete cuando se esta en el planeta 2
+	int iniciosKeyframes; //cuantas veces se ha presionado la B, que reproduce los keyframes del cohete en el planeta 2
+	int reinicioKeyframes; //cuantas veces se ha presionado la R, que regresa el cohete a la plataforma
+	int imprimeKeyframes; //cuantas veces se ha presionado la I, que imprime los keyframes en la consola
+	int guardaKeyframes; //cuantas veces se ha presionado la O, que guarda los keyframes en un archivo de texto
 
 	//--- estacion espacial y naves ---
 

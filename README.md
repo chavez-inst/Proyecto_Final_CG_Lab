@@ -43,6 +43,10 @@ Si al compilar sale `Falta la carpeta Librerias...` es que el paso 2 no quedo bi
 | Z           | Ir al espacio; si ya se esta ahi, ir al siguiente punto (inicio, nave nodriza y pista) |
 | X / C / V   | Ir a Xen, al planeta 2 o a Verdania; si ya se esta ahi, regresar al punto de llegada |
 | F           | Prender o apagar la animacion basica de la escena (headcrab en Xen, despegue del cohete en Pop Star, plantas en Verdania) |
+| B           | Reproducir la animacion por keyframes del cohete (lleva al planeta 2): despega, se separa por fases y la capsula queda orbitando. Lee `keyframes_cohete.txt` e imprime cada keyframe en la consola |
+| R           | Detener la animacion por keyframes y regresar el cohete a la plataforma |
+| I           | Imprimir en la consola todos los keyframes cargados |
+| O           | Guardar los keyframes en `keyframes_cohete_guardado.txt` |
 | P           | Pausar o continuar todas las animaciones (tambien el ciclo de dia y noche) |
 | L           | Prender o apagar la linterna (empieza apagada) |
 | K           | Prender o apagar los spotlights de la zona donde se esta |
