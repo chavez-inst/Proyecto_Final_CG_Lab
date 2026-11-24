@@ -57,6 +57,9 @@
     <ClCompile Include="src\Material.cpp">
       <Filter>Iluminacion</Filter>
     </ClCompile>
+    <ClCompile Include="src\AudioManager.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\DatosEscena.h">
@@ -100,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="src\Material.h">
       <Filter>Iluminacion</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioManager.h">
+      <Filter>Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

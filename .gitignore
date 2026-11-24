@@ -85,3 +85,10 @@ ehthumbs.db
 desktop.ini
 $RECYCLE.BIN/
 .DS_Store
+# ---------- excepcion para subir FMOD ----------
+!Librerias/
+Librerias/*
+!Librerias/FMOD/
+!Librerias/FMOD/**
+!Librerias/FMOD/lib/fmod_vc.lib
+!Librerias/FMOD/lib/fmod.dll

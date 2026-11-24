@@ -25,6 +25,10 @@
 #include "SpotLight.h"
 #include "Material.h"
 
+//Audio
+
+#include "AudioManager.h"
+
 const float toRadians = 3.14159265f / 180.0f;
 
 // ================== 1. VARIABLES GLOBALES ==================
@@ -36,6 +40,8 @@ std::vector<Shader> shaderList;
 Camera camera;
 
 Skybox skybox;
+
+AudioManager audio;
 
 Material Material_brillante;
 Material Material_opaco;
@@ -606,6 +612,7 @@ int puntoEspacioActual = 0;
 //posicion y direccion de la camara activa; las usan la luz especular, la linterna y el sol
 glm::vec3 posVista = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 dirVista = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 upVista = glm::vec3(0.0f, 1.0f, 0.0f);
 //camara 2, detras y arriba del avatar
 float distanciaCamaraAvatar = 4.0f;
 float alturaCamaraAvatar = 2.2f;
@@ -1487,6 +1494,24 @@ int main()
 	//con 0.5 de plano cercano las capas muy pegadas, como los ojos, ya no parpadean
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.5f, 7000.0f);
 
+
+
+	//INICIO DE MUSICA AMBIENTAL
+
+
+	if (audio.Inicializar())
+	{
+		audio.IniciarSoundtrack("Audio/cocoonMoon.mp3", 0.25f);
+		audio.CargarAmbientes(
+			"Audio/ambienceEspacio.mp3",
+			"Audio/ambienceXen.mp3",
+			"Audio/ambienceVerdaniaPopStar.mp3", // <-- verifica el nombre exacto de este archivo
+			0.55f
+		);
+		audio.ActualizarAmbiente(zonaActual);
+	}
+
+
 	//la hora se toma justo antes del while para que el primer frame no tenga un deltaTime enorme
 	lastTime = glfwGetTime();
 
@@ -1555,6 +1580,8 @@ int main()
 
 		posVista = camera.getCameraPosition();
 		dirVista = camera.getCameraDirection();
+
+		
 
 		//en el espacio la Z recorre el inicio, la nave nodriza y la pista, y luego regresa al inicio
 		if (mainWindow.getpuntoEspacio() != puntoEspacioActual)
@@ -3859,8 +3886,14 @@ int main()
 
 		glUseProgram(0);
 
+		//play de audio
+
+		audio.ActualizarAmbiente(zonaActual);
+		audio.Actualizar();
+
 		mainWindow.swapBuffers();
 	}
 
+	audio.Liberar();
 	return 0;
 }
